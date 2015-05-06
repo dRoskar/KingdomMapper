@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to="KingdomMapper">
+  <!-- Inherit our applications main module.                      -->
+  <inherits name='si.roskar.diploma.KingdomMapper' />
+
+  <!-- Specify the path to any remote services.                   -->
+  <servlet path="/KingdomMapper/greet" class="si.roskar.diploma.server.GreetingServiceImpl" />
+
+</module>
