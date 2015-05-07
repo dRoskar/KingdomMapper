@@ -2,6 +2,7 @@ package si.roskar.diploma.client.view;
 
 import si.roskar.diploma.client.presenter.InitialPresenter.Display;
 
+import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.Widget;
 import com.sencha.gxt.core.client.util.Margins;
 import com.sencha.gxt.widget.core.client.ContentPanel;
@@ -51,5 +52,20 @@ public class InitialView implements Display{
 		viewport.add(container);
 		
 		return viewport;
+	}
+	
+	@Override
+	public HasWidgets getCenterContainer(){
+		return center;
+	}
+	
+	@Override
+	public HasWidgets getWestContainer(){
+		return west;
+	}
+	
+	@Override
+	public void forceLayout(){
+		viewport.forceLayout();
 	}
 }
