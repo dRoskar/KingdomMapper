@@ -40,7 +40,7 @@ public class InitialView implements Display{
 		westData.setMargins(new Margins(5));
 		
 		west = new ContentPanel();
-		west.setHeadingHtml("Layers");
+		west.setHeaderVisible(false);
 		
 		layoutContainer.setCenterWidget(center, centerData);
 		layoutContainer.setWestWidget(west, westData);

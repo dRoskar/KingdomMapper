@@ -1,5 +1,6 @@
 package si.roskar.diploma.client.presenter;
 
+import si.roskar.diploma.client.view.LayerView;
 import si.roskar.diploma.client.view.MapView;
 import si.roskar.diploma.client.view.View;
 
@@ -27,6 +28,9 @@ public class InitialPresenter extends PresenterImpl<InitialPresenter.Display>{
 		
 		// create map presenter
 		new MapPresenter(new MapView()).go(display.getCenterContainer());
+		
+		// create layer presenter
+		new LayerPresenter(new LayerView()).go(display.getWestContainer());
 	}
 	
 	@Override

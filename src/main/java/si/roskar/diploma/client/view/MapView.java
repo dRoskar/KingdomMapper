@@ -37,9 +37,9 @@ public class MapView implements Display {
 		// create map toolbar
 		ToolBar mapToolBar = new ToolBar();
 		
-		zoomToExtent = new TextButton("Prikaži celoto");
-		navigateBack = new TextButton("Nazaj");
-		navigateForward = new TextButton("Naprej");
+		zoomToExtent = new TextButton("Show extent");
+		navigateBack = new TextButton("Back");
+		navigateForward = new TextButton("Forward");
 		
 		mapToolBar.add(zoomToExtent);
 		mapToolBar.add(navigateBack);
