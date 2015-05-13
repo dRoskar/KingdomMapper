@@ -6,6 +6,7 @@ import org.gwtopenmaps.openlayers.client.MapWidget;
 import org.gwtopenmaps.openlayers.client.Projection;
 
 import si.roskar.diploma.client.presenter.MapPresenter.Display;
+import si.roskar.diploma.client.resources.Resources;
 
 import com.google.gwt.user.client.ui.Widget;
 import com.sencha.gxt.widget.core.client.button.TextButton;
@@ -37,9 +38,17 @@ public class MapView implements Display {
 		// create map toolbar
 		ToolBar mapToolBar = new ToolBar();
 		
-		zoomToExtent = new TextButton("Show extent");
-		navigateBack = new TextButton("Back");
-		navigateForward = new TextButton("Forward");
+		zoomToExtent = new TextButton();
+		zoomToExtent.setIcon(Resources.ICONS.world());
+		zoomToExtent.setToolTip("Zoom to map extent");
+		
+		navigateBack = new TextButton();
+		navigateBack.setIcon(Resources.ICONS.left());
+		navigateBack.setToolTip("Back");
+		
+		navigateForward = new TextButton();
+		navigateForward.setIcon(Resources.ICONS.right());
+		navigateForward.setToolTip("Forward");
 		
 		mapToolBar.add(zoomToExtent);
 		mapToolBar.add(navigateBack);

@@ -1,6 +1,7 @@
 package si.roskar.diploma.client.view;
 
 import si.roskar.diploma.client.presenter.LayerPresenter.Display;
+import si.roskar.diploma.client.resources.Resources;
 
 import com.google.gwt.user.client.ui.Widget;
 import com.sencha.gxt.widget.core.client.ContentPanel;
@@ -19,7 +20,8 @@ public class LayerView implements Display{
 		
 		// create button bar
 		ToolBar toolbar = new ToolBar();
-		addLayer = new TextButton("Add Layer");
+		addLayer = new TextButton("Add Layer", Resources.ICONS.add());
+		addLayer.setToolTip("Add layer");
 		toolbar.add(addLayer);
 		
 		// create content panel
