@@ -14,10 +14,10 @@ import com.sencha.gxt.widget.core.client.tree.Tree;
 
 public class LayerView implements Display{
 	
-	private VerticalLayoutContainer 			container	= null;
+	private VerticalLayoutContainer				container	= null;
 	private TextButton							newMap		= null;
 	private TextButton							loadMap		= null;
-	private	TextButton							saveMap		= null;
+	private TextButton							saveMap		= null;
 	private TextButton							addLayer	= null;
 	private TreeStore<KingdomLayer>				layerStore	= null;
 	private Tree<KingdomLayer, KingdomLayer>	layerTree	= null;
@@ -49,14 +49,14 @@ public class LayerView implements Display{
 		container.add(layerToolbar);
 		container.add(layerTreePanel);
 	}
-
+	
 	@Override
-	public Widget asWidget() {
+	public Widget asWidget(){
 		return container;
 	}
-
+	
 	@Override
-	public TextButton getaddLayerButton() {
+	public TextButton getAddLayerButton(){
 		return addLayer;
 	}
 }

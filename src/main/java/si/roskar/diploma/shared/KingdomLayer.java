@@ -1,19 +1,20 @@
 package si.roskar.diploma.shared;
 
-public class KingdomLayer {
-	private String	id			= null;
-	private String	layerName	= null;
-	private String	style		= null;
-	private boolean	visibility	= false;
-	private String	format		= "image/png";
-	private String 	projection	= null;
-	private	float	opacity		=	1.0f;
+public class KingdomLayer{
+	private String	id				= null;
+	private String	layerName		= null;
+	private String	style			= null;
+	private boolean	visibility		= false;
+	private String	format			= "image/png";
+	private String	projection		= "EPSG:4326";
+	private float	opacity			= 1.0f;
+	private String	geometryType	= null;
 	
 	public KingdomLayer(){
 		
 	}
-
-	public KingdomLayer(String id, String layerName, String style, boolean visibility, String format, String projection, float opacity) {
+	
+	public KingdomLayer(String id, String layerName, String style, boolean visibility, String format, String projection, float opacity){
 		super();
 		this.id = id;
 		this.layerName = layerName;
@@ -23,60 +24,68 @@ public class KingdomLayer {
 		this.projection = projection;
 		this.opacity = opacity;
 	}
-
-	public String getId() {
+	
+	public String getId(){
 		return id;
 	}
-
-	public void setId(String id) {
+	
+	public void setId(String id){
 		this.id = id;
 	}
-
-	public String getLayerName() {
+	
+	public String getLayerName(){
 		return layerName;
 	}
-
-	public void setLayerName(String layerName) {
+	
+	public void setLayerName(String layerName){
 		this.layerName = layerName;
 	}
-
-	public String getStyle() {
+	
+	public String getStyle(){
 		return style;
 	}
-
-	public void setStyle(String style) {
+	
+	public void setStyle(String style){
 		this.style = style;
 	}
-
-	public boolean isVisibility() {
+	
+	public boolean isVisibility(){
 		return visibility;
 	}
-
-	public void setVisibility(boolean visibility) {
+	
+	public void setVisibility(boolean visibility){
 		this.visibility = visibility;
 	}
-
-	public String getFormat() {
+	
+	public String getFormat(){
 		return format;
 	}
-
-	public void setFormat(String format) {
+	
+	public void setFormat(String format){
 		this.format = format;
 	}
-
-	public String getProjection() {
+	
+	public String getProjection(){
 		return projection;
 	}
-
-	public void setProjection(String projection) {
+	
+	public void setProjection(String projection){
 		this.projection = projection;
 	}
-
-	public float getOpacity() {
+	
+	public float getOpacity(){
 		return opacity;
 	}
-
-	public void setOpacity(float opacity) {
+	
+	public void setOpacity(float opacity){
 		this.opacity = opacity;
+	}
+
+	public String getGeometryType(){
+		return geometryType;
+	}
+
+	public void setGeometryType(String geometryType){
+		this.geometryType = geometryType;
 	}
 }

@@ -4,7 +4,7 @@ import com.google.gwt.core.shared.GWT;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 
-public class Resources {
+public class Resources{
 	
 	public interface Icons extends ClientBundle{
 		
@@ -54,5 +54,5 @@ public class Resources {
 		ImageResource mapSave();
 	}
 	
-	public static final Icons ICONS = GWT.create(Icons.class);
+	public static final Icons	ICONS	= GWT.create(Icons.class);
 }

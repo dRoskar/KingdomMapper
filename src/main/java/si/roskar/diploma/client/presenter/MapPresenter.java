@@ -1,27 +1,37 @@
 package si.roskar.diploma.client.presenter;
 
-import com.google.gwt.user.client.ui.HasWidgets;
-
+import si.roskar.diploma.client.event.Bus;
+import si.roskar.diploma.client.event.EventAddNewLayer;
+import si.roskar.diploma.client.event.EventAddNewLayer.EventAddNewLayerHandler;
 import si.roskar.diploma.client.view.View;
+import si.roskar.diploma.shared.KingdomLayer;
+
+import com.google.gwt.user.client.ui.HasWidgets;
 
 public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 	
 	public interface Display extends View{
 		
+		void addLayer(KingdomLayer layer);
 	}
 	
 	public MapPresenter(Display display){
 		super(display);
 	}
-
+	
 	@Override
-	public void go(HasWidgets container) {
+	public void go(HasWidgets container){
 		container.clear();
 		container.add(display.asWidget());
 	}
-
+	
 	@Override
-	protected void bind() {
-		
+	protected void bind(){
+		Bus.get().addHandler(EventAddNewLayer.TYPE, new EventAddNewLayerHandler() {
+			@Override
+			public void onAddNewLayer(EventAddNewLayer event){
+				display.addLayer(event.getLayer());
+			}
+		});
 	}
 }
