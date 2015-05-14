@@ -19,6 +19,39 @@ public class Resources {
 		
 		@Source("world.png")
 		ImageResource world();
+		
+		@Source("point.png")
+		ImageResource point();
+		
+		@Source("line.png")
+		ImageResource line();
+		
+		@Source("polygon.png")
+		ImageResource polygon();
+		
+		@Source("point_big.png")
+		ImageResource pointBig();
+		
+		@Source("line_big.png")
+		ImageResource lineBig();
+		
+		@Source("polygon_big.png")
+		ImageResource polygonBig();
+		
+		@Source("map.png")
+		ImageResource map();
+		
+		@Source("map_add.png")
+		ImageResource mapAdd();
+		
+		@Source("map_delete.png")
+		ImageResource mapDelete();
+		
+		@Source("map_load.png")
+		ImageResource mapLoad();
+		
+		@Source("map_save.png")
+		ImageResource mapSave();
 	}
 	
 	public static final Icons ICONS = GWT.create(Icons.class);
