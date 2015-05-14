@@ -6,6 +6,7 @@ import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.Widget;
 import com.sencha.gxt.core.client.util.Margins;
 import com.sencha.gxt.widget.core.client.ContentPanel;
+import com.sencha.gxt.widget.core.client.Header;
 import com.sencha.gxt.widget.core.client.container.BorderLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.BorderLayoutContainer.BorderLayoutData;
 import com.sencha.gxt.widget.core.client.container.MarginData;
@@ -31,6 +32,7 @@ public class InitialView implements Display{
 		
 		center = new ContentPanel();
 		center.setHeaderVisible(false);
+		center.disable();
 		
 		// west panel
 		BorderLayoutData westData = new BorderLayoutData(300);
@@ -40,7 +42,7 @@ public class InitialView implements Display{
 		westData.setMargins(new Margins(5));
 		
 		west = new ContentPanel();
-		west.setHeaderVisible(false);
+		west.setHeadingText("Create or load a map");
 		
 		layoutContainer.setCenterWidget(center, centerData);
 		layoutContainer.setWestWidget(west, westData);
@@ -68,4 +70,15 @@ public class InitialView implements Display{
 	public void forceLayout(){
 		viewport.forceLayout();
 	}
+	
+	@Override
+	public Header getMapNameHeader(){
+		return west.getHeader();
+	}
+	
+	@Override
+	public void enableMapView(){
+		center.enable();
+	}
+	
 }

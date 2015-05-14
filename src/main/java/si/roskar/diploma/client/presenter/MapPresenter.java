@@ -5,12 +5,15 @@ import si.roskar.diploma.client.event.EventAddNewLayer;
 import si.roskar.diploma.client.event.EventAddNewLayer.EventAddNewLayerHandler;
 import si.roskar.diploma.client.view.View;
 import si.roskar.diploma.shared.KingdomLayer;
+import si.roskar.diploma.shared.KingdomMap;
 
 import com.google.gwt.user.client.ui.HasWidgets;
 
 public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 	
 	public interface Display extends View{
+		
+		void addNewMap(KingdomMap newMap);
 		
 		void addLayer(KingdomLayer layer);
 	}
@@ -27,6 +30,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 	
 	@Override
 	protected void bind(){
+		
 		Bus.get().addHandler(EventAddNewLayer.TYPE, new EventAddNewLayerHandler() {
 			@Override
 			public void onAddNewLayer(EventAddNewLayer event){

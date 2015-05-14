@@ -1,10 +1,16 @@
 package si.roskar.diploma.client.presenter;
 
+import si.roskar.diploma.client.event.Bus;
+import si.roskar.diploma.client.event.EventChangeMapNameHeader;
+import si.roskar.diploma.client.event.EventChangeMapNameHeader.EventChangeMapNameHeaderHandler;
+import si.roskar.diploma.client.event.EventEnableMapView;
+import si.roskar.diploma.client.event.EventEnableMapView.EventEnableMapViewHandler;
 import si.roskar.diploma.client.view.LayerView;
 import si.roskar.diploma.client.view.MapView;
 import si.roskar.diploma.client.view.View;
 
 import com.google.gwt.user.client.ui.HasWidgets;
+import com.sencha.gxt.widget.core.client.Header;
 
 public class InitialPresenter extends PresenterImpl<InitialPresenter.Display>{
 	
@@ -15,6 +21,10 @@ public class InitialPresenter extends PresenterImpl<InitialPresenter.Display>{
 		public HasWidgets getWestContainer();
 		
 		public void forceLayout();
+		
+		Header getMapNameHeader();
+		
+		void enableMapView();
 	}
 	
 	public InitialPresenter(Display display){
@@ -36,5 +46,21 @@ public class InitialPresenter extends PresenterImpl<InitialPresenter.Display>{
 	@Override
 	protected void bind(){
 		
+		// handle 'enable map view' event
+		Bus.get().addHandler(EventEnableMapView.TYPE, new EventEnableMapViewHandler(){
+
+			@Override
+			public void onEnableMapView(EventEnableMapView event){
+				display.enableMapView();
+			}
+		});
+		
+		Bus.get().addHandler(EventChangeMapNameHeader.TYPE, new EventChangeMapNameHeaderHandler(){
+
+			@Override
+			public void onChangeMapNameHeader(EventChangeMapNameHeader event){
+				display.getMapNameHeader().setText(event.getHeaderText());
+			}
+		});
 	}
 }

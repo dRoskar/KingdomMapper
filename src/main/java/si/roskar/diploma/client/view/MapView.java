@@ -1,8 +1,5 @@
 package si.roskar.diploma.client.view;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.gwtopenmaps.openlayers.client.MapOptions;
 import org.gwtopenmaps.openlayers.client.MapUnits;
 import org.gwtopenmaps.openlayers.client.MapWidget;
@@ -12,6 +9,7 @@ import org.gwtopenmaps.openlayers.client.layer.Vector;
 import si.roskar.diploma.client.presenter.MapPresenter.Display;
 import si.roskar.diploma.client.resources.Resources;
 import si.roskar.diploma.shared.KingdomLayer;
+import si.roskar.diploma.shared.KingdomMap;
 
 import com.google.gwt.user.client.ui.Widget;
 import com.sencha.gxt.widget.core.client.button.TextButton;
@@ -27,11 +25,9 @@ public class MapView implements Display{
 	private TextButton				navigateBack	= null;
 	private TextButton				navigateForward	= null;
 	private TextButton				drawLine		= null;
-	private List<KingdomLayer>		layers			= null;
+	private KingdomMap				kingdomMap		= null;
 	
 	public MapView(){
-		
-		layers = new ArrayList<KingdomLayer>();
 		
 		// define map options
 		MapOptions mapOptions = new MapOptions();
@@ -77,9 +73,18 @@ public class MapView implements Display{
 	}
 	
 	@Override
+	public void addNewMap(KingdomMap newMap){
+		kingdomMap = newMap;
+	}
+	
+	@Override
 	public void addLayer(KingdomLayer layer){
-		layers.add(layer);
+		// add layer to map object
+		if(kingdomMap != null){
+			kingdomMap.addLayer(layer);
+		}
 		
+		// add layer to openLayers map
 		addLayerToMap(layer);
 	}
 	
