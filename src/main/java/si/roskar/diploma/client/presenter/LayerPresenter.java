@@ -1,5 +1,6 @@
 package si.roskar.diploma.client.presenter;
 
+import si.roskar.diploma.client.DataServiceAsync;
 import si.roskar.diploma.client.event.Bus;
 import si.roskar.diploma.client.event.EventAddNewLayer;
 import si.roskar.diploma.client.event.EventAddNewMap;
@@ -10,7 +11,9 @@ import si.roskar.diploma.client.view.NewMapDialog;
 import si.roskar.diploma.client.view.View;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
+import si.roskar.diploma.shared.KingdomUser;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.sencha.gxt.core.client.util.ToggleGroup;
 import com.sencha.gxt.widget.core.client.button.TextButton;
@@ -157,6 +160,19 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 								
 								// add layer to map
 								Bus.get().fireEvent(new EventAddNewLayer(newLayer));
+								
+								DataServiceAsync.Util.getInstance().addUser(new KingdomUser(1,  "mitja", "geslovac"), new AsyncCallback<Integer>() {
+									
+									@Override
+									public void onSuccess(Integer result){
+										System.out.println("servlet returned: " + result);
+									}
+									
+									@Override
+									public void onFailure(Throwable caught){
+										System.out.println("adding failed :c");
+									}
+								});
 								
 								addLayerDisplay.hide();
 							}

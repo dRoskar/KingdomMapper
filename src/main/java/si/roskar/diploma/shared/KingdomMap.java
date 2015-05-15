@@ -3,7 +3,9 @@ package si.roskar.diploma.shared;
 import java.util.ArrayList;
 import java.util.List;
 
-public class KingdomMap{
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+public class KingdomMap implements IsSerializable{
 	
 	private String				name	= null;
 	private List<KingdomLayer>	layers	= null;

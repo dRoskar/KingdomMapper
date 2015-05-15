@@ -1,6 +1,8 @@
 package si.roskar.diploma.shared;
 
-public class KingdomLayer{
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+public class KingdomLayer implements IsSerializable{
 	private String	id				= null;
 	private String	layerName		= null;
 	private String	style			= null;

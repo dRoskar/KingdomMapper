@@ -5,11 +5,20 @@
 
 <web-app>
 
-  <!-- Servlets -->
+	<!-- Servlets -->
+	<servlet>
+		<servlet-name>dataServlet</servlet-name>
+		<servlet-class>si.roskar.diploma.server.DataServiceImpl</servlet-class>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>dataServlet</servlet-name>
+		<url-pattern>/KingdomMapper/data</url-pattern>
+	</servlet-mapping>
 
-  <!-- Default page to serve -->
-  <welcome-file-list>
-    <welcome-file>KingdomMapper.html</welcome-file>
-  </welcome-file-list>
+	<!-- Default page to serve -->
+	<welcome-file-list>
+		<welcome-file>KingdomMapper.html</welcome-file>
+	</welcome-file-list>
 
 </web-app>
