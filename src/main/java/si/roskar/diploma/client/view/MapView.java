@@ -6,6 +6,7 @@ import org.gwtopenmaps.openlayers.client.MapWidget;
 import org.gwtopenmaps.openlayers.client.Projection;
 import org.gwtopenmaps.openlayers.client.layer.Vector;
 
+import si.roskar.diploma.client.event.Bus;
 import si.roskar.diploma.client.presenter.MapPresenter.Display;
 import si.roskar.diploma.client.resources.Resources;
 import si.roskar.diploma.shared.KingdomLayer;
@@ -75,6 +76,11 @@ public class MapView implements Display{
 	@Override
 	public void addNewMap(KingdomMap newMap){
 		kingdomMap = newMap;
+	}
+	
+	@Override
+	public KingdomMap getMapObject(){
+		return kingdomMap;
 	}
 	
 	@Override

@@ -57,6 +57,8 @@ public class NewMapDialog extends Window implements NewMapDisplay{
 	@Override
 	public void show(){
 		super.show();
+		
+		name.clear();
 	}
 	
 	@Override

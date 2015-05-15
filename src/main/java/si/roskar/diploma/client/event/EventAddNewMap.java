@@ -13,7 +13,7 @@ public class EventAddNewMap extends GwtEvent<EventAddNewMapHandler>{
 	}
 	
 	public static Type<EventAddNewMapHandler>	TYPE	= new Type<EventAddNewMapHandler>();
-	public KingdomMap							newMap	= null;
+	private KingdomMap							newMap	= null;
 	
 	public EventAddNewMap(KingdomMap newMap){
 		this.newMap = newMap;

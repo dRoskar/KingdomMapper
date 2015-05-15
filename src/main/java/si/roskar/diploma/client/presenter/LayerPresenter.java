@@ -110,7 +110,6 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 								
 								// enable controls
 								display.enableLayerView();
-								Bus.get().fireEvent(new EventEnableMapView());
 								
 								// add map to map view
 								Bus.get().fireEvent(new EventAddNewMap(newMap));

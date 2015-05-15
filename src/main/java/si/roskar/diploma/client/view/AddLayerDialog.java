@@ -110,6 +110,8 @@ public class AddLayerDialog extends Window implements AddLayerDisplay{
 	@Override
 	public void show(){
 		super.show();
+		
+		name.clear();
 	}
 	
 	@Override
