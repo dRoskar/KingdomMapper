@@ -11,9 +11,9 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
-public class UserJDBCTemplate{
-	private DataSource dataSource = null;
-	private JdbcTemplate jdbcTemplateObject = null;
+public class LayerJDBCTemplate{
+	private DataSource		dataSource			= null;
+	private JdbcTemplate	jdbcTemplateObject	= null;
 	
 	public DataSource getDataSource(){
 		return dataSource;
@@ -23,16 +23,19 @@ public class UserJDBCTemplate{
 		this.dataSource = dataSource;
 		this.jdbcTemplateObject = new JdbcTemplate(dataSource);
 	}
-
-	public int insert(String username, String password){
-		final String SQL = "INSERT INTO public.\"User\"(name, password) VALUES ('" + username + "', '" + password + "')";
+	
+	public int insert(String name, String style, boolean visibility, String geometryType, int mapId){
+		
+		String visibilityString = visibility == true ? "TRUE" : "FALSE";
+		final String SQL = "INSERT INTO public.\"Layer\"(name, style, visibility, geometryType, map_id) VALUES ('" + name + "', '" + style + "', " + visibilityString + ", '" + geometryType + "', "
+				+ mapId + ")";
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		
 		jdbcTemplateObject.update(new PreparedStatementCreator() {
 			
 			@Override
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException{
-				return connection.prepareStatement(SQL, new String[] {"id"});
+				return connection.prepareStatement(SQL, new String[] { "id" });
 			}
 		}, keyHolder);
 		

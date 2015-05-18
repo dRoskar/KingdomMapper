@@ -1,21 +1,62 @@
 package si.roskar.diploma.server;
 
+import java.util.List;
+
 import si.roskar.diploma.client.DataService;
+import si.roskar.diploma.server.DAO.LayerJDBCTemplate;
+import si.roskar.diploma.server.DAO.MapJDBCTemplate;
 import si.roskar.diploma.server.DAO.UserJDBCTemplate;
 import si.roskar.diploma.server.DB.DBSource;
+import si.roskar.diploma.shared.KingdomLayer;
+import si.roskar.diploma.shared.KingdomMap;
 import si.roskar.diploma.shared.KingdomUser;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class DataServiceImpl extends RemoteServiceServlet implements DataService{
 	
+	private UserJDBCTemplate userJdbcTemplate = null;
+	private MapJDBCTemplate mapJdbcTemplate = null;
+	private LayerJDBCTemplate layerJdbcTemplate = null;
+	
+	public DataServiceImpl(){
+		userJdbcTemplate = new UserJDBCTemplate();
+		userJdbcTemplate.setDataSource(DBSource.getDataSource());
+		
+		mapJdbcTemplate = new MapJDBCTemplate();
+		mapJdbcTemplate.setDataSource(DBSource.getDataSource());
+		
+		layerJdbcTemplate = new LayerJDBCTemplate();
+		layerJdbcTemplate.setDataSource(DBSource.getDataSource());
+	}
+	
 	@Override
 	public Integer addUser(KingdomUser user){
-		
-		UserJDBCTemplate userJdbctTemplate = new UserJDBCTemplate();
-		userJdbctTemplate.setDataSource(DBSource.getDataSource());
-		userJdbctTemplate.insert(user.getName(), user.getPassword());
-		
-		return 666;
+		return userJdbcTemplate.insert(user.getName(), user.getPassword());
+	}
+
+	@Override
+	public Integer addMap(KingdomMap map){
+		return mapJdbcTemplate.insert(map.getName(), map.getUser().getId());
+	}
+
+	@Override
+	public Integer addLayer(KingdomLayer layer){
+		return layerJdbcTemplate.insert(layer.getLayerName(), layer.getStyle(), layer.isVisible(), layer.getGeometryType(), layer.getMap().getId());
+	}
+
+	@Override
+	public Boolean mapExists(KingdomMap map){
+		return mapJdbcTemplate.mapExists(map.getName(), map.getUser().getId());
+	}
+
+	@Override
+	public List<KingdomMap> getMapList(KingdomUser user){
+		return mapJdbcTemplate.getMapList(user.getId());
+	}
+
+	@Override
+	public boolean deleteMap(KingdomMap map){
+		return mapJdbcTemplate.deleteMap(map.getId());
 	}
 }

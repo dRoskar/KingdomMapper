@@ -153,6 +153,8 @@ public class AddLayerDialog extends Window implements AddLayerDisplay{
 	public boolean isValid(){
 		boolean isValid = true;
 		
+		name.clearInvalid();
+		
 		if(!name.isValid()){
 			isValid = false;
 		}

@@ -7,35 +7,54 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class KingdomMap implements IsSerializable{
 	
+	private int					id;
 	private String				name	= null;
 	private List<KingdomLayer>	layers	= null;
+	private KingdomUser			user	= null;
 	
 	public KingdomMap(){
 		layers = new ArrayList<KingdomLayer>();
 	}
-
-	public KingdomMap(String name, List<KingdomLayer> layers){
+	
+	public KingdomMap(String name, List<KingdomLayer> layers, KingdomUser user){
 		this.name = name;
 		this.layers = layers;
+		this.user = user;
 	}
-
+	
+	public int getId(){
+		return id;
+	}
+	
+	public void setId(int id){
+		this.id = id;
+	}
+	
 	public String getName(){
 		return name;
 	}
-
+	
 	public void setName(String name){
 		this.name = name;
 	}
-
+	
 	public List<KingdomLayer> getLayers(){
 		return layers;
 	}
-
+	
 	public void setLayers(List<KingdomLayer> layers){
 		this.layers = layers;
 	}
 	
 	public void addLayer(KingdomLayer layer){
 		layers.add(layer);
+	}
+	
+	public KingdomUser getUser(){
+		return user;
+	}
+	
+	public void setUser(KingdomUser user){
+		this.user = user;
 	}
 }

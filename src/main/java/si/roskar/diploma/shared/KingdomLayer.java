@@ -3,14 +3,16 @@ package si.roskar.diploma.shared;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class KingdomLayer implements IsSerializable{
-	private String	id				= null;
-	private String	layerName		= null;
-	private String	style			= null;
-	private boolean	visibility		= false;
-	private String	format			= "image/png";
-	private String	projection		= "EPSG:4326";
-	private float	opacity			= 1.0f;
-	private String	geometryType	= null;
+	
+	private String		id				= null;
+	private String		layerName		= null;
+	private String		style			= null;
+	private boolean		visible			= false;
+	private String		format			= "image/png";
+	private String		projection		= "EPSG:4326";
+	private float		opacity			= 1.0f;
+	private String		geometryType	= null;
+	private KingdomMap	map				= null;
 	
 	public KingdomLayer(){
 		
@@ -21,7 +23,7 @@ public class KingdomLayer implements IsSerializable{
 		this.id = id;
 		this.layerName = layerName;
 		this.style = style;
-		this.visibility = visibility;
+		this.visible = visibility;
 		this.format = format;
 		this.projection = projection;
 		this.opacity = opacity;
@@ -51,14 +53,14 @@ public class KingdomLayer implements IsSerializable{
 		this.style = style;
 	}
 	
-	public boolean isVisibility(){
-		return visibility;
+	public boolean isVisible(){
+		return visible;
 	}
-	
-	public void setVisibility(boolean visibility){
-		this.visibility = visibility;
+
+	public void setVisible(boolean visible){
+		this.visible = visible;
 	}
-	
+
 	public String getFormat(){
 		return format;
 	}
@@ -82,12 +84,20 @@ public class KingdomLayer implements IsSerializable{
 	public void setOpacity(float opacity){
 		this.opacity = opacity;
 	}
-
+	
 	public String getGeometryType(){
 		return geometryType;
 	}
-
+	
 	public void setGeometryType(String geometryType){
 		this.geometryType = geometryType;
+	}
+
+	public KingdomMap getMap(){
+		return map;
+	}
+
+	public void setMap(KingdomMap map){
+		this.map = map;
 	}
 }

@@ -93,6 +93,8 @@ public class NewMapDialog extends Window implements NewMapDisplay{
 	
 	@Override
 	public boolean isValid(){
+		name.clearInvalid();
+		
 		if(name.isValid()){
 			return true;
 		}

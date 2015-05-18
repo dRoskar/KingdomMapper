@@ -3,6 +3,8 @@ package si.roskar.diploma.client.view;
 import si.roskar.diploma.client.presenter.LayerPresenter.Display;
 import si.roskar.diploma.client.resources.Resources;
 import si.roskar.diploma.shared.KingdomLayer;
+import si.roskar.diploma.shared.KingdomMap;
+import si.roskar.diploma.shared.KingdomUser;
 
 import com.google.gwt.user.client.ui.Widget;
 import com.sencha.gxt.data.shared.TreeStore;
@@ -17,20 +19,27 @@ public class LayerView implements Display{
 	
 	private VerticalLayoutContainer				container		= null;
 	private TextButton							newMap			= null;
-	private TextButton							loadMap			= null;
+	private TextButton							existingMaps	= null;
 	private TextButton							addLayer		= null;
 	private TreeStore<KingdomLayer>				layerStore		= null;
 	private Tree<KingdomLayer, KingdomLayer>	layerTree		= null;
 	private ContentPanel						layerTreePanel	= null;
+	private KingdomUser							currentUser		= null;
+	private KingdomMap							currentMap		= null;
 	
 	public LayerView(){
+		
+		// ===== ===== TEMP DEFAULT USER = BORIS ===== ===== =====
+		currentUser = new KingdomUser(1, "Boris", "theforefather");
+		
+		// =======================================================
 		
 		// create map toolbar
 		ToolBar mapToolbar = new ToolBar();
 		newMap = new TextButton("New map", Resources.ICONS.mapAdd());
-		loadMap = new TextButton("Load map", Resources.ICONS.mapLoad());
+		existingMaps = new TextButton("Existing maps", Resources.ICONS.mapLoad());
 		mapToolbar.add(newMap);
-		mapToolbar.add(loadMap);
+		mapToolbar.add(existingMaps);
 		
 		// create layer button bar
 		ToolBar layerToolbar = new ToolBar();
@@ -67,8 +76,28 @@ public class LayerView implements Display{
 	}
 	
 	@Override
-	public TextButton getLoadMapButton(){
-		return loadMap;
+	public TextButton getExistingMapsButton(){
+		return existingMaps;
+	}
+	
+	@Override
+	public void setCurrentUser(KingdomUser currentUser){
+		this.currentUser = currentUser;
+	}
+	
+	@Override
+	public KingdomUser getCurrentUser(){
+		return currentUser;
+	}
+	
+	@Override
+	public void setCurrentMap(KingdomMap currentMap){
+		this.currentMap = currentMap;
+	}
+	
+	@Override
+	public KingdomMap getCurrentMap(){
+		return currentMap;
 	}
 	
 	@Override
