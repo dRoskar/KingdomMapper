@@ -12,9 +12,10 @@ public class EventEnableMapView extends GwtEvent<EventEnableMapViewHandler>{
 	}
 	
 	public static Type<EventEnableMapViewHandler> TYPE = new Type<EventEnableMapViewHandler>();
+	private boolean enable = false;
 	
-	public EventEnableMapView(){
-		
+	public EventEnableMapView(boolean enable){
+		this.enable = enable;
 	}
 
 	@Override
@@ -25,5 +26,13 @@ public class EventEnableMapView extends GwtEvent<EventEnableMapViewHandler>{
 	@Override
 	protected void dispatch(EventEnableMapViewHandler handler){
 		handler.onEnableMapView(this);
+	}
+
+	public boolean isEnable(){
+		return enable;
+	}
+
+	public void setEnable(boolean enable){
+		this.enable = enable;
 	}
 }

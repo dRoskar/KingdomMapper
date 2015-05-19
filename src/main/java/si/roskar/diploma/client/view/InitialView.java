@@ -77,8 +77,13 @@ public class InitialView implements Display{
 	}
 	
 	@Override
-	public void enableMapView(){
-		center.enable();
+	public void enableMapView(boolean enable){
+		if(enable){
+			center.enable();
+		}
+		else{
+			center.disable();
+		}
 	}
 	
 }

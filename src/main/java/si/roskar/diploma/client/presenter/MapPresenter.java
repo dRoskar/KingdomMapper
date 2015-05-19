@@ -3,6 +3,8 @@ package si.roskar.diploma.client.presenter;
 import si.roskar.diploma.client.event.Bus;
 import si.roskar.diploma.client.event.EventAddNewLayer;
 import si.roskar.diploma.client.event.EventAddNewMap;
+import si.roskar.diploma.client.event.EventShowDrawingToolbar;
+import si.roskar.diploma.client.event.EventShowDrawingToolbar.EventShowDrawingToolbarHandler;
 import si.roskar.diploma.client.event.EventAddNewMap.EventAddNewMapHandler;
 import si.roskar.diploma.client.event.EventEnableMapView;
 import si.roskar.diploma.client.event.EventAddNewLayer.EventAddNewLayerHandler;
@@ -11,6 +13,7 @@ import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
 
 import com.google.gwt.user.client.ui.HasWidgets;
+import com.sencha.gxt.widget.core.client.toolbar.ToolBar;
 
 public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 	
@@ -21,6 +24,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		void addNewMap(KingdomMap newMap);
 		
 		void addLayer(KingdomLayer layer);
+		
+		ToolBar getDrawingToolbar();
 	}
 	
 	public MapPresenter(Display display){
@@ -52,12 +57,26 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				// if map was previously empty, enable map view
 				if(display.getMapObject() != null){
 					if(display.getMapObject().getLayers().isEmpty()){
-						Bus.get().fireEvent(new EventEnableMapView());
+						
 					}
 				}
 				
 				// add layer to map
 				display.addLayer(event.getLayer());
+			}
+		});
+		
+		// handle drawing toolbar show event
+		Bus.get().addHandler(EventShowDrawingToolbar.TYPE, new EventShowDrawingToolbarHandler(){
+
+			@Override
+			public void onShowDrawingToolbar(EventShowDrawingToolbar event){
+				if(event.isVisible()){
+					display.getDrawingToolbar().show();
+				}
+				else{
+					display.getDrawingToolbar().hide();
+				}
 			}
 		});
 	}

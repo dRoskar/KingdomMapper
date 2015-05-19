@@ -6,6 +6,8 @@ import si.roskar.diploma.client.DataServiceAsync;
 import si.roskar.diploma.client.event.Bus;
 import si.roskar.diploma.client.event.EventAddNewMap;
 import si.roskar.diploma.client.event.EventChangeMapNameHeader;
+import si.roskar.diploma.client.event.EventEnableMapView;
+import si.roskar.diploma.client.event.EventShowDrawingToolbar;
 import si.roskar.diploma.client.view.AddLayerDialog;
 import si.roskar.diploma.client.view.ExistingMapsWindow;
 import si.roskar.diploma.client.view.NewMapDialog;
@@ -16,6 +18,8 @@ import si.roskar.diploma.shared.KingdomUser;
 
 import com.google.gwt.event.dom.client.DoubleClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickHandler;
+import com.google.gwt.event.logical.shared.BeforeSelectionEvent;
+import com.google.gwt.event.logical.shared.BeforeSelectionHandler;
 import com.google.gwt.event.logical.shared.HasSelectionHandlers;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
@@ -380,6 +384,9 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 													display.addLayer(newLayer);
 													
 													display.getCurrentMap().setEmpty(false);
+													
+													// enable map view
+													Bus.get().fireEvent(new EventEnableMapView(true));
 												}
 											});
 											
@@ -460,6 +467,11 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 										
 										// remove layer from tree
 										display.getLayerTree().getStore().remove(layer);
+										
+										// disable map view if tree is now empty
+										if(display.getLayerTree().getStore().getAllItemsCount() < 1){
+											Bus.get().fireEvent(new EventEnableMapView(false));
+										}
 									}
 								});
 							}
@@ -470,9 +482,25 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 				}
 			}
 		});
-	}
+		
+		// handle layer tree item selection
+		display.getLayerTree().getSelectionModel().addBeforeSelectionHandler(new BeforeSelectionHandler<KingdomLayer>() {
+			
+			@Override
+			public void onBeforeSelection(BeforeSelectionEvent<KingdomLayer> event){
+				KingdomLayer selectedLayer = event.getItem();
+				
+				if(selectedLayer != null){
+					Bus.get().fireEvent(new EventShowDrawingToolbar(true));
+				}
+			}
+		});
+	};
 	
 	private void setMap(KingdomMap newMap){
+		// clear layers
+		display.getLayerTree().getStore().clear();
+		
 		// enable controls
 		display.enableLayerView();
 		
@@ -495,7 +523,13 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 
 				@Override
 				public void onSuccess(List<KingdomLayer> result){
-					display.setLayers(result);
+					if(!result.isEmpty()){
+						display.setLayers(result);
+						Bus.get().fireEvent(new EventEnableMapView(true));
+					}
+					else{
+						Bus.get().fireEvent(new EventEnableMapView(false));
+					}
 				}
 			});
 		}

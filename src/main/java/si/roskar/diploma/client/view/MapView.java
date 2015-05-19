@@ -25,8 +25,9 @@ public class MapView implements Display{
 	private TextButton				zoomToExtent	= null;
 	private TextButton				navigateBack	= null;
 	private TextButton				navigateForward	= null;
-	private TextButton				drawLine		= null;
+	private TextButton				draw			= null;
 	private KingdomMap				kingdomMap		= null;
+	private ToolBar					drawingToolbar	= null;
 	
 	public MapView(){
 		
@@ -40,8 +41,8 @@ public class MapView implements Display{
 		// create map widget
 		mapWidget = new MapWidget("100%", "100%", mapOptions);
 		
-		// create map toolbar
-		ToolBar mapToolBar = new ToolBar();
+		// create viewing toolbar
+		ToolBar viewingToolbar = new ToolBar();
 		
 		zoomToExtent = new TextButton();
 		zoomToExtent.setIcon(Resources.ICONS.world());
@@ -55,16 +56,27 @@ public class MapView implements Display{
 		navigateForward.setIcon(Resources.ICONS.right());
 		navigateForward.setToolTip("Forward");
 		
-		mapToolBar.add(zoomToExtent);
-		mapToolBar.add(navigateBack);
-		mapToolBar.add(navigateForward);
+		viewingToolbar.add(zoomToExtent);
+		viewingToolbar.add(navigateBack);
+		viewingToolbar.add(navigateForward);
+		
+		// create drawing toolbar
+		drawingToolbar = new ToolBar();
+		
+		draw = new TextButton();
+		draw.setIcon(Resources.ICONS.line());
+		draw.setToolTip("Draw");
+		
+		drawingToolbar.add(draw);
+		drawingToolbar.hide();
 		
 		// create map container
 		container = new VerticalLayoutContainer();
 		
 		container.setBorders(false);
 		
-		container.add(mapToolBar);
+		container.add(viewingToolbar);
+		container.add(drawingToolbar);
 		container.add(mapWidget, new VerticalLayoutData(1, 1));
 	}
 	
@@ -92,6 +104,11 @@ public class MapView implements Display{
 		
 		// add layer to openLayers map
 		addLayerToMap(layer);
+	}
+	
+	@Override
+	public ToolBar getDrawingToolbar(){
+		return drawingToolbar;
 	}
 	
 	private void addLayerToMap(KingdomLayer layer){

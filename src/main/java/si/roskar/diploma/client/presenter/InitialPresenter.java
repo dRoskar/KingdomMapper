@@ -2,6 +2,7 @@ package si.roskar.diploma.client.presenter;
 
 import si.roskar.diploma.client.event.Bus;
 import si.roskar.diploma.client.event.EventChangeMapNameHeader;
+import si.roskar.diploma.client.event.EventShowDrawingToolbar;
 import si.roskar.diploma.client.event.EventChangeMapNameHeader.EventChangeMapNameHeaderHandler;
 import si.roskar.diploma.client.event.EventEnableMapView;
 import si.roskar.diploma.client.event.EventEnableMapView.EventEnableMapViewHandler;
@@ -24,7 +25,7 @@ public class InitialPresenter extends PresenterImpl<InitialPresenter.Display>{
 		
 		Header getMapNameHeader();
 		
-		void enableMapView();
+		void enableMapView(boolean enable);
 	}
 	
 	public InitialPresenter(Display display){
@@ -51,7 +52,11 @@ public class InitialPresenter extends PresenterImpl<InitialPresenter.Display>{
 
 			@Override
 			public void onEnableMapView(EventEnableMapView event){
-				display.enableMapView();
+				display.enableMapView(event.isEnable());
+				
+				if(!event.isEnable()){
+					Bus.get().fireEvent(new EventShowDrawingToolbar(false));					
+				}
 			}
 		});
 		
