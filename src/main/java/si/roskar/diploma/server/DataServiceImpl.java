@@ -71,5 +71,10 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	public Boolean layerExists(KingdomLayer layer){
 		return layerJdbcTemplate.layerExists(layer.getName(), layer.getMap().getId());
 	}
+	
+	@Override
+	public List<KingdomLayer> getLayerList(KingdomMap map){
+		return layerJdbcTemplate.getLayerList(map.getId());
+	}
 	// ===========================================
 }

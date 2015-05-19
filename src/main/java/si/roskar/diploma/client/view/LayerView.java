@@ -133,13 +133,12 @@ public class LayerView implements Display{
 	}
 	
 	@Override
-	public void addLayers(List<KingdomLayer> layers){
+	public void setLayers(List<KingdomLayer> layers){
 		layerStore.clear();
 		
 		for(KingdomLayer layer : layers){
 			layerStore.add(layer);
 			layerTree.setChecked(layer, Tree.CheckState.CHECKED);
-			layerTree.getSelectionModel().select(layer, false);
 		}
 	}
 	

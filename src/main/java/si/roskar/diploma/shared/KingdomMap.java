@@ -10,6 +10,7 @@ public class KingdomMap implements IsSerializable{
 	private int					id;
 	private String				name	= null;
 	private List<KingdomLayer>	layers	= null;
+	private boolean				empty	= false;
 	private KingdomUser			user	= null;
 	
 	public KingdomMap(){
@@ -50,6 +51,14 @@ public class KingdomMap implements IsSerializable{
 		layers.add(layer);
 	}
 	
+	public boolean isEmpty(){
+		return empty;
+	}
+
+	public void setEmpty(boolean empty){
+		this.empty = empty;
+	}
+
 	public KingdomUser getUser(){
 		return user;
 	}

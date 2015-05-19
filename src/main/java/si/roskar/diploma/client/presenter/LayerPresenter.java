@@ -51,7 +51,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 		
 		void addLayer(KingdomLayer layer);
 		
-		void addLayers(List<KingdomLayer> layers);
+		void setLayers(List<KingdomLayer> layers);
 		
 		void enableLayerView();
 	}
@@ -362,6 +362,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 													
 													// add layer to layer tree
 													display.addLayer(newLayer);
+													
+													display.getCurrentMap().setEmpty(false);
 												}
 											});
 											
@@ -402,5 +404,20 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 		
 		// display map name
 		Bus.get().fireEvent(new EventChangeMapNameHeader(newMap.getName()));
+		
+		// load map layers
+		if(!newMap.isEmpty()){
+			DataServiceAsync.Util.getInstance().getLayerList(newMap, new AsyncCallback<List<KingdomLayer>>() {
+
+				@Override
+				public void onFailure(Throwable caught){
+				}
+
+				@Override
+				public void onSuccess(List<KingdomLayer> result){
+					display.setLayers(result);
+				}
+			});
+		}
 	}
 }

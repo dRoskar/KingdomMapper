@@ -56,4 +56,10 @@ public class LayerJDBCTemplate{
 		
 		return true;
 	}
+	
+	public List<KingdomLayer> getLayerList(int mapId){
+		final String SQL = "SELECT * FROM public.\"Layer\" WHERE map_id=" + mapId;
+		
+		return jdbcTemplateObject.query(SQL, new LayerDataMapper());
+	}
 }
