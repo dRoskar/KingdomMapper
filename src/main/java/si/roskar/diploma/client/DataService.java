@@ -27,4 +27,6 @@ public interface DataService extends RemoteService{
 	List<KingdomLayer> getLayerList(KingdomMap map);
 	
 	boolean deleteMap(KingdomMap map);
+	
+	boolean deleteLayer(KingdomLayer layer);
 }

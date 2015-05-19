@@ -62,4 +62,12 @@ public class LayerJDBCTemplate{
 		
 		return jdbcTemplateObject.query(SQL, new LayerDataMapper());
 	}
+	
+	public boolean deleteLayer(int layerId){
+		final String SQL = "DELETE FROM public.\"Layer\" where id = " + layerId;
+		
+		jdbcTemplateObject.update(SQL);
+		
+		return true;
+	}
 }

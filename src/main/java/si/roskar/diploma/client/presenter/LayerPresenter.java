@@ -16,11 +16,17 @@ import si.roskar.diploma.shared.KingdomUser;
 
 import com.google.gwt.event.dom.client.DoubleClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickHandler;
+import com.google.gwt.event.logical.shared.HasSelectionHandlers;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.Label;
 import com.sencha.gxt.core.client.util.ToggleGroup;
 import com.sencha.gxt.widget.core.client.Dialog;
+import com.sencha.gxt.widget.core.client.Slider;
 import com.sencha.gxt.widget.core.client.Dialog.PredefinedButton;
 import com.sencha.gxt.widget.core.client.ListView;
 import com.sencha.gxt.widget.core.client.button.TextButton;
@@ -30,6 +36,8 @@ import com.sencha.gxt.widget.core.client.event.DialogHideEvent.DialogHideHandler
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
 import com.sencha.gxt.widget.core.client.form.TextField;
+import com.sencha.gxt.widget.core.client.menu.Item;
+import com.sencha.gxt.widget.core.client.tree.Tree;
 
 public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 	
@@ -54,6 +62,14 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 		void setLayers(List<KingdomLayer> layers);
 		
 		void enableLayerView();
+		
+		Slider getOpacitySlider();
+		
+		void setLayerOpacitySliderValue(final float value);
+		
+		Tree<KingdomLayer, String> getLayerTree();
+		
+		HasSelectionHandlers<Item> getDeleteLayerItem();
 	}
 	
 	public interface AddLayerDisplay extends View{
@@ -387,6 +403,70 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 					});
 					
 					addLayerDisplay.setIsBound(true);
+				}
+			}
+		});
+		
+		display.getOpacitySlider().addValueChangeHandler(new ValueChangeHandler<Integer>() {
+			
+			@Override
+			public void onValueChange(ValueChangeEvent<Integer> event){
+				
+				// redraw slider
+				display.getOpacitySlider().redraw();
+				
+				if(display.getLayerTree().getSelectionModel().getSelectedItem() != null){
+					KingdomLayer layer = display.getLayerTree().getSelectionModel().getSelectedItem();
+					
+					if(layer == null){
+						return;
+					}
+					
+					// opacity stuff
+				}
+			}
+		});
+		
+		display.getDeleteLayerItem().addSelectionHandler(new SelectionHandler<Item>() {
+			
+			@Override
+			public void onSelection(SelectionEvent<Item> event){
+				final KingdomLayer layer = display.getLayerTree().getSelectionModel().getSelectedItem();
+				
+				if(layer != null){
+					// are you sure?
+					final Dialog dialog = new Dialog();
+					dialog.setHeadingText("Delete layer");
+					dialog.setPredefinedButtons(PredefinedButton.YES, PredefinedButton.NO);
+					dialog.add(new Label("Are you sure you want to delete this layer? All of its contents will be lost forever!"));
+					dialog.setModal(true);
+					dialog.setHideOnButtonClick(true);
+					
+					dialog.addDialogHideHandler(new DialogHideHandler() {
+						
+						@Override
+						public void onDialogHide(DialogHideEvent event){
+							if(event.getHideButton().compareTo(PredefinedButton.YES) == 0){
+								// remove layer from db
+								DataServiceAsync.Util.getInstance().deleteLayer(layer, new AsyncCallback<Boolean>() {
+
+									@Override
+									public void onFailure(Throwable caught){	
+									}
+
+									@Override
+									public void onSuccess(Boolean result){
+										// TODO: deletion notification
+										
+										// remove layer from tree
+										display.getLayerTree().getStore().remove(layer);
+									}
+								});
+							}
+						}
+					});
+					
+					dialog.show();
 				}
 			}
 		});

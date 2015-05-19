@@ -8,8 +8,11 @@ import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
 import si.roskar.diploma.shared.KingdomUser;
 
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.editor.client.Editor.Path;
+import com.google.gwt.event.logical.shared.HasSelectionHandlers;
 import com.google.gwt.user.client.ui.Widget;
 import com.sencha.gxt.core.client.Style.SelectionMode;
 import com.sencha.gxt.core.client.ValueProvider;
@@ -17,9 +20,13 @@ import com.sencha.gxt.data.shared.ModelKeyProvider;
 import com.sencha.gxt.data.shared.PropertyAccess;
 import com.sencha.gxt.data.shared.TreeStore;
 import com.sencha.gxt.widget.core.client.ContentPanel;
+import com.sencha.gxt.widget.core.client.Slider;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer.VerticalLayoutData;
+import com.sencha.gxt.widget.core.client.menu.Item;
+import com.sencha.gxt.widget.core.client.menu.Menu;
+import com.sencha.gxt.widget.core.client.menu.MenuItem;
 import com.sencha.gxt.widget.core.client.toolbar.ToolBar;
 import com.sencha.gxt.widget.core.client.tree.Tree;
 
@@ -33,15 +40,18 @@ public class LayerView implements Display{
 		ValueProvider<KingdomLayer, String> nameProp();
 	}
 	
-	private VerticalLayoutContainer		container		= null;
-	private TextButton					newMap			= null;
-	private TextButton					existingMaps	= null;
-	private TextButton					addLayer		= null;
-	private TreeStore<KingdomLayer>		layerStore		= null;
-	private Tree<KingdomLayer, String>	layerTree		= null;
-	private ContentPanel				layerTreePanel	= null;
-	private KingdomUser					currentUser		= null;
-	private KingdomMap					currentMap		= null;
+	private VerticalLayoutContainer		container			= null;
+	private TextButton					newMap				= null;
+	private TextButton					existingMaps		= null;
+	private TextButton					addLayer			= null;
+	private TreeStore<KingdomLayer>		layerStore			= null;
+	private Tree<KingdomLayer, String>	layerTree			= null;
+	private ContentPanel				layerTreePanel		= null;
+	private KingdomUser					currentUser			= null;
+	private KingdomMap					currentMap			= null;
+	
+	private Menu						layerContextMenu	= null;
+	private Slider						opacitySlider		= null;
 	
 	public LayerView(){
 		LayerProperties properties = GWT.create(LayerProperties.class);
@@ -75,6 +85,23 @@ public class LayerView implements Display{
 		layerTree = new Tree<KingdomLayer, String>(layerStore, properties.nameProp());
 		layerTree.setCheckable(true);
 		layerTree.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+		
+		// layer tree context menu
+		layerContextMenu = new Menu();
+		
+		opacitySlider = new Slider();
+		opacitySlider.setSize("80px", "auto");
+		opacitySlider.setTitle("opacity");
+		
+		layerContextMenu.add(opacitySlider);
+		
+		MenuItem deleteLayer = new MenuItem();
+		deleteLayer.setText("Delete layer");
+		deleteLayer.setId("deleteLayer");
+		
+		layerContextMenu.add(deleteLayer);
+		
+		layerTree.setContextMenu(layerContextMenu);
 		
 		layerTreePanel.add(layerTree);
 		
@@ -146,5 +173,31 @@ public class LayerView implements Display{
 	public void enableLayerView(){
 		layerTreePanel.enable();
 		addLayer.enable();
+	}
+	
+	@Override
+	public Slider getOpacitySlider(){
+		return opacitySlider;
+	}
+	
+	@Override
+	public void setLayerOpacitySliderValue(final float value){
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+			
+			public void execute(){
+				opacitySlider.setValue((int) (value * 100));
+				opacitySlider.redraw();
+			}
+		});
+	}
+	
+	@Override
+	public Tree<KingdomLayer, String> getLayerTree(){
+		return layerTree;
+	}
+	
+	@Override
+	public HasSelectionHandlers<Item> getDeleteLayerItem(){
+		return (MenuItem) layerContextMenu.getItemByItemId("deleteLayer");
 	}
 }
