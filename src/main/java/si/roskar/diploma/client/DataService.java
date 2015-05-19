@@ -20,6 +20,8 @@ public interface DataService extends RemoteService{
 	
 	Boolean mapExists(KingdomMap map);
 	
+	Boolean layerExists(KingdomLayer layer);
+	
 	List<KingdomMap> getMapList(KingdomUser user);
 	
 	boolean deleteMap(KingdomMap map);

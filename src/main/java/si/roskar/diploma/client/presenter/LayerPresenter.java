@@ -49,6 +49,10 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 		
 		KingdomMap getCurrentMap();
 		
+		void addLayer(KingdomLayer layer);
+		
+		void addLayers(List<KingdomLayer> layers);
+		
 		void enableLayerView();
 	}
 	
@@ -167,6 +171,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 												
 												@Override
 												public void onSuccess(Integer result){
+													newMap.setId(result);
 													setMap(newMap);
 													
 													// hide dialog
@@ -175,7 +180,6 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 											});
 										}else{
 											// map name already exists
-											System.out.println("map name already exists");
 											newMapDisplay.getNameField().forceInvalid("Map name already exists");
 										}
 									}
@@ -208,11 +212,11 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 			public void onSelect(SelectEvent event){
 				// fetch existing map data
 				DataServiceAsync.Util.getInstance().getMapList(display.getCurrentUser(), new AsyncCallback<List<KingdomMap>>() {
-
+					
 					@Override
 					public void onFailure(Throwable caught){
 					}
-
+					
 					@Override
 					public void onSuccess(List<KingdomMap> result){
 						existingMapsDisplay.setMapData(result);
@@ -234,7 +238,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 							});
 							
 							existingMapsDisplay.getListView().addDomHandler(new DoubleClickHandler() {
-
+								
 								@Override
 								public void onDoubleClick(DoubleClickEvent event){
 									KingdomMap selectedMap = existingMapsDisplay.getListView().getSelectionModel().getSelectedItem();
@@ -269,23 +273,26 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 												if(event.getHideButton().compareTo(PredefinedButton.YES) == 0){
 													// delete map
 													DataServiceAsync.Util.getInstance().deleteMap(selectedMap, new AsyncCallback<Boolean>() {
-	
+														
 														@Override
 														public void onFailure(Throwable caught){
 															
 														}
-	
+														
 														@Override
 														public void onSuccess(Boolean result){
-															// TODO: deletion notification
+															// TODO: deletion
+															// notification
 															
 															// delete from list
 															existingMapsDisplay.getListView().getStore().remove(selectedMap);
 															existingMapsDisplay.getListView().refresh();
 															
-															//TODO: 
-															// if deleted map is current map
-															// if deleted map is only map
+															// TODO:
+															// if deleted map is
+															// current map
+															// if deleted map is
+															// only map
 														}
 													});
 												}
@@ -306,7 +313,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 							});
 							
 							existingMapsDisplay.setIsBound(true);
-						}						
+						}
 					}
 				});
 			}
@@ -326,14 +333,46 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 						public void onSelect(SelectEvent event){
 							if(addLayerDisplay.isValid()){
 								// create new layer
-								KingdomLayer newLayer = new KingdomLayer();
-								newLayer.setLayerName(addLayerDisplay.getNameField().getText());
+								final KingdomLayer newLayer = new KingdomLayer();
+								newLayer.setName(addLayerDisplay.getNameField().getText());
 								newLayer.setVisible(true);
 								newLayer.setGeometryType(((ToggleButton) addLayerDisplay.getToggleGroup().getValue()).getItemId());
+								newLayer.setMap(display.getCurrentMap());
 								
-								// add layer to DB
-								
-								addLayerDisplay.hide();
+								// check if layer already exists for this map
+								DataServiceAsync.Util.getInstance().layerExists(newLayer, new AsyncCallback<Boolean>() {
+
+									@Override
+									public void onFailure(Throwable caught){
+									}
+
+									@Override
+									public void onSuccess(Boolean result){
+										if(!result){
+											// add layer to DB
+											DataServiceAsync.Util.getInstance().addLayer(newLayer, new AsyncCallback<Integer>() {
+												
+												@Override
+												public void onFailure(Throwable caught){
+												}
+												
+												@Override
+												public void onSuccess(Integer result){
+													newLayer.setId(result);
+													
+													// add layer to layer tree
+													display.addLayer(newLayer);
+												}
+											});
+											
+											addLayerDisplay.hide();
+										}
+										else{
+											// layer name already exists
+											addLayerDisplay.getNameField().forceInvalid("Layer name already exists");
+										}
+									}
+								});
 							}
 						}
 					});

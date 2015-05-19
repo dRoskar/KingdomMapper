@@ -95,7 +95,7 @@ public class MapView implements Display{
 	}
 	
 	private void addLayerToMap(KingdomLayer layer){
-		Vector newLayer = new Vector(layer.getLayerName());
+		Vector newLayer = new Vector(layer.getName());
 		
 		mapWidget.getMap().addLayer(newLayer);
 	}

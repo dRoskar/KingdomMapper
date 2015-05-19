@@ -3,6 +3,7 @@ package si.roskar.diploma.server.DAO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 
 import javax.sql.DataSource;
 
@@ -10,6 +11,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+
+import si.roskar.diploma.shared.KingdomLayer;
 
 public class LayerJDBCTemplate{
 	private DataSource		dataSource			= null;
@@ -27,7 +30,7 @@ public class LayerJDBCTemplate{
 	public int insert(String name, String style, boolean visibility, String geometryType, int mapId){
 		
 		String visibilityString = visibility == true ? "TRUE" : "FALSE";
-		final String SQL = "INSERT INTO public.\"Layer\"(name, style, visibility, geometryType, map_id) VALUES ('" + name + "', '" + style + "', " + visibilityString + ", '" + geometryType + "', "
+		final String SQL = "INSERT INTO public.\"Layer\"(name, style, visibility, geometry_type, map_id) VALUES ('" + name + "', '" + style + "', " + visibilityString + ", '" + geometryType + "', "
 				+ mapId + ")";
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		
@@ -40,5 +43,17 @@ public class LayerJDBCTemplate{
 		}, keyHolder);
 		
 		return keyHolder.getKey().intValue();
+	}
+	
+	public boolean layerExists(String name, int mapId){
+		final String SQL = "SELECT * FROM public.\"Layer\" WHERE map_id=" + mapId + " AND name='" + name + "'";
+		
+		List<KingdomLayer> layers = jdbcTemplateObject.query(SQL, new LayerDataMapper());
+		
+		if(layers.isEmpty()){
+			return false;
+		}
+		
+		return true;
 	}
 }
