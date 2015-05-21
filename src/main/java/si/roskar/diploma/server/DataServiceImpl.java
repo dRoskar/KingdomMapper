@@ -2,6 +2,8 @@ package si.roskar.diploma.server;
 
 import java.util.List;
 
+import org.gemma.si.NetIO;
+
 import si.roskar.diploma.client.DataService;
 import si.roskar.diploma.server.DAO.LayerJDBCTemplate;
 import si.roskar.diploma.server.DAO.MapJDBCTemplate;
@@ -10,6 +12,7 @@ import si.roskar.diploma.server.DB.DBSource;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
 import si.roskar.diploma.shared.KingdomUser;
+import si.roskar.diploma.shared.Tools;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
@@ -82,4 +85,42 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		return layerJdbcTemplate.deleteLayer(layer.getId());
 	}
 	// ===========================================
+	
+	
+	// ===== ===== WFS-T ===== =====
+	public void insertMarker(String wmsUrl, double longitude, double latitude, String label, String description, int layerId){
+		NetIO netIo = new NetIO();
+		
+		// encode special characters
+		label = Tools.encodeToNumericCharacterReference(label);
+		description = Tools.encodeToNumericCharacterReference(description);
+		
+		// assemble request XML
+//		String xml = "<wfs:Transaction service=\"WFS\" version=\"1.0.0\"\r\n" + 
+//				"  xmlns:wfs=\"http://www.opengis.net/wfs\"\r\n" + 
+//				"  xmlns:kingdom=\"http://kingdom.si\"\r\n" + 
+//				"  xmlns:gml=\"http://www.opengis.net/gml\"\r\n" + 
+//				"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + 
+//				"  xsi:schemaLocation=\"http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename=topp:tasmania_roads\">\r\n" + 
+//				"  <wfs:Insert>\r\n" + 
+//				"    <kingdom:point>\r\n" +
+//				"	   <kingdom:label>" + label + "</kingdom:label>" + 
+//				"      <kingdom:description>" + description + "</kingdom:description>\r\n" + 
+//				"      <geometry>\r\n" + 
+//				"        <gml:Point srsName=\"http://www.opengis.net/gml/srs/epsg.xml#2170\">\r\n" + 
+//				"          <gml:coordinates>" + longitude + "," + latitude + "</gml:coordinates>\r\n" + 
+//				"        </gml:Point>\r\n" + 
+//				"      </geometry>\r\n" + 
+//				"    </kingdom:point>\r\n" + 
+//				"  </wfs:Insert>\r\n" + 
+//				"</wfs:Transaction>";
+		
+		try{
+			netIo.post(wmsUrl, xml);
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	// =============================
 }

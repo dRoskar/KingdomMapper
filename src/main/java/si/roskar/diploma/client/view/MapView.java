@@ -1,19 +1,27 @@
 package si.roskar.diploma.client.view;
 
+import org.gwtopenmaps.openlayers.client.Bounds;
+import org.gwtopenmaps.openlayers.client.Map;
 import org.gwtopenmaps.openlayers.client.MapOptions;
 import org.gwtopenmaps.openlayers.client.MapUnits;
 import org.gwtopenmaps.openlayers.client.MapWidget;
 import org.gwtopenmaps.openlayers.client.Projection;
+import org.gwtopenmaps.openlayers.client.control.ScaleLine;
+import org.gwtopenmaps.openlayers.client.layer.TransitionEffect;
 import org.gwtopenmaps.openlayers.client.layer.Vector;
+import org.gwtopenmaps.openlayers.client.layer.WMS;
+import org.gwtopenmaps.openlayers.client.layer.WMSOptions;
+import org.gwtopenmaps.openlayers.client.layer.WMSParams;
 
-import si.roskar.diploma.client.event.Bus;
 import si.roskar.diploma.client.presenter.MapPresenter.Display;
 import si.roskar.diploma.client.resources.Resources;
+import si.roskar.diploma.shared.GeometryType;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
 
 import com.google.gwt.user.client.ui.Widget;
 import com.sencha.gxt.widget.core.client.button.TextButton;
+import com.sencha.gxt.widget.core.client.button.ToggleButton;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer.VerticalLayoutData;
 import com.sencha.gxt.widget.core.client.toolbar.ToolBar;
@@ -25,21 +33,44 @@ public class MapView implements Display{
 	private TextButton				zoomToExtent	= null;
 	private TextButton				navigateBack	= null;
 	private TextButton				navigateForward	= null;
-	private TextButton				draw			= null;
+	private ToggleButton			draw			= null;
 	private KingdomMap				kingdomMap		= null;
 	private ToolBar					drawingToolbar	= null;
+	private KingdomLayer			currentLayer	= null;
 	
 	public MapView(){
 		
 		// define map options
 		MapOptions mapOptions = new MapOptions();
+		mapOptions.setMaxExtent(new Bounds(-109.05, 37.99, -102.05, 41.00));
+//		mapOptions.setNumZoomLevels(16);
 		mapOptions.setProjection("EPSG:4326");
 		mapOptions.setDisplayProjection(new Projection("EPSG:4326"));
-		mapOptions.setUnits(MapUnits.METERS);
+		mapOptions.setUnits(MapUnits.DEGREES);
 		mapOptions.setAllOverlays(true);
+		mapOptions.setRestrictedExtent((new Bounds(-109.05, 37.99, -102.05, 41.00)));
+		
+		// test layer
+		WMSParams wmsParams = new WMSParams();
+		wmsParams.setFormat("image/png");
+		wmsParams.setLayers("topp:states");
+		wmsParams.setStyles("population");
+		
+		WMSOptions wmsLayerParams = new WMSOptions();
+		wmsLayerParams.setTransitionEffect(TransitionEffect.RESIZE);
+		
+		String wmsUrl = "http://127.0.0.1:8080/geoserver/wms";
+		
+		WMS wmsLayer = new WMS("Basic WMS", wmsUrl, wmsParams, wmsLayerParams);
+//		wmsLayer.setIsVisible(false);
 		
 		// create map widget
 		mapWidget = new MapWidget("100%", "100%", mapOptions);
+		
+		Map map = mapWidget.getMap();
+		
+		map.addLayer(wmsLayer);
+		map.addControl(new ScaleLine());
 		
 		// create viewing toolbar
 		ToolBar viewingToolbar = new ToolBar();
@@ -63,7 +94,7 @@ public class MapView implements Display{
 		// create drawing toolbar
 		drawingToolbar = new ToolBar();
 		
-		draw = new TextButton();
+		draw = new ToggleButton();
 		draw.setIcon(Resources.ICONS.line());
 		draw.setToolTip("Draw");
 		
@@ -111,9 +142,43 @@ public class MapView implements Display{
 		return drawingToolbar;
 	}
 	
+	@Override
+	public ToggleButton getDrawButton(){
+		return draw;
+	}
+	
 	private void addLayerToMap(KingdomLayer layer){
 		Vector newLayer = new Vector(layer.getName());
 		
 		mapWidget.getMap().addLayer(newLayer);
+	}
+	
+	@Override
+	public void setDrawButtonType(String geometryType){
+		if(geometryType.equals(GeometryType.POINT)){
+			draw.setIcon(Resources.ICONS.point());
+			draw.setData("geometryType", geometryType);
+		}else if(geometryType.equals(GeometryType.LINE)){
+			draw.setIcon(Resources.ICONS.line());
+			draw.setData("geometryType", geometryType);
+		}else{
+			draw.setIcon(Resources.ICONS.polygon());
+			draw.setData("geometryType", geometryType);
+		}
+	}
+	
+	@Override
+	public Map getOLMap(){
+		return mapWidget.getMap();
+	}
+	
+	@Override
+	public KingdomLayer getCurrentLayer(){
+		return currentLayer;
+	}
+	
+	@Override
+	public void setCurrentLayer(KingdomLayer currentLayer){
+		this.currentLayer = currentLayer;
 	}
 }

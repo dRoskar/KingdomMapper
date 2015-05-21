@@ -5,8 +5,10 @@ import java.util.List;
 import si.roskar.diploma.client.DataServiceAsync;
 import si.roskar.diploma.client.event.Bus;
 import si.roskar.diploma.client.event.EventAddNewMap;
+import si.roskar.diploma.client.event.EventChangeDrawButtonType;
 import si.roskar.diploma.client.event.EventChangeMapNameHeader;
 import si.roskar.diploma.client.event.EventEnableMapView;
+import si.roskar.diploma.client.event.EventSetCurrentLayer;
 import si.roskar.diploma.client.event.EventShowDrawingToolbar;
 import si.roskar.diploma.client.view.AddLayerDialog;
 import si.roskar.diploma.client.view.ExistingMapsWindow;
@@ -491,7 +493,14 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 				KingdomLayer selectedLayer = event.getItem();
 				
 				if(selectedLayer != null){
+					// change draw button type
+					Bus.get().fireEvent(new EventChangeDrawButtonType(selectedLayer.getGeometryType()));
+					
+					// show drawing toolbar
 					Bus.get().fireEvent(new EventShowDrawingToolbar(true));
+					
+					// set current layer
+					Bus.get().fireEvent(new EventSetCurrentLayer(selectedLayer));
 				}
 			}
 		});

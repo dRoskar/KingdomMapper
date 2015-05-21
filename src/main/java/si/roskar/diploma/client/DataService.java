@@ -29,4 +29,6 @@ public interface DataService extends RemoteService{
 	boolean deleteMap(KingdomMap map);
 	
 	boolean deleteLayer(KingdomLayer layer);
+	
+	void insertMarker(String wmsUrl, double longitude, double latitude, String label, String description, int layerId);
 }
