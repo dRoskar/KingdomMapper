@@ -167,7 +167,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 //					System.out.println(mapClickEvent.getLonLat().lat());
 //				}
 				
-				System.out.println(Tools.createColoradoSizedGrid(20));
+//				System.out.println(Tools.createColoradoSizedGrid(20));
 				
 				// TEMPORARY ==== ADD GRID LAYER TO DATABASE
 				
@@ -183,7 +183,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 								// evaluate fields
 								if(addMarkerDisplay.isValid()){
 									// insert marker
-									DataServiceAsync.Util.getInstance().insertMarker("http://127.0.0.1:8080/geoserver/wms/", mapClickEvent.getLonLat().lon(), mapClickEvent.getLonLat().lat(), addMarkerDisplay.getLabelField().getText(), addMarkerDisplay.getDescriptionField().getText(), display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
+									DataServiceAsync.Util.getInstance().insertMarker("http://127.0.0.1:8080/geoserver/wms/", mapClickEvent.getLonLat().lon(), mapClickEvent.getLonLat().lat(), addMarkerDisplay.getLabelField().getText(), Tools.createColoradoSizedGrid(100), display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
 
 										@Override
 										public void onFailure(Throwable caught){

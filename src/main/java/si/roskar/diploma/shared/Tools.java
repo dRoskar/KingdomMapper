@@ -35,7 +35,7 @@ public class Tools{
 		double minx = -109.045;
 		double miny = 36.999;
 		double maxx = -102.045;
-		double maxy = 42.0;
+		double maxy = 43.8;
 		
 		String wkt = "MULTILINESTRING(";
 		

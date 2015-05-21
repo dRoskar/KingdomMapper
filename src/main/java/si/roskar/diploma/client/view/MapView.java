@@ -42,26 +42,35 @@ public class MapView implements Display{
 		
 		// define map options
 		MapOptions mapOptions = new MapOptions();
-		mapOptions.setMaxExtent(new Bounds(-109.05, 37.99, -102.05, 41.00));
+//		mapOptions.setMaxExtent(new Bounds(-109.05, 37.99, -102.05, 41.00));
 //		mapOptions.setNumZoomLevels(16);
 		mapOptions.setProjection("EPSG:4326");
 		mapOptions.setDisplayProjection(new Projection("EPSG:4326"));
 		mapOptions.setUnits(MapUnits.DEGREES);
 		mapOptions.setAllOverlays(true);
-		mapOptions.setRestrictedExtent((new Bounds(-109.05, 37.99, -102.05, 41.00)));
+//		mapOptions.setRestrictedExtent((new Bounds(-109.05, 37.99, -102.05, 41.00)));
+		
+		// states layer
+		WMSParams stateParams = new WMSParams();
+		stateParams.setFormat("image/png");
+		stateParams.setLayers("topp:states");
+		stateParams.setStyles("population");
 		
 		// test layer
 		WMSParams wmsParams = new WMSParams();
 		wmsParams.setFormat("image/png");
-		wmsParams.setLayers("topp:states");
-		wmsParams.setStyles("population");
+		wmsParams.setLayers("kingdom:line");
+		wmsParams.setStyles("line");
+		wmsParams.setTransparent(true);
 		
 		WMSOptions wmsLayerParams = new WMSOptions();
 		wmsLayerParams.setTransitionEffect(TransitionEffect.RESIZE);
 		
 		String wmsUrl = "http://127.0.0.1:8080/geoserver/wms";
 		
+		WMS statesLayer = new WMS("states", wmsUrl, stateParams, wmsLayerParams);
 		WMS wmsLayer = new WMS("Basic WMS", wmsUrl, wmsParams, wmsLayerParams);
+		wmsLayer.setOpacity(0.5f);
 //		wmsLayer.setIsVisible(false);
 		
 		// create map widget
@@ -69,6 +78,7 @@ public class MapView implements Display{
 		
 		Map map = mapWidget.getMap();
 		
+		map.addLayer(statesLayer);
 		map.addLayer(wmsLayer);
 		map.addControl(new ScaleLine());
 		

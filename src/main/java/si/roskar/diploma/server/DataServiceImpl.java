@@ -115,8 +115,55 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 //				"  </wfs:Insert>\r\n" + 
 //				"</wfs:Transaction>";
 		
+		// decode description (it's a multiLineString wink* wink*)
+		description = description.substring(15);
+		description = description.substring(1, description.length() - 1);
+		
+		description = description.replace("(", "");
+		String[] lines = description.split("\\)");
+		
+		
+		
+		String xml = "<wfs:Transaction service=\"WFS\" version=\"1.0.0\"\r\n" + 
+				"  xmlns:wfs=\"http://www.opengis.net/wfs\"\r\n" + 
+				"  xmlns:kingdom=\"http://kingdom.si\"\r\n" + 
+				"  xmlns:gml=\"http://www.opengis.net/gml\"\r\n" + 
+				"  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n" + 
+				"  xsi:schemaLocation=\"http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://www.openplans.org/topp http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename=topp:tasmania_roads\">\r\n" + 
+				"  <wfs:Insert>\r\n" + 
+				"    <kingdom:line>\r\n" + 
+				"      <kingdom:geometry>\r\n" + 
+				"        <gml:MultiLineString srsName=\"http://www.opengis.net/gml/srs/epsg.xml#4326\">\r\n";
+		for(String line : lines){
+			if(line.startsWith(",")){
+				line = line.substring(1);
+			}
+			line = line.replace(", ", "|");
+			line = line.replace(" ", ",");
+			line = line.replace("|", " ");
+			
+			xml = xml + "          <gml:lineStringMember>\r\n" + 
+					"            <gml:LineString>\r\n" + 
+					"              <gml:coordinates decimal=\".\" cs=\",\" ts=\" \">\r\n" + 
+					line + 
+					"              </gml:coordinates>\r\n" + 
+					"            </gml:LineString>\r\n" + 
+					"          </gml:lineStringMember>\r\n";
+		}
+		
+		xml = xml + "        </gml:MultiLineString>\r\n" + 
+				"      </kingdom:geometry>\r\n" + 
+				"      <kingdom:description>grid that comes with every new map</kingdom:description>\r\n" + 
+				"    </kingdom:line>\r\n" + 
+				"  </wfs:Insert>\r\n" + 
+				"</wfs:Transaction>";
+		
 		try{
-			netIo.post(wmsUrl, xml);
+			byte[] response = netIo.post(wmsUrl, xml);
+			
+			String responseString = new String(response);
+			
+			System.out.println(responseString);
 		}
 		catch(Exception e){
 			e.printStackTrace();
