@@ -22,7 +22,6 @@ import si.roskar.diploma.client.view.View;
 import si.roskar.diploma.shared.GeometryType;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
-import si.roskar.diploma.shared.Tools;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasWidgets;
@@ -158,22 +157,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			
 			@Override
 			public void onClick(final MapClickEvent mapClickEvent){
-				
-//				if(mapClickEvent == null){
-//					System.out.println("mapclick je null");
-//				}
-//				else if(mapClickEvent.getLonLat() == null){
-//					System.out.println("this fucker is null");
-//				}
-//				else{
-//					System.out.println(mapClickEvent.getLonLat().lat());
-//				}
-				
-//				System.out.println(Tools.createColoradoSizedGrid(20));
-				
-				// TEMPORARY ==== ADD GRID LAYER TO DATABASE
-				
-				//==========================================
+//				System.out.println(Tools.createColoradoSizedGrid(100));
 					
 				// handle adding markers
 				if(display.getDrawButton().getValue() && display.getDrawButton().getData("geometryType").equals(GeometryType.POINT)){
@@ -185,7 +169,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 								// evaluate fields
 								if(addMarkerDisplay.isValid()){
 									// insert marker
-									DataServiceAsync.Util.getInstance().insertMarker("http://127.0.0.1:8080/geoserver/wms/", mapClickEvent.getLonLat().lon(), mapClickEvent.getLonLat().lat(), addMarkerDisplay.getLabelField().getText(), Tools.createColoradoSizedGrid(100), display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
+									DataServiceAsync.Util.getInstance().insertMarker("http://127.0.0.1:8080/geoserver/wms/", mapClickEvent.getLonLat().lon(), mapClickEvent.getLonLat().lat(), addMarkerDisplay.getLabelField().getText(), addMarkerDisplay.getDescriptionField().getText(), display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
 
 										@Override
 										public void onFailure(Throwable caught){

@@ -9,6 +9,7 @@ public class KingdomMap implements IsSerializable{
 	
 	private int					id;
 	private String				name	= null;
+	private MapSize				mapSize	= null;
 	private List<KingdomLayer>	layers	= null;
 	private boolean				empty	= false;
 	private KingdomUser			user	= null;
@@ -39,6 +40,14 @@ public class KingdomMap implements IsSerializable{
 		this.name = name;
 	}
 	
+	public MapSize getMapSize(){
+		return mapSize;
+	}
+
+	public void setMapSize(MapSize mapSize){
+		this.mapSize = mapSize;
+	}
+
 	public List<KingdomLayer> getLayers(){
 		return layers;
 	}

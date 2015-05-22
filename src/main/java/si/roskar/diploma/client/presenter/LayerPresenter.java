@@ -1,5 +1,6 @@
 package si.roskar.diploma.client.presenter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import si.roskar.diploma.client.DataServiceAsync;
@@ -14,9 +15,11 @@ import si.roskar.diploma.client.view.AddLayerDialog;
 import si.roskar.diploma.client.view.ExistingMapsWindow;
 import si.roskar.diploma.client.view.NewMapDialog;
 import si.roskar.diploma.client.view.View;
+import si.roskar.diploma.shared.KingdomGridLayer;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
 import si.roskar.diploma.shared.KingdomUser;
+import si.roskar.diploma.shared.MapSize;
 
 import com.google.gwt.event.dom.client.DoubleClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickHandler;
@@ -32,9 +35,9 @@ import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.Label;
 import com.sencha.gxt.core.client.util.ToggleGroup;
 import com.sencha.gxt.widget.core.client.Dialog;
-import com.sencha.gxt.widget.core.client.Slider;
 import com.sencha.gxt.widget.core.client.Dialog.PredefinedButton;
 import com.sencha.gxt.widget.core.client.ListView;
+import com.sencha.gxt.widget.core.client.Slider;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.button.ToggleButton;
 import com.sencha.gxt.widget.core.client.event.DialogHideEvent;
@@ -363,11 +366,11 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 								
 								// check if layer already exists for this map
 								DataServiceAsync.Util.getInstance().layerExists(newLayer, new AsyncCallback<Boolean>() {
-
+									
 									@Override
 									public void onFailure(Throwable caught){
 									}
-
+									
 									@Override
 									public void onSuccess(Boolean result){
 										if(!result){
@@ -393,8 +396,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 											});
 											
 											addLayerDisplay.hide();
-										}
-										else{
+										}else{
 											// layer name already exists
 											addLayerDisplay.getNameField().forceInvalid("Layer name already exists");
 										}
@@ -458,11 +460,11 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 							if(event.getHideButton().compareTo(PredefinedButton.YES) == 0){
 								// remove layer from db
 								DataServiceAsync.Util.getInstance().deleteLayer(layer, new AsyncCallback<Boolean>() {
-
+									
 									@Override
-									public void onFailure(Throwable caught){	
+									public void onFailure(Throwable caught){
 									}
-
+									
 									@Override
 									public void onSuccess(Boolean result){
 										// TODO: deletion notification
@@ -506,7 +508,10 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 		});
 	};
 	
-	private void setMap(KingdomMap newMap){
+	private void setMap(final KingdomMap newMap){
+		// temp
+		newMap.setMapSize(MapSize.COUNTRY_MAP);
+		
 		// clear layers
 		display.getLayerTree().getStore().clear();
 		
@@ -516,29 +521,42 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 		// set as current map
 		display.setCurrentMap(newMap);
 		
-		// add map to map view
-		Bus.get().fireEvent(new EventAddNewMap(newMap));
-		
 		// display map name
 		Bus.get().fireEvent(new EventChangeMapNameHeader(newMap.getName()));
 		
 		// load map layers
 		if(!newMap.isEmpty()){
 			DataServiceAsync.Util.getInstance().getLayerList(newMap, new AsyncCallback<List<KingdomLayer>>() {
-
+				
 				@Override
 				public void onFailure(Throwable caught){
 				}
-
+				
 				@Override
 				public void onSuccess(List<KingdomLayer> result){
-					if(!result.isEmpty()){
-						display.setLayers(result);
-						Bus.get().fireEvent(new EventEnableMapView(true));
+					// prepend grid layer
+					KingdomGridLayer gridLayer = new KingdomGridLayer(-2, "Grid", "grid", true, "image/png", "EPSG:4326", 0.5f, MapSize.COUNTRY_MAP);
+					
+					List<KingdomLayer> layers = new ArrayList<KingdomLayer>();
+					layers.add(gridLayer);
+					
+					for(KingdomLayer layer : result){
+						layers.add(layer);
 					}
-					else{
-						Bus.get().fireEvent(new EventEnableMapView(false));
+					
+					// add layers to map object
+					for(KingdomLayer layer : layers){
+						newMap.addLayer(layer);
 					}
+					
+					// add layers to layer tree view
+					display.setLayers(layers);
+					
+					// add layers to map view
+					Bus.get().fireEvent(new EventAddNewMap(newMap));
+					
+					// enable map view
+					Bus.get().fireEvent(new EventEnableMapView(true));
 				}
 			});
 		}
