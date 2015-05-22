@@ -23,7 +23,6 @@ import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
 import si.roskar.diploma.shared.MapSize;
 
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Widget;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.button.ToggleButton;
@@ -40,11 +39,13 @@ public class MapView implements Display{
 	private TextButton							zoomToExtent		= null;
 	private TextButton							navigateBack		= null;
 	private TextButton							navigateForward		= null;
+	private ToggleButton						grid				= null;
 	private ToggleButton						draw				= null;
 	private KingdomMap							kingdomMap			= null;
 	private ToolBar								drawingToolbar		= null;
 	private KingdomLayer						currentLayer		= null;
 	private java.util.Map<KingdomLayer, WMS>	layerHashMap		= null;
+	private WMS									gridLayer			= null;
 	
 	public MapView(){
 		
@@ -100,9 +101,15 @@ public class MapView implements Display{
 		navigateForward.setIcon(Resources.ICONS.right());
 		navigateForward.setToolTip("Forward");
 		
+		grid = new ToggleButton();
+		grid.setIcon(Resources.ICONS.grid());
+		grid.setToolTip("Show/hide grid");
+		grid.setValue(true);
+		
 		viewingToolbar.add(zoomToExtent);
 		viewingToolbar.add(navigateBack);
 		viewingToolbar.add(navigateForward);
+		viewingToolbar.add(grid);
 		
 		// create drawing toolbar
 		drawingToolbar = new ToolBar();
@@ -161,6 +168,11 @@ public class MapView implements Display{
 	@Override
 	public ToggleButton getDrawButton(){
 		return draw;
+	}
+	
+	@Override
+	public ToggleButton getGridButton(){
+		return grid;
 	}
 	
 	private void addLayerToMap(KingdomLayer layer){
@@ -260,8 +272,19 @@ public class MapView implements Display{
 			mapWidget.getMap().addLayer(wms);
 			
 			layerHashMap.put(layer, wms);
+			
+			if(layer instanceof KingdomGridLayer){
+				gridLayer = wms;
+			}
 		}
 		
 		zoomToStartingBounds();
+	}
+	
+	@Override
+	public void toggleGridVisible(boolean visible){
+		if(gridLayer != null){
+			gridLayer.setIsVisible(visible);
+		}
 	}
 }

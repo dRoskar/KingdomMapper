@@ -534,6 +534,9 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 				
 				@Override
 				public void onSuccess(List<KingdomLayer> result){
+					// add layers to layer tree view
+					display.setLayers(result);
+					
 					// prepend grid layer
 					KingdomGridLayer gridLayer = new KingdomGridLayer(-2, "Grid", "grid", true, "image/png", "EPSG:4326", 0.5f, MapSize.COUNTRY_MAP);
 					
@@ -548,9 +551,6 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 					for(KingdomLayer layer : layers){
 						newMap.addLayer(layer);
 					}
-					
-					// add layers to layer tree view
-					display.setLayers(layers);
 					
 					// add layers to map view
 					Bus.get().fireEvent(new EventAddNewMap(newMap));

@@ -54,6 +54,10 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		KingdomLayer getCurrentLayer();
 		
 		void setCurrentLayer(KingdomLayer currentLayer);
+		
+		ToggleButton getGridButton();
+		
+		void toggleGridVisible(boolean visible);
 	}
 	
 	public interface AddMarkerDisplay extends View{
@@ -202,11 +206,12 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			}
 		});
 		
-		display.getOLMap().getEvents().register("zoomend", display.getOLMap(), new EventHandler() {
+		// grid button
+		display.getGridButton().addSelectHandler(new SelectHandler() {
 			
 			@Override
-			public void onHandle(EventObject eventObject){
-//				System.out.println(display.getOLMap().getExtent().toString());
+			public void onSelect(SelectEvent event){
+				display.toggleGridVisible(display.getGridButton().getValue());
 			}
 		});
 	}

@@ -52,6 +52,9 @@ public class Resources{
 		
 		@Source("map_save.png")
 		ImageResource mapSave();
+		
+		@Source("grid.png")
+		ImageResource grid();
 	}
 	
 	public static final Icons	ICONS	= GWT.create(Icons.class);
