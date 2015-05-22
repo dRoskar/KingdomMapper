@@ -19,6 +19,7 @@ import si.roskar.diploma.shared.GeometryType;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
 
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Widget;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.button.ToggleButton;
@@ -42,44 +43,38 @@ public class MapView implements Display{
 		
 		// define map options
 		MapOptions mapOptions = new MapOptions();
-//		mapOptions.setMaxExtent(new Bounds(-109.05, 37.99, -102.05, 41.00));
-//		mapOptions.setNumZoomLevels(16);
+		mapOptions.setMaxExtent(new Bounds(-109.545, 36.699, -101.545, 44.1));
+		mapOptions.setNumZoomLevels(21);
 		mapOptions.setProjection("EPSG:4326");
 		mapOptions.setDisplayProjection(new Projection("EPSG:4326"));
 		mapOptions.setUnits(MapUnits.DEGREES);
 		mapOptions.setAllOverlays(true);
-//		mapOptions.setRestrictedExtent((new Bounds(-109.05, 37.99, -102.05, 41.00)));
+		mapOptions.setRestrictedExtent((new Bounds(-109.545, 36.699, -101.545, 44.1)));
+
 		
-		// states layer
-		WMSParams stateParams = new WMSParams();
-		stateParams.setFormat("image/png");
-		stateParams.setLayers("topp:states");
-		stateParams.setStyles("population");
-		
-		// test layer
-		WMSParams wmsParams = new WMSParams();
-		wmsParams.setFormat("image/png");
-		wmsParams.setLayers("kingdom:line");
-		wmsParams.setStyles("line");
-		wmsParams.setTransparent(true);
+		// grid layer
+		WMSParams gridParams = new WMSParams();
+		gridParams.setFormat("image/png");
+		gridParams.setLayers("kingdom:line");
+		gridParams.setStyles("grid");
+		gridParams.setTransparent(true);
+		gridParams.setCQLFilter("IN ('line.11')");
 		
 		WMSOptions wmsLayerParams = new WMSOptions();
 		wmsLayerParams.setTransitionEffect(TransitionEffect.RESIZE);
 		
 		String wmsUrl = "http://127.0.0.1:8080/geoserver/wms";
 		
-		WMS statesLayer = new WMS("states", wmsUrl, stateParams, wmsLayerParams);
-		WMS wmsLayer = new WMS("Basic WMS", wmsUrl, wmsParams, wmsLayerParams);
-		wmsLayer.setOpacity(0.5f);
-//		wmsLayer.setIsVisible(false);
+		WMS gridLayer = new WMS("Basic WMS", wmsUrl, gridParams, wmsLayerParams);
+		gridLayer.setOpacity(0.5f);
+		gridLayer.setIsVisible(false);
 		
 		// create map widget
 		mapWidget = new MapWidget("100%", "100%", mapOptions);
 		
 		Map map = mapWidget.getMap();
 		
-		map.addLayer(statesLayer);
-		map.addLayer(wmsLayer);
+		map.addLayer(gridLayer);
 		map.addControl(new ScaleLine());
 		
 		// create viewing toolbar
@@ -112,7 +107,25 @@ public class MapView implements Display{
 		drawingToolbar.hide();
 		
 		// create map container
-		container = new VerticalLayoutContainer();
+		container = new VerticalLayoutContainer(){
+			
+			@Override
+			public void forceLayout(){
+				
+				super.forceLayout();
+				
+				Timer timer = new Timer(){
+					
+					@Override
+					public void run(){
+						zoomToStartingBounds();
+					}
+				};
+				
+				// wait 50ms for the map to intialize
+				timer.schedule(50);
+			}
+		};
 		
 		container.setBorders(false);
 		
@@ -190,5 +203,13 @@ public class MapView implements Display{
 	@Override
 	public void setCurrentLayer(KingdomLayer currentLayer){
 		this.currentLayer = currentLayer;
+	}
+	
+	private void zoomToStartingBounds(){
+		if(mapWidget == null || mapWidget.getMap() == null || mapWidget.getMap().getLayers().length == 0){
+			return;
+		}
+		
+		mapWidget.getMap().zoomToExtent(new Bounds(-105.591875,40.365717041016,-105.498125,40.433282958984));
 	}
 }

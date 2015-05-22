@@ -1,6 +1,8 @@
 package si.roskar.diploma.client.presenter;
 
 import org.gwtopenmaps.openlayers.client.Map;
+import org.gwtopenmaps.openlayers.client.event.EventHandler;
+import org.gwtopenmaps.openlayers.client.event.EventObject;
 import org.gwtopenmaps.openlayers.client.event.MapClickListener;
 
 import si.roskar.diploma.client.DataServiceAsync;
@@ -213,6 +215,14 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					
 					addMarkerDisplay.show();
 				}
+			}
+		});
+		
+		display.getOLMap().getEvents().register("zoomend", display.getOLMap(), new EventHandler() {
+			
+			@Override
+			public void onHandle(EventObject eventObject){
+//				System.out.println(display.getOLMap().getExtent().toString());
 			}
 		});
 	}

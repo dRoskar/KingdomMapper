@@ -42,6 +42,8 @@ public class InitialPresenter extends PresenterImpl<InitialPresenter.Display>{
 		
 		// create layer presenter
 		new LayerPresenter(new LayerView()).go(display.getWestContainer());
+		
+		display.forceLayout();
 	}
 	
 	@Override
