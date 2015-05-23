@@ -10,10 +10,19 @@ import org.gwtopenmaps.openlayers.client.MapWidget;
 import org.gwtopenmaps.openlayers.client.Projection;
 import org.gwtopenmaps.openlayers.client.control.LayerSwitcher;
 import org.gwtopenmaps.openlayers.client.control.ScaleLine;
+import org.gwtopenmaps.openlayers.client.filter.ComparisonFilter;
+import org.gwtopenmaps.openlayers.client.filter.ComparisonFilter.Types;
 import org.gwtopenmaps.openlayers.client.layer.TransitionEffect;
+import org.gwtopenmaps.openlayers.client.layer.Vector;
+import org.gwtopenmaps.openlayers.client.layer.VectorOptions;
+import org.gwtopenmaps.openlayers.client.layer.WFS;
 import org.gwtopenmaps.openlayers.client.layer.WMS;
 import org.gwtopenmaps.openlayers.client.layer.WMSOptions;
 import org.gwtopenmaps.openlayers.client.layer.WMSParams;
+import org.gwtopenmaps.openlayers.client.protocol.WFSProtocol;
+import org.gwtopenmaps.openlayers.client.protocol.WFSProtocolOptions;
+import org.gwtopenmaps.openlayers.client.strategy.BBoxStrategy;
+import org.gwtopenmaps.openlayers.client.strategy.Strategy;
 
 import si.roskar.diploma.client.presenter.MapPresenter.Display;
 import si.roskar.diploma.client.resources.Resources;
@@ -44,8 +53,10 @@ public class MapView implements Display{
 	private KingdomMap							kingdomMap			= null;
 	private ToolBar								drawingToolbar		= null;
 	private KingdomLayer						currentLayer		= null;
-	private java.util.Map<KingdomLayer, WMS>	layerHashMap		= null;
+	private java.util.Map<KingdomLayer, WMS>	wmsLayerHashMap		= null;
+	private java.util.Map<KingdomLayer, Vector>	wfsLayerHashMap		= null;
 	private WMS									gridLayer			= null;
+	private KingdomLayer						editingLayer		= null;
 	
 	public MapView(){
 		
@@ -60,29 +71,30 @@ public class MapView implements Display{
 		mapOptions.setRestrictedExtent((new Bounds(-109.545, 36.699, -101.545, 44.1)));
 		
 		// grid layer
-//		WMSParams gridParams = new WMSParams();
-//		gridParams.setFormat("image/png");
-//		gridParams.setLayers("kingdom:line");
-//		gridParams.setStyles("grid");
-//		gridParams.setTransparent(true);
-//		gridParams.setCQLFilter("IN ('line.11')");
+		// WMSParams gridParams = new WMSParams();
+		// gridParams.setFormat("image/png");
+		// gridParams.setLayers("kingdom:line");
+		// gridParams.setStyles("grid");
+		// gridParams.setTransparent(true);
+		// gridParams.setCQLFilter("IN ('line.11')");
 		
-//		WMSOptions wmsLayerParams = new WMSOptions();
-//		wmsLayerParams.setTransitionEffect(TransitionEffect.RESIZE);
-//		wmsLayerParams.setIsBaseLayer(true);
+		// WMSOptions wmsLayerParams = new WMSOptions();
+		// wmsLayerParams.setTransitionEffect(TransitionEffect.RESIZE);
+		// wmsLayerParams.setIsBaseLayer(true);
 		
-//		String wmsUrl = "http://127.0.0.1:8080/geoserver/wms";
+		// String wmsUrl = "http://127.0.0.1:8080/geoserver/wms";
 		
-//		WMS gridLayer = new WMS("Basic WMS", wmsUrl, gridParams, wmsLayerParams);
-//		gridLayer.setOpacity(0.5f);
-//		 gridLayer.setIsVisible(false);
+		// WMS gridLayer = new WMS("Basic WMS", wmsUrl, gridParams,
+		// wmsLayerParams);
+		// gridLayer.setOpacity(0.5f);
+		// gridLayer.setIsVisible(false);
 		
 		// create map widget
 		mapWidget = new MapWidget("100%", "100%", mapOptions);
 		
 		Map map = mapWidget.getMap();
 		
-//		map.addLayer(gridLayer);
+		// map.addLayer(gridLayer);
 		map.addControl(new ScaleLine());
 		map.addControl(new LayerSwitcher());
 		
@@ -217,7 +229,8 @@ public class MapView implements Display{
 	}
 	
 	private void setUpLayers(KingdomMap map){
-		layerHashMap = new HashMap<KingdomLayer, WMS>();
+		wmsLayerHashMap = new HashMap<KingdomLayer, WMS>();
+		wfsLayerHashMap = new HashMap<KingdomLayer, Vector>();
 		
 		// clear old layers if any
 		if(mapWidget.getMap().getBaseLayer() != null){
@@ -228,8 +241,7 @@ public class MapView implements Display{
 		if(map.getMapSize().equals(MapSize.COUNTRY_MAP)){
 			mapWidget.getMap().setMaxExtent(countryGridExtent);
 			mapWidget.getMap().setRestrictedExtent(countryGridExtent);
-		}
-		else{
+		}else{
 			// TODO
 			mapWidget.getMap().setMaxExtent(countryGridExtent);
 			mapWidget.getMap().setRestrictedExtent(countryGridExtent);
@@ -237,6 +249,7 @@ public class MapView implements Display{
 		
 		// add layers to map
 		for(KingdomLayer layer : map.getLayers()){
+			// WMS
 			WMSOptions wmsOptions = new WMSOptions();
 			wmsOptions.setTransitionEffect(TransitionEffect.NONE);
 			
@@ -246,19 +259,16 @@ public class MapView implements Display{
 			layerParams.setTransparent(true);
 			
 			if(layer instanceof KingdomGridLayer){
-				layerParams.setLayers("kingdom:line");	
-				layerParams.setCQLFilter("IN ('line." + ((KingdomGridLayer)layer).getDBKey() + "')");
-			}
-			else{
+				layerParams.setLayers("kingdom:line");
+				layerParams.setCQLFilter("IN ('line." + ((KingdomGridLayer) layer).getDBKey() + "')");
+			}else{
 				if(layer.getGeometryType().equals(GeometryType.POINT)){
 					layerParams.setLayers("kingdom:point");
 					layerParams.setCQLFilter("layer_id = " + layer.getId());
-				}
-				else if(layer.getGeometryType().equals(GeometryType.LINE)){
+				}else if(layer.getGeometryType().equals(GeometryType.LINE)){
 					layerParams.setLayers("kingdom:line");
 					layerParams.setCQLFilter("layer_id = " + layer.getId());
-				}
-				else{
+				}else{
 					layerParams.setLayers("kingdom:polygon");
 					layerParams.setCQLFilter("layer_id = " + layer.getId());
 				}
@@ -271,11 +281,47 @@ public class MapView implements Display{
 			
 			mapWidget.getMap().addLayer(wms);
 			
-			layerHashMap.put(layer, wms);
+			wmsLayerHashMap.put(layer, wms);
 			
 			if(layer instanceof KingdomGridLayer){
 				gridLayer = wms;
 			}
+			
+			// WFS
+			if(layer instanceof KingdomGridLayer){
+				continue;
+			}
+			
+			WFSProtocolOptions wfsProtocolOptions = new WFSProtocolOptions();
+			wfsProtocolOptions.setUrl("http://127.0.0.1:8080/geoserver/wfs/");
+			
+			if(layer.getGeometryType().equals(GeometryType.POINT)){
+				wfsProtocolOptions.setFeatureType("point");
+			}
+			else if(layer.getGeometryType().equals(GeometryType.LINE)){
+				wfsProtocolOptions.setFeatureType("line");
+			}
+			else{
+				wfsProtocolOptions.setFeatureType("polygon");
+			}
+			
+			wfsProtocolOptions.setFeatureNameSpace("http://kingdom.si");
+			
+			WFSProtocol wfsProtocol = new WFSProtocol(wfsProtocolOptions);
+			
+			VectorOptions vectorOptions = new VectorOptions();
+			vectorOptions.setProtocol(wfsProtocol);
+			vectorOptions.setStrategies(new Strategy[]{new BBoxStrategy()});
+			
+			ComparisonFilter wfsFilter = new ComparisonFilter();
+			wfsFilter.setType(Types.EQUAL_TO);
+			wfsFilter.setProperty("layer_id");
+			wfsFilter.setNumberValue(layer.getId());
+			
+			Vector wfsLayer = new Vector(layer.getName() + "Wfs", vectorOptions);
+			wfsLayer.setFilter(wfsFilter);
+			
+			wfsLayerHashMap.put(layer, wfsLayer);
 		}
 		
 		zoomToStartingBounds();
@@ -286,5 +332,17 @@ public class MapView implements Display{
 		if(gridLayer != null){
 			gridLayer.setIsVisible(visible);
 		}
+	}
+	
+	@Override
+	public void setLayerEditMode(KingdomLayer layer){
+		editingLayer = layer;
+		
+		WMS wmsLayer = wmsLayerHashMap.get(layer);
+		Vector wfsLayer = wfsLayerHashMap.get(layer);
+		
+		wmsLayer.setIsVisible(false);
+		
+		mapWidget.getMap().addLayer(wfsLayer);
 	}
 }

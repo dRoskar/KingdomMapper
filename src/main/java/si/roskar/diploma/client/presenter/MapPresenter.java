@@ -8,6 +8,7 @@ import org.gwtopenmaps.openlayers.client.event.MapClickListener;
 import si.roskar.diploma.client.DataServiceAsync;
 import si.roskar.diploma.client.event.Bus;
 import si.roskar.diploma.client.event.EventAddNewLayer;
+import si.roskar.diploma.client.event.EventGetSelectedLayer;
 import si.roskar.diploma.client.event.EventAddNewLayer.EventAddNewLayerHandler;
 import si.roskar.diploma.client.event.EventAddNewMap;
 import si.roskar.diploma.client.event.EventAddNewMap.EventAddNewMapHandler;
@@ -58,6 +59,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		ToggleButton getGridButton();
 		
 		void toggleGridVisible(boolean visible);
+		
+		void setLayerEditMode(KingdomLayer layer);
 	}
 	
 	public interface AddMarkerDisplay extends View{
@@ -212,6 +215,24 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			@Override
 			public void onSelect(SelectEvent event){
 				display.toggleGridVisible(display.getGridButton().getValue());
+			}
+		});
+		
+		// handle draw button click
+		display.getDrawButton().addSelectHandler(new SelectHandler() {
+			
+			@Override
+			public void onSelect(SelectEvent event){
+				if(display.getDrawButton().getValue()){
+					// retrieve selected layer
+					Bus.get().fireEvent(new EventGetSelectedLayer() {
+						
+						@Override
+						public void setLayer(KingdomLayer selectedLayer){
+							display.setLayerEditMode(selectedLayer);
+						}
+					});
+				}
 			}
 		});
 	}
