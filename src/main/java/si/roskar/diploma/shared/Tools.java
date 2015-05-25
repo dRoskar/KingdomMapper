@@ -65,4 +65,52 @@ public class Tools{
 		
 		return wkt;
 	}
+	
+	public static String wktToGmlFriendly(String wktGeometry){
+		// convert point
+		if(wktGeometry.contains("POINT")){
+			// remove geometry type label
+			wktGeometry = wktGeometry.substring(wktGeometry.indexOf("("));
+			
+			// remove outer brackets
+			wktGeometry = wktGeometry.substring(1, wktGeometry.length() -1);
+			
+			// switch space and colon
+			wktGeometry = wktGeometry.replace(" ", ",");
+			
+			return wktGeometry;
+		}
+		
+		if(wktGeometry.contains("LINESTRING")){
+			// remove geometry type label
+			wktGeometry = wktGeometry.substring(wktGeometry.indexOf("("));
+			
+			// remove outer brackets
+			wktGeometry = wktGeometry.substring(1, wktGeometry.length() -1);
+			
+			// switch spaces and colons
+			wktGeometry = wktGeometry.replace(",", "|");
+			wktGeometry = wktGeometry.replace(" ", ",");
+			wktGeometry = wktGeometry.replace("|", " ");
+			
+			return wktGeometry;
+		}
+		
+		if(wktGeometry.contains("POLYGON")){
+			// remove geometry type label
+			wktGeometry = wktGeometry.substring(wktGeometry.indexOf("("));
+			
+			// remove outer brackets
+			wktGeometry = wktGeometry.substring(2, wktGeometry.length() -2);
+			
+			// switch spaces and colons
+			wktGeometry = wktGeometry.replace(",", "|");
+			wktGeometry = wktGeometry.replace(" ", ",");
+			wktGeometry = wktGeometry.replace("|", " ");
+			
+			return wktGeometry;
+		}
+		
+		return null;
+	}
 }

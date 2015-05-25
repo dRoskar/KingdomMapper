@@ -1,0 +1,3 @@
+[X] disable drawing toolbar
+[ ] points aren't showing
+[ ] if deleting layer, delete all its items first; same if deleting maps; same if deleting users

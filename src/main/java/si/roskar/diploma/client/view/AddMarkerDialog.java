@@ -20,6 +20,7 @@ public class AddMarkerDialog extends Window implements AddMarkerDisplay{
 	private TextButton	cancelButton	= null;
 	private boolean		isValid			= false;
 	private boolean		isBound			= false;
+	private String		wktGeometry		= null;
 	
 	public AddMarkerDialog(){
 		super();
@@ -63,7 +64,9 @@ public class AddMarkerDialog extends Window implements AddMarkerDisplay{
 	}
 	
 	@Override
-	public void show(){
+	public void show(String wktGeometry){
+		this.wktGeometry = wktGeometry;
+		
 		label.clear();
 		description.clear();
 		super.show();
@@ -93,24 +96,34 @@ public class AddMarkerDialog extends Window implements AddMarkerDisplay{
 	public TextButton getCancelButton(){
 		return cancelButton;
 	}
-
+	
 	@Override
 	public boolean isBound(){
 		return isBound;
 	}
-
+	
 	@Override
 	public void setIsBound(boolean isBound){
-		this.isBound = isBound;	
+		this.isBound = isBound;
 	}
-
+	
 	@Override
 	public boolean isValid(){
 		return label.isValid();
 	}
-
+	
 	@Override
 	public void setValid(boolean isValid){
 		this.isValid = isValid;
+	}
+	
+	@Override
+	public void setGeometry(String wktGeometry){
+		this.wktGeometry = wktGeometry;
+	}
+	
+	@Override
+	public String getGeometry(){
+		return wktGeometry;
 	}
 }

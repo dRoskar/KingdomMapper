@@ -9,8 +9,10 @@ import si.roskar.diploma.client.event.EventAddNewMap;
 import si.roskar.diploma.client.event.EventChangeDrawButtonType;
 import si.roskar.diploma.client.event.EventChangeMapNameHeader;
 import si.roskar.diploma.client.event.EventEnableMapView;
+import si.roskar.diploma.client.event.EventGetSelectedLayer;
+import si.roskar.diploma.client.event.EventGetSelectedLayer.EventGetSelectedLayerHandler;
 import si.roskar.diploma.client.event.EventSetCurrentLayer;
-import si.roskar.diploma.client.event.EventShowDrawingToolbar;
+import si.roskar.diploma.client.event.EventEnableDrawingToolbar;
 import si.roskar.diploma.client.view.AddLayerDialog;
 import si.roskar.diploma.client.view.ExistingMapsWindow;
 import si.roskar.diploma.client.view.NewMapDialog;
@@ -79,6 +81,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 		Tree<KingdomLayer, String> getLayerTree();
 		
 		HasSelectionHandlers<Item> getDeleteLayerItem();
+		
+		KingdomLayer getSelectedLayer();
 	}
 	
 	public interface AddLayerDisplay extends View{
@@ -499,11 +503,20 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 					Bus.get().fireEvent(new EventChangeDrawButtonType(selectedLayer.getGeometryType()));
 					
 					// show drawing toolbar
-					Bus.get().fireEvent(new EventShowDrawingToolbar(true));
+					Bus.get().fireEvent(new EventEnableDrawingToolbar(true));
 					
 					// set current layer
 					Bus.get().fireEvent(new EventSetCurrentLayer(selectedLayer));
 				}
+			}
+		});
+		
+		// handle get selected layer event
+		Bus.get().addHandler(EventGetSelectedLayer.TYPE, new EventGetSelectedLayerHandler(){
+
+			@Override
+			public void onGetSelectedLayer(EventGetSelectedLayer event){
+				event.setLayer(display.getSelectedLayer());
 			}
 		});
 	};

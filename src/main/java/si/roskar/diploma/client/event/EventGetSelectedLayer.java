@@ -12,7 +12,7 @@ public abstract class EventGetSelectedLayer extends GwtEvent<EventGetSelectedLay
 		void onGetSelectedLayer(EventGetSelectedLayer event);
 	}
 	
-	public Type<EventGetSelectedLayerHandler> TYPE = new Type<EventGetSelectedLayerHandler>();
+	public static Type<EventGetSelectedLayerHandler> TYPE = new Type<EventGetSelectedLayerHandler>();
 
 	@Override
 	public Type<EventGetSelectedLayerHandler> getAssociatedType(){

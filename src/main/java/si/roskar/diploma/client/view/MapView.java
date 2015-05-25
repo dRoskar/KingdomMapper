@@ -8,14 +8,17 @@ import org.gwtopenmaps.openlayers.client.MapOptions;
 import org.gwtopenmaps.openlayers.client.MapUnits;
 import org.gwtopenmaps.openlayers.client.MapWidget;
 import org.gwtopenmaps.openlayers.client.Projection;
+import org.gwtopenmaps.openlayers.client.control.DrawFeature;
 import org.gwtopenmaps.openlayers.client.control.LayerSwitcher;
 import org.gwtopenmaps.openlayers.client.control.ScaleLine;
 import org.gwtopenmaps.openlayers.client.filter.ComparisonFilter;
 import org.gwtopenmaps.openlayers.client.filter.ComparisonFilter.Types;
+import org.gwtopenmaps.openlayers.client.handler.PathHandler;
+import org.gwtopenmaps.openlayers.client.handler.PointHandler;
+import org.gwtopenmaps.openlayers.client.handler.PolygonHandler;
 import org.gwtopenmaps.openlayers.client.layer.TransitionEffect;
 import org.gwtopenmaps.openlayers.client.layer.Vector;
 import org.gwtopenmaps.openlayers.client.layer.VectorOptions;
-import org.gwtopenmaps.openlayers.client.layer.WFS;
 import org.gwtopenmaps.openlayers.client.layer.WMS;
 import org.gwtopenmaps.openlayers.client.layer.WMSOptions;
 import org.gwtopenmaps.openlayers.client.layer.WMSParams;
@@ -57,6 +60,7 @@ public class MapView implements Display{
 	private java.util.Map<KingdomLayer, Vector>	wfsLayerHashMap		= null;
 	private WMS									gridLayer			= null;
 	private KingdomLayer						editingLayer		= null;
+	private DrawFeature							currentDrawControl	= null;
 	
 	public MapView(){
 		
@@ -69,25 +73,6 @@ public class MapView implements Display{
 		mapOptions.setUnits(MapUnits.DEGREES);
 		mapOptions.setAllOverlays(true);
 		mapOptions.setRestrictedExtent((new Bounds(-109.545, 36.699, -101.545, 44.1)));
-		
-		// grid layer
-		// WMSParams gridParams = new WMSParams();
-		// gridParams.setFormat("image/png");
-		// gridParams.setLayers("kingdom:line");
-		// gridParams.setStyles("grid");
-		// gridParams.setTransparent(true);
-		// gridParams.setCQLFilter("IN ('line.11')");
-		
-		// WMSOptions wmsLayerParams = new WMSOptions();
-		// wmsLayerParams.setTransitionEffect(TransitionEffect.RESIZE);
-		// wmsLayerParams.setIsBaseLayer(true);
-		
-		// String wmsUrl = "http://127.0.0.1:8080/geoserver/wms";
-		
-		// WMS gridLayer = new WMS("Basic WMS", wmsUrl, gridParams,
-		// wmsLayerParams);
-		// gridLayer.setOpacity(0.5f);
-		// gridLayer.setIsVisible(false);
 		
 		// create map widget
 		mapWidget = new MapWidget("100%", "100%", mapOptions);
@@ -131,7 +116,7 @@ public class MapView implements Display{
 		draw.setToolTip("Draw");
 		
 		drawingToolbar.add(draw);
-		drawingToolbar.hide();
+		drawingToolbar.disable();
 		
 		// create map container
 		container = new VerticalLayoutContainer();
@@ -141,7 +126,6 @@ public class MapView implements Display{
 		container.add(viewingToolbar);
 		container.add(drawingToolbar);
 		container.add(mapWidget, new VerticalLayoutData(1, 1));
-		
 	}
 	
 	@Override
@@ -344,5 +328,32 @@ public class MapView implements Display{
 		wmsLayer.setIsVisible(false);
 		
 		mapWidget.getMap().addLayer(wfsLayer);
+		currentDrawControl = createDrawFeatureControll(wfsLayer);
+		mapWidget.getMap().addControl(currentDrawControl);
+		currentDrawControl.activate();
+	}
+	
+	private DrawFeature createDrawFeatureControll(Vector vectorLayer){
+		if(editingLayer != null){
+			if(editingLayer.getGeometryType().equals(GeometryType.POINT)){
+				DrawFeature drawPointFeature = new DrawFeature(vectorLayer, new PointHandler());
+				return drawPointFeature;
+			}
+			else if(editingLayer.getGeometryType().equals(GeometryType.LINE)){
+				DrawFeature drawLineFeature = new DrawFeature(vectorLayer, new PathHandler());
+				return drawLineFeature;
+			}
+			else if(editingLayer.getGeometryType().equals(GeometryType.POLYGON)){
+				DrawFeature drawPolygonFeature = new DrawFeature(vectorLayer, new PolygonHandler());
+				return drawPolygonFeature;
+			}
+		}
+		
+		return null;
+	}
+	
+	@Override
+	public java.util.Map<KingdomLayer, Vector> getWfsLayerHashMap(){
+		return wfsLayerHashMap;
 	}
 }

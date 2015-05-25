@@ -200,4 +200,9 @@ public class LayerView implements Display{
 	public HasSelectionHandlers<Item> getDeleteLayerItem(){
 		return (MenuItem) layerContextMenu.getItemByItemId("deleteLayer");
 	}
+	
+	@Override
+	public KingdomLayer getSelectedLayer(){
+		return layerTree.getSelectionModel().getSelectedItem();
+	}
 }
