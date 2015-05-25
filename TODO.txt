@@ -1,3 +1,7 @@
 [X] disable drawing toolbar
-[ ] points aren't showing
+[X] points aren't showing
+[ ] wfs layers aren't showing data
+[ ] switch between layers when editing mode is on
 [ ] if deleting layer, delete all its items first; same if deleting maps; same if deleting users
+[ ] adding new maps
+[ ] adding new layers

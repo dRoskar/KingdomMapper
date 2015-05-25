@@ -319,7 +319,7 @@ public class MapView implements Display{
 	}
 	
 	@Override
-	public void setLayerEditMode(KingdomLayer layer){
+	public void enableEditMode(KingdomLayer layer){
 		editingLayer = layer;
 		
 		WMS wmsLayer = wmsLayerHashMap.get(layer);
@@ -331,6 +331,18 @@ public class MapView implements Display{
 		currentDrawControl = createDrawFeatureControll(wfsLayer);
 		mapWidget.getMap().addControl(currentDrawControl);
 		currentDrawControl.activate();
+	}
+	
+	@Override
+	public void disableEditMode(){
+		if(editingLayer != null){
+			WMS wmsLayer = wmsLayerHashMap.get(editingLayer);
+			Vector wfsLayer = wfsLayerHashMap.get(editingLayer);
+			
+			mapWidget.getMap().removeLayer(wfsLayer);
+			
+			wmsLayer.setIsVisible(true);
+		}
 	}
 	
 	private DrawFeature createDrawFeatureControll(Vector vectorLayer){

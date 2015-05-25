@@ -23,6 +23,8 @@ import si.roskar.diploma.shared.GeometryType;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
 
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.sencha.gxt.widget.core.client.button.TextButton;
@@ -59,9 +61,12 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		void toggleGridVisible(boolean visible);
 		
-		void setLayerEditMode(KingdomLayer layer);
+		void enableEditMode(KingdomLayer layer);
+		
+		void disableEditMode();
 		
 		java.util.Map<KingdomLayer, Vector> getWfsLayerHashMap();
+		
 	}
 	
 	public interface AddMarkerDisplay extends View{
@@ -249,56 +254,6 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			}
 		});
 		
-		// handle map click events
-//		display.getOLMap().addMapClickListener(new MapClickListener() {
-//			
-//			@Override
-//			public void onClick(final MapClickEvent mapClickEvent){
-//				System.out.println(Tools.createColoradoSizedGrid(100));
-//					
-//				// handle adding markers
-//				if(display.getDrawButton().getValue() && display.getDrawButton().getData("geometryType").equals(GeometryType.POINT)){
-//					if(!addMarkerDisplay.isBound()){
-//						addMarkerDisplay.getAddButton().addSelectHandler(new SelectHandler() {
-//							
-//							@Override
-//							public void onSelect(SelectEvent event){
-//								// evaluate fields
-//								if(addMarkerDisplay.isValid()){
-//									// insert marker
-//									DataServiceAsync.Util.getInstance().insertMarker("http://127.0.0.1:8080/geoserver/wms/", mapClickEvent.getLonLat().lon(), mapClickEvent.getLonLat().lat(), addMarkerDisplay.getLabelField().getText(), addMarkerDisplay.getDescriptionField().getText(), display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
-//
-//										@Override
-//										public void onFailure(Throwable caught){
-//										}
-//
-//										@Override
-//										public void onSuccess(Void result){
-//											System.out.println("marker was apparently added?");
-//										}
-//									});
-//									
-//									addMarkerDisplay.hide();
-//								}
-//							}
-//						});
-//						
-//						addMarkerDisplay.getCancelButton().addSelectHandler(new SelectHandler() {
-//							
-//							@Override
-//							public void onSelect(SelectEvent event){
-//								addMarkerDisplay.hide();
-//							}
-//						});
-//						
-//						addMarkerDisplay.setIsBound(true);
-//					}
-//					
-//					addMarkerDisplay.show();
-//				}
-//			}
-//		});
-		
 		// grid button
 		display.getGridButton().addSelectHandler(new SelectHandler() {
 			
@@ -309,19 +264,22 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		});
 		
 		// handle draw button click
-		display.getDrawButton().addSelectHandler(new SelectHandler() {
+		display.getDrawButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
 			
 			@Override
-			public void onSelect(SelectEvent event){
-				if(display.getDrawButton().getValue()){
+			public void onValueChange(ValueChangeEvent<Boolean> event){
+				if(event.getValue()){
 					// retrieve selected layer
 					Bus.get().fireEvent(new EventGetSelectedLayer() {
 						
 						@Override
 						public void setLayer(KingdomLayer selectedLayer){
-							display.setLayerEditMode(selectedLayer);
+							display.enableEditMode(selectedLayer);
 						}
 					});
+				}else{
+					// disable edit mode
+					display.disableEditMode();
 				}
 			}
 		});
