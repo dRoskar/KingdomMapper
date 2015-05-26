@@ -154,19 +154,26 @@ public class LayerView implements Display{
 	
 	@Override
 	public void addLayer(KingdomLayer layer){
+		layerTree.disableEvents();
 		layerStore.add(layer);
 		layerTree.setChecked(layer, Tree.CheckState.CHECKED);
 		layerTree.getSelectionModel().select(layer, false);
+		layerTree.enableEvents();
 	}
 	
 	@Override
 	public void setLayers(List<KingdomLayer> layers){
 		layerStore.clear();
 		
+		layerTree.disableEvents();
 		for(KingdomLayer layer : layers){
 			layerStore.add(layer);
-			layerTree.setChecked(layer, Tree.CheckState.CHECKED);
+			if(layer.isVisible()){
+				layerTree.setChecked(layer, Tree.CheckState.CHECKED);
+			}
 		}
+		
+		layerTree.enableEvents();
 	}
 	
 	@Override

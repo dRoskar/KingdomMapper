@@ -3,7 +3,7 @@
 [X] wfs layers aren't showing data
 [X] switch between layers when editing mode is on
 [X] editing and drawing happens on seperate vector layers
-[ ] redraw when features are added
+[X] redraw when features are added
 [ ] adding new maps
 [ ] adding new layers
 [ ] if deleting layer, delete all its items first; same if deleting maps; same if deleting users
@@ -27,6 +27,7 @@
 [ ] polygons with holes
 [ ] user specified styles
 [ ] snap
+[ ] snap to grid
 [ ] measure
 [ ] user (security) integration
 [ ] print

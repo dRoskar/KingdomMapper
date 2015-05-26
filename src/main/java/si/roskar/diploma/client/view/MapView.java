@@ -89,7 +89,6 @@ public class MapView implements Display{
 		drawingLayer = new Vector("drawingLayer");
 		
 		map.addControl(new ScaleLine());
-		map.addControl(new LayerSwitcher());
 		
 		// create viewing toolbar
 		ToolBar viewingToolbar = new ToolBar();
@@ -435,5 +434,10 @@ public class MapView implements Display{
 	@Override
 	public WMS getCurrentOLWmsLayer(){
 		return wmsLayerHashMap.get(currentLayer);
+	}
+	
+	@Override
+	public void setLayerVisibility(KingdomLayer layer, boolean visibility){
+		wmsLayerHashMap.get(layer).setIsVisible(visibility);
 	}
 }

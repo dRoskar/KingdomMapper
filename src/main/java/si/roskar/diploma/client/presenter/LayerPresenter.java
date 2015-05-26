@@ -10,6 +10,7 @@ import si.roskar.diploma.client.event.EventChangeDrawButtonType;
 import si.roskar.diploma.client.event.EventChangeMapNameHeader;
 import si.roskar.diploma.client.event.EventEnableMapView;
 import si.roskar.diploma.client.event.EventGetSelectedLayer;
+import si.roskar.diploma.client.event.EventSetLayerVisibility;
 import si.roskar.diploma.client.event.EventGetSelectedLayer.EventGetSelectedLayerHandler;
 import si.roskar.diploma.client.event.EventSetCurrentLayer;
 import si.roskar.diploma.client.event.EventEnableDrawingToolbar;
@@ -42,6 +43,8 @@ import com.sencha.gxt.widget.core.client.ListView;
 import com.sencha.gxt.widget.core.client.Slider;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.button.ToggleButton;
+import com.sencha.gxt.widget.core.client.event.CheckChangeEvent;
+import com.sencha.gxt.widget.core.client.event.CheckChangeEvent.CheckChangeHandler;
 import com.sencha.gxt.widget.core.client.event.DialogHideEvent;
 import com.sencha.gxt.widget.core.client.event.DialogHideEvent.DialogHideHandler;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
@@ -49,6 +52,7 @@ import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
 import com.sencha.gxt.widget.core.client.form.TextField;
 import com.sencha.gxt.widget.core.client.menu.Item;
 import com.sencha.gxt.widget.core.client.tree.Tree;
+import com.sencha.gxt.widget.core.client.tree.Tree.CheckState;
 
 public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 	
@@ -521,6 +525,15 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 			@Override
 			public void onGetSelectedLayer(EventGetSelectedLayer event){
 				event.setLayer(display.getSelectedLayer());
+			}
+		});
+		
+		// handle layer tree checks
+		display.getLayerTree().addCheckChangeHandler(new CheckChangeHandler<KingdomLayer>() {
+
+			@Override
+			public void onCheckChange(CheckChangeEvent<KingdomLayer> event){
+				Bus.get().fireEvent(new EventSetLayerVisibility(event.getItem(), event.getChecked().equals(CheckState.CHECKED)));
 			}
 		});
 	};

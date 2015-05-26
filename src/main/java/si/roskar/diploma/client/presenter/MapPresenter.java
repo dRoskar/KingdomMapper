@@ -2,7 +2,6 @@ package si.roskar.diploma.client.presenter;
 
 import org.gwtopenmaps.openlayers.client.Map;
 import org.gwtopenmaps.openlayers.client.event.VectorFeatureAddedListener;
-import org.gwtopenmaps.openlayers.client.event.VectorFeatureAddedListener.FeatureAddedEvent;
 import org.gwtopenmaps.openlayers.client.layer.Vector;
 import org.gwtopenmaps.openlayers.client.layer.WMS;
 import org.gwtopenmaps.openlayers.client.strategy.RefreshStrategy;
@@ -19,6 +18,8 @@ import si.roskar.diploma.client.event.EventEnableDrawingToolbar;
 import si.roskar.diploma.client.event.EventEnableDrawingToolbar.EventEnableDrawingToolbarHandler;
 import si.roskar.diploma.client.event.EventSetCurrentLayer;
 import si.roskar.diploma.client.event.EventSetCurrentLayer.EventSetCurrentLayerHandler;
+import si.roskar.diploma.client.event.EventSetLayerVisibility;
+import si.roskar.diploma.client.event.EventSetLayerVisibility.EventSetLayerVisibilityHandler;
 import si.roskar.diploma.client.view.AddMarkerDialog;
 import si.roskar.diploma.client.view.View;
 import si.roskar.diploma.shared.GeometryType;
@@ -78,6 +79,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		public void refreshViewingWfsLayer();
 		
 		java.util.Map<KingdomLayer, RefreshStrategy> getRefreshStrategyHashMap();
+		
+		void setLayerVisibility(KingdomLayer layer, boolean visibility);
 	}
 	
 	public interface AddMarkerDisplay extends View{
@@ -302,6 +305,15 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					// disable edit mode
 					display.disableEditMode();
 				}
+			}
+		});
+		
+		// handle layer visibility event
+		Bus.get().addHandler(EventSetLayerVisibility.TYPE, new EventSetLayerVisibilityHandler(){
+
+			@Override
+			public void onSetLayerVisibility(EventSetLayerVisibility event){
+				display.setLayerVisibility(event.getLayer(), event.isVisible());
 			}
 		});
 	}
