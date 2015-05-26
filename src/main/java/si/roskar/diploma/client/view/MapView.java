@@ -7,6 +7,7 @@ import org.gwtopenmaps.openlayers.client.Map;
 import org.gwtopenmaps.openlayers.client.MapOptions;
 import org.gwtopenmaps.openlayers.client.MapUnits;
 import org.gwtopenmaps.openlayers.client.MapWidget;
+import org.gwtopenmaps.openlayers.client.OpenLayers;
 import org.gwtopenmaps.openlayers.client.Projection;
 import org.gwtopenmaps.openlayers.client.control.DrawFeature;
 import org.gwtopenmaps.openlayers.client.control.LayerSwitcher;
@@ -24,7 +25,8 @@ import org.gwtopenmaps.openlayers.client.layer.WMSOptions;
 import org.gwtopenmaps.openlayers.client.layer.WMSParams;
 import org.gwtopenmaps.openlayers.client.protocol.WFSProtocol;
 import org.gwtopenmaps.openlayers.client.protocol.WFSProtocolOptions;
-import org.gwtopenmaps.openlayers.client.strategy.BBoxStrategy;
+import org.gwtopenmaps.openlayers.client.strategy.FixedStrategy;
+import org.gwtopenmaps.openlayers.client.strategy.RefreshStrategy;
 import org.gwtopenmaps.openlayers.client.strategy.Strategy;
 
 import si.roskar.diploma.client.presenter.MapPresenter.Display;
@@ -44,25 +46,29 @@ import com.sencha.gxt.widget.core.client.toolbar.ToolBar;
 
 public class MapView implements Display{
 	
-	private final Bounds						countryGridExtent	= new Bounds(-109.545, 36.699, -101.545, 44.1);
+	private final Bounds									countryGridExtent		= new Bounds(-109.545, 36.699, -101.545, 44.1);
 	
-	private MapWidget							mapWidget			= null;
-	private VerticalLayoutContainer				container			= null;
-	private TextButton							zoomToExtent		= null;
-	private TextButton							navigateBack		= null;
-	private TextButton							navigateForward		= null;
-	private ToggleButton						grid				= null;
-	private ToggleButton						draw				= null;
-	private KingdomMap							kingdomMap			= null;
-	private ToolBar								drawingToolbar		= null;
-	private KingdomLayer						currentLayer		= null;
-	private java.util.Map<KingdomLayer, WMS>	wmsLayerHashMap		= null;
-	private java.util.Map<KingdomLayer, Vector>	wfsLayerHashMap		= null;
-	private WMS									gridLayer			= null;
-	private KingdomLayer						editingLayer		= null;
-	private DrawFeature							currentDrawControl	= null;
+	private MapWidget										mapWidget				= null;
+	private VerticalLayoutContainer							container				= null;
+	private TextButton										zoomToExtent			= null;
+	private TextButton										navigateBack			= null;
+	private TextButton										navigateForward			= null;
+	private ToggleButton									grid					= null;
+	private ToggleButton									draw					= null;
+	private KingdomMap										kingdomMap				= null;
+	private ToolBar											drawingToolbar			= null;
+	private KingdomLayer									currentLayer			= null;
+	private java.util.Map<KingdomLayer, WMS>				wmsLayerHashMap			= null;
+	private java.util.Map<KingdomLayer, Vector>				wfsLayerHashMap			= null;
+	private java.util.Map<KingdomLayer, RefreshStrategy>	refreshStrategyHashMap	= null;
+	private Vector											drawingLayer			= null;
+	private WMS												gridLayer				= null;
+	private KingdomLayer									editingLayer			= null;
+	private DrawFeature										currentDrawControl		= null;
 	
 	public MapView(){
+		
+		OpenLayers.setProxyHost("olproxy?targetURL=");
 		
 		// define map options
 		MapOptions mapOptions = new MapOptions();
@@ -79,7 +85,9 @@ public class MapView implements Display{
 		
 		Map map = mapWidget.getMap();
 		
-		// map.addLayer(gridLayer);
+		// create drawing layer
+		drawingLayer = new Vector("drawingLayer");
+		
 		map.addControl(new ScaleLine());
 		map.addControl(new LayerSwitcher());
 		
@@ -215,6 +223,7 @@ public class MapView implements Display{
 	private void setUpLayers(KingdomMap map){
 		wmsLayerHashMap = new HashMap<KingdomLayer, WMS>();
 		wfsLayerHashMap = new HashMap<KingdomLayer, Vector>();
+		refreshStrategyHashMap = new HashMap<KingdomLayer, RefreshStrategy>();
 		
 		// clear old layers if any
 		if(mapWidget.getMap().getBaseLayer() != null){
@@ -231,7 +240,6 @@ public class MapView implements Display{
 			mapWidget.getMap().setRestrictedExtent(countryGridExtent);
 		}
 		
-		// add layers to map
 		for(KingdomLayer layer : map.getLayers()){
 			// WMS
 			WMSOptions wmsOptions = new WMSOptions();
@@ -281,11 +289,9 @@ public class MapView implements Display{
 			
 			if(layer.getGeometryType().equals(GeometryType.POINT)){
 				wfsProtocolOptions.setFeatureType("point");
-			}
-			else if(layer.getGeometryType().equals(GeometryType.LINE)){
+			}else if(layer.getGeometryType().equals(GeometryType.LINE)){
 				wfsProtocolOptions.setFeatureType("line");
-			}
-			else{
+			}else{
 				wfsProtocolOptions.setFeatureType("polygon");
 			}
 			
@@ -293,9 +299,12 @@ public class MapView implements Display{
 			
 			WFSProtocol wfsProtocol = new WFSProtocol(wfsProtocolOptions);
 			
+			RefreshStrategy refreshStrategy = new RefreshStrategy();
+			refreshStrategy.setForce(true);
+			
 			VectorOptions vectorOptions = new VectorOptions();
 			vectorOptions.setProtocol(wfsProtocol);
-			vectorOptions.setStrategies(new Strategy[]{new BBoxStrategy()});
+			vectorOptions.setStrategies(new Strategy[] { new FixedStrategy(), refreshStrategy });
 			
 			ComparisonFilter wfsFilter = new ComparisonFilter();
 			wfsFilter.setType(Types.EQUAL_TO);
@@ -306,6 +315,7 @@ public class MapView implements Display{
 			wfsLayer.setFilter(wfsFilter);
 			
 			wfsLayerHashMap.put(layer, wfsLayer);
+			refreshStrategyHashMap.put(layer, refreshStrategy);
 		}
 		
 		zoomToStartingBounds();
@@ -319,16 +329,19 @@ public class MapView implements Display{
 	}
 	
 	@Override
-	public void enableEditMode(KingdomLayer layer){
-		editingLayer = layer;
+	public void enableEditMode(){
+		editingLayer = currentLayer;
 		
-		WMS wmsLayer = wmsLayerHashMap.get(layer);
-		Vector wfsLayer = wfsLayerHashMap.get(layer);
+		WMS wmsLayer = wmsLayerHashMap.get(currentLayer);
+		Vector wfsLayer = wfsLayerHashMap.get(currentLayer);
 		
 		wmsLayer.setIsVisible(false);
 		
+		// add wfs (viewing and editing) layer
 		mapWidget.getMap().addLayer(wfsLayer);
-		currentDrawControl = createDrawFeatureControll(wfsLayer);
+		
+		// enable drawing
+		currentDrawControl = createDrawFeatureControl(drawingLayer);
 		mapWidget.getMap().addControl(currentDrawControl);
 		currentDrawControl.activate();
 	}
@@ -339,23 +352,58 @@ public class MapView implements Display{
 			WMS wmsLayer = wmsLayerHashMap.get(editingLayer);
 			Vector wfsLayer = wfsLayerHashMap.get(editingLayer);
 			
+			// remove draw control
+			currentDrawControl.deactivate();
+			mapWidget.getMap().removeControl(currentDrawControl);
+			
+			// remove wfs (viewing/editing) layer
 			mapWidget.getMap().removeLayer(wfsLayer);
 			
 			wmsLayer.setIsVisible(true);
 		}
 	}
 	
-	private DrawFeature createDrawFeatureControll(Vector vectorLayer){
+	@Override
+	public void refreshViewingWfsLayer(){
+		if(editingLayer != null){
+			WMS wmsLayer = wmsLayerHashMap.get(editingLayer);
+			Vector wfsLayer = wfsLayerHashMap.get(editingLayer);
+			
+			// remove draw control
+			currentDrawControl.deactivate();
+			mapWidget.getMap().removeControl(currentDrawControl);
+			
+			// remove wfs (viewing/editing) layer
+			mapWidget.getMap().removeLayer(wfsLayer);
+			
+			wmsLayer.setIsVisible(true);
+		}
+		
+		editingLayer = currentLayer;
+		
+		WMS wmsLayer = wmsLayerHashMap.get(currentLayer);
+		Vector wfsLayer = wfsLayerHashMap.get(currentLayer);
+		
+		wmsLayer.setIsVisible(false);
+		
+		// add wfs (viewing and editing) layer
+		mapWidget.getMap().addLayer(wfsLayer);
+		
+		// enable drawing
+		currentDrawControl = createDrawFeatureControl(drawingLayer);
+		mapWidget.getMap().addControl(currentDrawControl);
+		currentDrawControl.activate();
+	}
+	
+	private DrawFeature createDrawFeatureControl(Vector vectorLayer){
 		if(editingLayer != null){
 			if(editingLayer.getGeometryType().equals(GeometryType.POINT)){
 				DrawFeature drawPointFeature = new DrawFeature(vectorLayer, new PointHandler());
 				return drawPointFeature;
-			}
-			else if(editingLayer.getGeometryType().equals(GeometryType.LINE)){
+			}else if(editingLayer.getGeometryType().equals(GeometryType.LINE)){
 				DrawFeature drawLineFeature = new DrawFeature(vectorLayer, new PathHandler());
 				return drawLineFeature;
-			}
-			else if(editingLayer.getGeometryType().equals(GeometryType.POLYGON)){
+			}else if(editingLayer.getGeometryType().equals(GeometryType.POLYGON)){
 				DrawFeature drawPolygonFeature = new DrawFeature(vectorLayer, new PolygonHandler());
 				return drawPolygonFeature;
 			}
@@ -367,5 +415,25 @@ public class MapView implements Display{
 	@Override
 	public java.util.Map<KingdomLayer, Vector> getWfsLayerHashMap(){
 		return wfsLayerHashMap;
+	}
+	
+	@Override
+	public java.util.Map<KingdomLayer, RefreshStrategy> getRefreshStrategyHashMap(){
+		return refreshStrategyHashMap;
+	}
+	
+	@Override
+	public Vector getDrawingLayer(){
+		return drawingLayer;
+	}
+	
+	@Override
+	public Vector getCurrentOLWfsLayer(){
+		return wfsLayerHashMap.get(currentLayer);
+	}
+	
+	@Override
+	public WMS getCurrentOLWmsLayer(){
+		return wmsLayerHashMap.get(currentLayer);
 	}
 }

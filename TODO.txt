@@ -1,7 +1,34 @@
 [X] disable drawing toolbar
 [X] points aren't showing
-[ ] wfs layers aren't showing data
-[ ] switch between layers when editing mode is on
-[ ] if deleting layer, delete all its items first; same if deleting maps; same if deleting users
+[X] wfs layers aren't showing data
+[X] switch between layers when editing mode is on
+[X] editing and drawing happens on seperate vector layers
+[ ] redraw when features are added
 [ ] adding new maps
 [ ] adding new layers
+[ ] if deleting layer, delete all its items first; same if deleting maps; same if deleting users
+[ ] deleting layers / maps makes things not break
+[ ] layer tree checking controls visibility
+	
+[ ] layer tree position correlates to z axis
+
+[ ] vector editing
+	[ ] moving vertices
+	[ ] inserting and moving vertices
+	[ ] deleting features
+	[ ] adding description
+	[ ] changing styles
+
+[ ] editing and layer visibility
+	[ ] if layer is not visible you can't edit it (disable edit menu)
+	[ ] layer can't be made invisible while editing
+	[ ] if layer is switched to invisible layer while edit mode is on, exit edit mode and disable edit menu
+	
+[ ] polygons with holes
+[ ] user specified styles
+[ ] snap
+[ ] measure
+[ ] user (security) integration
+[ ] print
+[ ] add different grid size choices
+[ ] limit zoom out

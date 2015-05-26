@@ -502,11 +502,15 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 					// change draw button type
 					Bus.get().fireEvent(new EventChangeDrawButtonType(selectedLayer.getGeometryType()));
 					
-					// show drawing toolbar
+					// enable drawing toolbar
 					Bus.get().fireEvent(new EventEnableDrawingToolbar(true));
 					
 					// set current layer
 					Bus.get().fireEvent(new EventSetCurrentLayer(selectedLayer));
+				}
+				else{
+					// disable drawing toolbar
+					Bus.get().fireEvent(new EventEnableDrawingToolbar(false));
 				}
 			}
 		});

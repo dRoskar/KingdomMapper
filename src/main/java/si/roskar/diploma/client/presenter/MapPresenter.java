@@ -2,7 +2,10 @@ package si.roskar.diploma.client.presenter;
 
 import org.gwtopenmaps.openlayers.client.Map;
 import org.gwtopenmaps.openlayers.client.event.VectorFeatureAddedListener;
+import org.gwtopenmaps.openlayers.client.event.VectorFeatureAddedListener.FeatureAddedEvent;
 import org.gwtopenmaps.openlayers.client.layer.Vector;
+import org.gwtopenmaps.openlayers.client.layer.WMS;
+import org.gwtopenmaps.openlayers.client.strategy.RefreshStrategy;
 
 import si.roskar.diploma.client.DataServiceAsync;
 import si.roskar.diploma.client.event.Bus;
@@ -14,7 +17,6 @@ import si.roskar.diploma.client.event.EventChangeDrawButtonType;
 import si.roskar.diploma.client.event.EventChangeDrawButtonType.EventChangeDrawButtonTypeHandler;
 import si.roskar.diploma.client.event.EventEnableDrawingToolbar;
 import si.roskar.diploma.client.event.EventEnableDrawingToolbar.EventEnableDrawingToolbarHandler;
-import si.roskar.diploma.client.event.EventGetSelectedLayer;
 import si.roskar.diploma.client.event.EventSetCurrentLayer;
 import si.roskar.diploma.client.event.EventSetCurrentLayer.EventSetCurrentLayerHandler;
 import si.roskar.diploma.client.view.AddMarkerDialog;
@@ -61,12 +63,21 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		void toggleGridVisible(boolean visible);
 		
-		void enableEditMode(KingdomLayer layer);
+		void enableEditMode();
 		
 		void disableEditMode();
 		
 		java.util.Map<KingdomLayer, Vector> getWfsLayerHashMap();
 		
+		Vector getDrawingLayer();
+		
+		Vector getCurrentOLWfsLayer();
+		
+		WMS getCurrentOLWmsLayer();
+		
+		public void refreshViewingWfsLayer();
+		
+		java.util.Map<KingdomLayer, RefreshStrategy> getRefreshStrategyHashMap();
 	}
 	
 	public interface AddMarkerDisplay extends View{
@@ -121,89 +132,99 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				display.addNewMap(event.getNewMap());
 				
 				// bind feature added events
-				for(Vector wfsLayer : display.getWfsLayerHashMap().values()){
-					wfsLayer.addVectorFeatureAddedListener(new VectorFeatureAddedListener(){
-
-						@Override
-						public void onFeatureAdded(FeatureAddedEvent eventObject){							
-							// get geometry type
-							String geometryType = display.getCurrentLayer().getGeometryType();
-							
-							String geometry = eventObject.getVectorFeature().getGeometry().toString();
-							
-							// POINT
-							if(geometryType.equals(GeometryType.POINT)){
-								if(!addMarkerDisplay.isBound()){
-									addMarkerDisplay.getAddButton().addSelectHandler(new SelectHandler() {
-										
-										@Override
-										public void onSelect(SelectEvent event){
-											// evaluate fields
-											if(addMarkerDisplay.isValid()){
-												// insert marker
-												DataServiceAsync.Util.getInstance().insertMarker("http://127.0.0.1:8080/geoserver/wms/", addMarkerDisplay.getGeometry(), addMarkerDisplay.getLabelField().getText(), addMarkerDisplay.getDescriptionField().getText(), display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
-
-													@Override
-													public void onFailure(Throwable caught){
-													}
-
-													@Override
-													public void onSuccess(Void result){
-														System.out.println("marker was apparently added?");
-													}
-												});
-												
-												addMarkerDisplay.hide();
-											}
-										}
-									});
+				display.getDrawingLayer().addVectorFeatureAddedListener(new VectorFeatureAddedListener() {
+					
+					@Override
+					public void onFeatureAdded(FeatureAddedEvent eventObject){
+						// get geometry type
+						String geometryType = display.getCurrentLayer().getGeometryType();
+						
+						String geometry = eventObject.getVectorFeature().getGeometry().toString();
+						
+						// POINT
+						if(geometryType.equals(GeometryType.POINT)){
+							if(!addMarkerDisplay.isBound()){
+								addMarkerDisplay.getAddButton().addSelectHandler(new SelectHandler() {
 									
-									addMarkerDisplay.getCancelButton().addSelectHandler(new SelectHandler() {
-										
-										@Override
-										public void onSelect(SelectEvent event){
+									@Override
+									public void onSelect(SelectEvent event){
+										// evaluate fields
+										if(addMarkerDisplay.isValid()){
+											// insert marker
+											DataServiceAsync.Util.getInstance().insertMarker("http://127.0.0.1:8080/geoserver/wms/", addMarkerDisplay.getGeometry(), addMarkerDisplay.getLabelField().getText(), addMarkerDisplay.getDescriptionField().getText(), display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
+
+												@Override
+												public void onFailure(Throwable caught){
+												}
+
+												@Override
+												public void onSuccess(Void result){
+													System.out.println("marker added");
+													
+													// redraw layers
+													display.getRefreshStrategyHashMap().get(display.getCurrentLayer()).refresh();
+													display.getCurrentOLWmsLayer().redraw();
+												}
+											});
+											
 											addMarkerDisplay.hide();
 										}
-									});
-									
-									addMarkerDisplay.setIsBound(true);
-								}
+									}
+								});
 								
-								addMarkerDisplay.show(geometry);
-							}
-							
-							// LINE
-							if(geometryType.equals(GeometryType.LINE)){
-								DataServiceAsync.Util.getInstance().insertLine("http://127.0.0.1:8080/geoserver/wms/", geometry, "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
-
+								addMarkerDisplay.getCancelButton().addSelectHandler(new SelectHandler() {
+									
 									@Override
-									public void onFailure(Throwable caught){
-									}
-
-									@Override
-									public void onSuccess(Void result){
-										System.out.println("line added");
+									public void onSelect(SelectEvent event){
+										addMarkerDisplay.hide();
 									}
 								});
+								
+								addMarkerDisplay.setIsBound(true);
 							}
 							
-							// POLYGON
-							if(geometryType.equals(GeometryType.POLYGON)){
-								DataServiceAsync.Util.getInstance().insertPolygon("http://127.0.0.1:8080/geoserver/wms/", geometry, "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
-
-									@Override
-									public void onFailure(Throwable caught){
-									}
-
-									@Override
-									public void onSuccess(Void result){
-										System.out.println("polygon added");
-									}
-								});
-							}
+							addMarkerDisplay.show(geometry);
 						}
-					});
-				}
+						
+						// LINE
+						if(geometryType.equals(GeometryType.LINE)){
+							DataServiceAsync.Util.getInstance().insertLine("http://127.0.0.1:8080/geoserver/wms/", geometry, "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
+
+								@Override
+								public void onFailure(Throwable caught){
+								}
+
+								@Override
+								public void onSuccess(Void result){
+									System.out.println("line added");
+									
+									// redraw layers
+									display.getRefreshStrategyHashMap().get(display.getCurrentLayer()).refresh();
+									display.getCurrentOLWmsLayer().redraw();
+								}
+							});
+						}
+						
+						// POLYGON
+						if(geometryType.equals(GeometryType.POLYGON)){
+							DataServiceAsync.Util.getInstance().insertPolygon("http://127.0.0.1:8080/geoserver/wms/", geometry, "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
+
+								@Override
+								public void onFailure(Throwable caught){
+								}
+
+								@Override
+								public void onSuccess(Void result){
+									System.out.println("polygon added");
+									
+									// redraw layers
+									display.getRefreshStrategyHashMap().get(display.getCurrentLayer()).refresh();
+									display.getCurrentOLWmsLayer().redraw();
+								}
+							});
+						}
+					}
+				});
 			}
 		});
 		
@@ -251,6 +272,12 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			@Override
 			public void onSetCurrentLayer(EventSetCurrentLayer event){
 				display.setCurrentLayer(event.getCurrentLayer());
+				
+				// if edit mode is on switch active wfs layers
+				if(display.getDrawButton().getValue()){
+					display.disableEditMode();
+					display.enableEditMode();
+				}
 			}
 		});
 		
@@ -269,14 +296,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event){
 				if(event.getValue()){
-					// retrieve selected layer
-					Bus.get().fireEvent(new EventGetSelectedLayer() {
-						
-						@Override
-						public void setLayer(KingdomLayer selectedLayer){
-							display.enableEditMode(selectedLayer);
-						}
-					});
+					// enable edit mode
+					display.enableEditMode();
 				}else{
 					// disable edit mode
 					display.disableEditMode();
