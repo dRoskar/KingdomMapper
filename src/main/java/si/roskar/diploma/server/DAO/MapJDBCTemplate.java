@@ -13,6 +13,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
 import si.roskar.diploma.shared.KingdomMap;
+import si.roskar.diploma.shared.Tools;
 
 public class MapJDBCTemplate{
 	private DataSource dataSource = null;
@@ -28,6 +29,12 @@ public class MapJDBCTemplate{
 	}
 
 	public int insert(String name, int userId){
+		
+		// escape unicode
+		name = Tools.encodeToNumericCharacterReference(name);
+		
+		// escape apostrophes
+		name = name.replace("'", "''");
 		
 		final String SQL = "INSERT INTO public.\"Map\"(name, user_id) VALUES ('" + name + "', " + userId + ")";
 		KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -45,6 +52,12 @@ public class MapJDBCTemplate{
 	
 	public boolean mapExists(String mapName, int userId){
 		
+		// escape unicode
+		mapName = Tools.encodeToNumericCharacterReference(mapName);
+				
+		// escape apostrophes
+		mapName = mapName.replace("'", "''");
+
 		final String SQL = "SELECT * FROM public.\"Map\" WHERE user_id=" + userId + " AND name='" + mapName + "'";
 		
 		List<KingdomMap> maps = jdbcTemplateObject.query(SQL, new MapDataMapper());

@@ -13,6 +13,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
 import si.roskar.diploma.shared.KingdomLayer;
+import si.roskar.diploma.shared.Tools;
 
 public class LayerJDBCTemplate{
 	private DataSource		dataSource			= null;
@@ -28,6 +29,12 @@ public class LayerJDBCTemplate{
 	}
 	
 	public int insert(String name, String style, boolean visibility, String geometryType, int mapId){
+		
+		// escape unicode
+		name = Tools.encodeToNumericCharacterReference(name);
+				
+		// escape apostrophes
+		name = name.replace("'", "''");
 		
 		String visibilityString = visibility == true ? "TRUE" : "FALSE";
 		final String SQL = "INSERT INTO public.\"Layer\"(name, style, visibility, geometry_type, map_id) VALUES ('" + name + "', '" + style + "', " + visibilityString + ", '" + geometryType + "', "
@@ -46,6 +53,13 @@ public class LayerJDBCTemplate{
 	}
 	
 	public boolean layerExists(String name, int mapId){
+		
+		// escape unicode
+		name = Tools.encodeToNumericCharacterReference(name);
+				
+		// escape apostrophes
+		name = name.replace("'", "''");
+		
 		final String SQL = "SELECT * FROM public.\"Layer\" WHERE map_id=" + mapId + " AND name='" + name + "'";
 		
 		List<KingdomLayer> layers = jdbcTemplateObject.query(SQL, new LayerDataMapper());

@@ -95,6 +95,10 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		label = Tools.encodeToNumericCharacterReference(label);
 		description = Tools.encodeToNumericCharacterReference(description);
 		
+		// escape apostrophes
+		label = label.replace("'", "''");
+		description = description.replace("'", "''");
+		
 		// assemble request XML
 		String xml = "<wfs:Transaction service=\"WFS\" version=\"1.0.0\"\r\n" + 
 				"  xmlns:wfs=\"http://www.opengis.net/wfs\"\r\n" + 
@@ -177,6 +181,9 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		// encode special characters
 		description = Tools.encodeToNumericCharacterReference(description);
 		
+		// escape apostrophes
+		description = description.replace("'", "''");
+		
 		// assemble request XML
 		String xml = "<wfs:Transaction service=\"WFS\" version=\"1.0.0\"\r\n" + 
 				"  xmlns:wfs=\"http://www.opengis.net/wfs\"\r\n" + 
@@ -214,6 +221,9 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		
 		// encode special characters
 		description = Tools.encodeToNumericCharacterReference(description);
+		
+		// escape apostrophes
+		description = description.replace("'", "''");
 		
 		// assemble request XML
 		String xml = "<wfs:Transaction service=\"WFS\" version=\"1.0.0\"\r\n" + 
