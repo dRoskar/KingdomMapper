@@ -333,6 +333,12 @@ public class MapView implements Display{
 			// add wfs (viewing and editing) layer
 			mapWidget.getMap().addLayer(wfsLayer);
 			
+			// discard old drawing control (just in case)
+			if(currentDrawControl != null){
+				mapWidget.getMap().removeControl(currentDrawControl);
+				currentDrawControl.destroy();
+			}
+			
 			// enable drawing
 			currentDrawControl = createDrawFeatureControl(drawingLayer);
 			mapWidget.getMap().addControl(currentDrawControl);
@@ -352,6 +358,7 @@ public class MapView implements Display{
 			// remove draw control
 			currentDrawControl.deactivate();
 			mapWidget.getMap().removeControl(currentDrawControl);
+			currentDrawControl.destroy();
 			
 			// remove wfs (viewing/editing) layer
 			mapWidget.getMap().removeLayer(wfsLayer);
