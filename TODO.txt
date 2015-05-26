@@ -1,6 +1,4 @@
 [X] disable drawing toolbar
-[X] points aren't showing
-[X] wfs layers aren't showing data
 [X] switch between layers when editing mode is on
 [X] editing and drawing happens on seperate vector layers
 [X] redraw when features are added
@@ -8,7 +6,7 @@
 [ ] adding new layers
 [ ] if deleting layer, delete all its items first; same if deleting maps; same if deleting users
 [ ] deleting layers / maps makes things not break
-[ ] layer tree checking controls visibility
+[X] layer tree checking controls visibility
 	
 [ ] layer tree position correlates to z axis
 
@@ -28,8 +26,18 @@
 [ ] user specified styles
 [ ] snap
 [ ] snap to grid
+[ ] loading bars
+[ ] info indicators
 [ ] measure
 [ ] user (security) integration
 [ ] print
 [ ] add different grid size choices
 [ ] limit zoom out
+
+
+## BUGS ##
+[X] points aren't showing
+[X] wfs layers aren't showing data
+[ ] switch maps around a bit, load an empty map, create a layer, add a polynom, makes 3 polynoms. I think the drawing vector might be getting stacked
+[ ] database special characters (naming a layer "santa's house" kills the app)
+[ ] when drawing a polygon, user can hold shift and click, making a polygon with only one point, which is invalid (probably also fails for lines)

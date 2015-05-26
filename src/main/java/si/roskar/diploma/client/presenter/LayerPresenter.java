@@ -5,12 +5,14 @@ import java.util.List;
 
 import si.roskar.diploma.client.DataServiceAsync;
 import si.roskar.diploma.client.event.Bus;
+import si.roskar.diploma.client.event.EventAddNewLayer;
 import si.roskar.diploma.client.event.EventAddNewMap;
 import si.roskar.diploma.client.event.EventChangeDrawButtonType;
 import si.roskar.diploma.client.event.EventChangeMapNameHeader;
 import si.roskar.diploma.client.event.EventEnableMapView;
 import si.roskar.diploma.client.event.EventGetSelectedLayer;
 import si.roskar.diploma.client.event.EventSetLayerVisibility;
+import si.roskar.diploma.client.event.EventToggleEditMode;
 import si.roskar.diploma.client.event.EventGetSelectedLayer.EventGetSelectedLayerHandler;
 import si.roskar.diploma.client.event.EventSetCurrentLayer;
 import si.roskar.diploma.client.event.EventEnableDrawingToolbar;
@@ -175,6 +177,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 			public void onSelect(SelectEvent event){
 				newMapDisplay.show();
 				
+				Bus.get().fireEvent(new EventToggleEditMode(false));
+				
 				// bind events
 				if(!newMapDisplay.isBound()){
 					
@@ -243,6 +247,9 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 			
 			@Override
 			public void onSelect(SelectEvent event){
+				// disable edit mode
+				Bus.get().fireEvent(new EventToggleEditMode(false));
+				
 				// fetch existing map data
 				DataServiceAsync.Util.getInstance().getMapList(display.getCurrentUser(), new AsyncCallback<List<KingdomMap>>() {
 					
@@ -396,10 +403,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 													// add layer to layer tree
 													display.addLayer(newLayer);
 													
-													display.getCurrentMap().setEmpty(false);
-													
-													// enable map view
-													Bus.get().fireEvent(new EventEnableMapView(true));
+													// add layer to OL map
+													Bus.get().fireEvent(new EventAddNewLayer(newLayer));
 												}
 											});
 											
@@ -555,40 +560,38 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 		Bus.get().fireEvent(new EventChangeMapNameHeader(newMap.getName()));
 		
 		// load map layers
-		if(!newMap.isEmpty()){
-			DataServiceAsync.Util.getInstance().getLayerList(newMap, new AsyncCallback<List<KingdomLayer>>() {
+		DataServiceAsync.Util.getInstance().getLayerList(newMap, new AsyncCallback<List<KingdomLayer>>() {
+			
+			@Override
+			public void onFailure(Throwable caught){
+			}
+			
+			@Override
+			public void onSuccess(List<KingdomLayer> result){
+				// add layers to layer tree view
+				display.setLayers(result);
 				
-				@Override
-				public void onFailure(Throwable caught){
+				// prepend grid layer
+				KingdomGridLayer gridLayer = new KingdomGridLayer(-2, "Grid", "grid", true, "image/png", "EPSG:4326", 0.5f, MapSize.COUNTRY_MAP);
+				
+				List<KingdomLayer> layers = new ArrayList<KingdomLayer>();
+				layers.add(gridLayer);
+				
+				for(KingdomLayer layer : result){
+					layers.add(layer);
 				}
 				
-				@Override
-				public void onSuccess(List<KingdomLayer> result){
-					// add layers to layer tree view
-					display.setLayers(result);
-					
-					// prepend grid layer
-					KingdomGridLayer gridLayer = new KingdomGridLayer(-2, "Grid", "grid", true, "image/png", "EPSG:4326", 0.5f, MapSize.COUNTRY_MAP);
-					
-					List<KingdomLayer> layers = new ArrayList<KingdomLayer>();
-					layers.add(gridLayer);
-					
-					for(KingdomLayer layer : result){
-						layers.add(layer);
-					}
-					
-					// add layers to map object
-					for(KingdomLayer layer : layers){
-						newMap.addLayer(layer);
-					}
-					
-					// add layers to map view
-					Bus.get().fireEvent(new EventAddNewMap(newMap));
-					
-					// enable map view
-					Bus.get().fireEvent(new EventEnableMapView(true));
+				// add layers to map object
+				for(KingdomLayer layer : layers){
+					newMap.addLayer(layer);
 				}
-			});
-		}
+				
+				// add layers to map view
+				Bus.get().fireEvent(new EventAddNewMap(newMap));
+				
+				// enable map view
+				Bus.get().fireEvent(new EventEnableMapView(true));
+			}
+		});
 	}
 }

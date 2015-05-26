@@ -20,6 +20,8 @@ import si.roskar.diploma.client.event.EventSetCurrentLayer;
 import si.roskar.diploma.client.event.EventSetCurrentLayer.EventSetCurrentLayerHandler;
 import si.roskar.diploma.client.event.EventSetLayerVisibility;
 import si.roskar.diploma.client.event.EventSetLayerVisibility.EventSetLayerVisibilityHandler;
+import si.roskar.diploma.client.event.EventToggleEditMode;
+import si.roskar.diploma.client.event.EventToggleEditMode.EventToggleEditModeHandler;
 import si.roskar.diploma.client.view.AddMarkerDialog;
 import si.roskar.diploma.client.view.View;
 import si.roskar.diploma.shared.GeometryType;
@@ -76,8 +78,6 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		WMS getCurrentOLWmsLayer();
 		
-		public void refreshViewingWfsLayer();
-		
 		java.util.Map<KingdomLayer, RefreshStrategy> getRefreshStrategyHashMap();
 		
 		void setLayerVisibility(KingdomLayer layer, boolean visibility);
@@ -133,6 +133,9 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			@Override
 			public void onAddNewMap(EventAddNewMap event){
 				display.addNewMap(event.getNewMap());
+				
+				// if map has more than a grid layer, select the first layer
+				
 				
 				// bind feature added events
 				display.getDrawingLayer().addVectorFeatureAddedListener(new VectorFeatureAddedListener() {
@@ -235,13 +238,6 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		Bus.get().addHandler(EventAddNewLayer.TYPE, new EventAddNewLayerHandler() {
 			@Override
 			public void onAddNewLayer(EventAddNewLayer event){
-				// if map was previously empty, enable map view
-				if(display.getMapObject() != null){
-					if(display.getMapObject().getLayers().isEmpty()){
-						
-					}
-				}
-				
 				// add layer to map
 				display.addLayer(event.getLayer());
 			}
@@ -314,6 +310,27 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			@Override
 			public void onSetLayerVisibility(EventSetLayerVisibility event){
 				display.setLayerVisibility(event.getLayer(), event.isVisible());
+			}
+		});
+		
+		// handle edit mode toggle events
+		Bus.get().addHandler(EventToggleEditMode.TYPE, new EventToggleEditModeHandler(){
+
+			@Override
+			public void onToggleEditMode(EventToggleEditMode event){
+				if(event.isEditModeEnabled()){
+					display.enableEditMode(); 
+				}
+				else{
+					display.disableEditMode();
+					
+					// toggle any edit buttons
+					if(display.getDrawButton().getValue()){
+						display.getDrawButton().setValue(false, false);
+					}
+					
+					//TODO: add future edit buttons
+				}
 			}
 		});
 	}

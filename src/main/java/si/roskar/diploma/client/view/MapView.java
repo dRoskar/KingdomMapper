@@ -10,7 +10,6 @@ import org.gwtopenmaps.openlayers.client.MapWidget;
 import org.gwtopenmaps.openlayers.client.OpenLayers;
 import org.gwtopenmaps.openlayers.client.Projection;
 import org.gwtopenmaps.openlayers.client.control.DrawFeature;
-import org.gwtopenmaps.openlayers.client.control.LayerSwitcher;
 import org.gwtopenmaps.openlayers.client.control.ScaleLine;
 import org.gwtopenmaps.openlayers.client.filter.ComparisonFilter;
 import org.gwtopenmaps.openlayers.client.filter.ComparisonFilter.Types;
@@ -153,17 +152,6 @@ public class MapView implements Display{
 	}
 	
 	@Override
-	public void addLayer(KingdomLayer layer){
-		// add layer to map object
-		if(kingdomMap != null){
-			kingdomMap.addLayer(layer);
-		}
-		
-		// add layer to openLayers map
-		addLayerToMap(layer);
-	}
-	
-	@Override
 	public ToolBar getDrawingToolbar(){
 		return drawingToolbar;
 	}
@@ -176,10 +164,6 @@ public class MapView implements Display{
 	@Override
 	public ToggleButton getGridButton(){
 		return grid;
-	}
-	
-	private void addLayerToMap(KingdomLayer layer){
-		
 	}
 	
 	@Override
@@ -224,10 +208,16 @@ public class MapView implements Display{
 		wfsLayerHashMap = new HashMap<KingdomLayer, Vector>();
 		refreshStrategyHashMap = new HashMap<KingdomLayer, RefreshStrategy>();
 		
-		// clear old layers if any
-		if(mapWidget.getMap().getBaseLayer() != null){
-			mapWidget.getMap().removeOverlayLayers();
-		}
+		// clear old layers
+		mapWidget.getMap().removeOverlayLayers();
+		
+		// clear cached layers
+		wmsLayerHashMap.clear();
+		wfsLayerHashMap.clear();
+		refreshStrategyHashMap.clear();
+		
+		currentLayer = null;
+		editingLayer = null;
 		
 		// set map size
 		if(map.getMapSize().equals(MapSize.COUNTRY_MAP)){
@@ -240,49 +230,54 @@ public class MapView implements Display{
 		}
 		
 		for(KingdomLayer layer : map.getLayers()){
-			// WMS
-			WMSOptions wmsOptions = new WMSOptions();
-			wmsOptions.setTransitionEffect(TransitionEffect.NONE);
-			
-			WMSParams layerParams = new WMSParams();
-			layerParams.setFormat(layer.getFormat());
-			layerParams.setStyles(layer.getStyle());
-			layerParams.setTransparent(true);
-			
-			if(layer instanceof KingdomGridLayer){
+			addLayer(layer);
+		}
+		
+		zoomToStartingBounds();
+	}
+	
+	@Override
+	public void addLayer(KingdomLayer layer){
+		// WMS
+		WMSOptions wmsOptions = new WMSOptions();
+		wmsOptions.setTransitionEffect(TransitionEffect.NONE);
+		
+		WMSParams layerParams = new WMSParams();
+		layerParams.setFormat(layer.getFormat());
+		layerParams.setStyles(layer.getStyle());
+		layerParams.setTransparent(true);
+		
+		if(layer instanceof KingdomGridLayer){
+			layerParams.setLayers("kingdom:line");
+			layerParams.setCQLFilter("IN ('line." + ((KingdomGridLayer) layer).getDBKey() + "')");
+		}else{
+			if(layer.getGeometryType().equals(GeometryType.POINT)){
+				layerParams.setLayers("kingdom:point");
+				layerParams.setCQLFilter("layer_id = " + layer.getId());
+			}else if(layer.getGeometryType().equals(GeometryType.LINE)){
 				layerParams.setLayers("kingdom:line");
-				layerParams.setCQLFilter("IN ('line." + ((KingdomGridLayer) layer).getDBKey() + "')");
+				layerParams.setCQLFilter("layer_id = " + layer.getId());
 			}else{
-				if(layer.getGeometryType().equals(GeometryType.POINT)){
-					layerParams.setLayers("kingdom:point");
-					layerParams.setCQLFilter("layer_id = " + layer.getId());
-				}else if(layer.getGeometryType().equals(GeometryType.LINE)){
-					layerParams.setLayers("kingdom:line");
-					layerParams.setCQLFilter("layer_id = " + layer.getId());
-				}else{
-					layerParams.setLayers("kingdom:polygon");
-					layerParams.setCQLFilter("layer_id = " + layer.getId());
-				}
+				layerParams.setLayers("kingdom:polygon");
+				layerParams.setCQLFilter("layer_id = " + layer.getId());
 			}
-			
-			WMS wms = new WMS(layer.getName(), "http://127.0.0.1:8080/geoserver/wms/", layerParams, wmsOptions);
-			
-			wms.setOpacity(layer.getOpacity());
-			wms.setIsVisible(layer.isVisible());
-			
-			mapWidget.getMap().addLayer(wms);
-			
-			wmsLayerHashMap.put(layer, wms);
-			
-			if(layer instanceof KingdomGridLayer){
-				gridLayer = wms;
-			}
-			
-			// WFS
-			if(layer instanceof KingdomGridLayer){
-				continue;
-			}
-			
+		}
+		
+		WMS wms = new WMS(layer.getName(), "http://127.0.0.1:8080/geoserver/wms/", layerParams, wmsOptions);
+		
+		wms.setOpacity(layer.getOpacity());
+		wms.setIsVisible(layer.isVisible());
+		
+		mapWidget.getMap().addLayer(wms);
+		
+		wmsLayerHashMap.put(layer, wms);
+		
+		if(layer instanceof KingdomGridLayer){
+			gridLayer = wms;
+		}
+		
+		// WFS
+		if(!(layer instanceof KingdomGridLayer)){
 			WFSProtocolOptions wfsProtocolOptions = new WFSProtocolOptions();
 			wfsProtocolOptions.setUrl("http://127.0.0.1:8080/geoserver/wfs/");
 			
@@ -316,8 +311,6 @@ public class MapView implements Display{
 			wfsLayerHashMap.put(layer, wfsLayer);
 			refreshStrategyHashMap.put(layer, refreshStrategy);
 		}
-		
-		zoomToStartingBounds();
 	}
 	
 	@Override
@@ -334,15 +327,20 @@ public class MapView implements Display{
 		WMS wmsLayer = wmsLayerHashMap.get(currentLayer);
 		Vector wfsLayer = wfsLayerHashMap.get(currentLayer);
 		
-		wmsLayer.setIsVisible(false);
-		
-		// add wfs (viewing and editing) layer
-		mapWidget.getMap().addLayer(wfsLayer);
-		
-		// enable drawing
-		currentDrawControl = createDrawFeatureControl(drawingLayer);
-		mapWidget.getMap().addControl(currentDrawControl);
-		currentDrawControl.activate();
+		if(wmsLayer != null && wfsLayer != null){
+			wmsLayer.setIsVisible(false);
+			
+			// add wfs (viewing and editing) layer
+			mapWidget.getMap().addLayer(wfsLayer);
+			
+			// enable drawing
+			currentDrawControl = createDrawFeatureControl(drawingLayer);
+			mapWidget.getMap().addControl(currentDrawControl);
+			currentDrawControl.activate();
+		}
+		else{
+			draw.setValue(false);
+		}
 	}
 	
 	@Override
@@ -360,38 +358,6 @@ public class MapView implements Display{
 			
 			wmsLayer.setIsVisible(true);
 		}
-	}
-	
-	@Override
-	public void refreshViewingWfsLayer(){
-		if(editingLayer != null){
-			WMS wmsLayer = wmsLayerHashMap.get(editingLayer);
-			Vector wfsLayer = wfsLayerHashMap.get(editingLayer);
-			
-			// remove draw control
-			currentDrawControl.deactivate();
-			mapWidget.getMap().removeControl(currentDrawControl);
-			
-			// remove wfs (viewing/editing) layer
-			mapWidget.getMap().removeLayer(wfsLayer);
-			
-			wmsLayer.setIsVisible(true);
-		}
-		
-		editingLayer = currentLayer;
-		
-		WMS wmsLayer = wmsLayerHashMap.get(currentLayer);
-		Vector wfsLayer = wfsLayerHashMap.get(currentLayer);
-		
-		wmsLayer.setIsVisible(false);
-		
-		// add wfs (viewing and editing) layer
-		mapWidget.getMap().addLayer(wfsLayer);
-		
-		// enable drawing
-		currentDrawControl = createDrawFeatureControl(drawingLayer);
-		mapWidget.getMap().addControl(currentDrawControl);
-		currentDrawControl.activate();
 	}
 	
 	private DrawFeature createDrawFeatureControl(Vector vectorLayer){
