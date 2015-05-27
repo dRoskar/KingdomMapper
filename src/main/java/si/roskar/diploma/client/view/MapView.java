@@ -64,6 +64,7 @@ public class MapView implements Display{
 	private WMS												gridLayer				= null;
 	private KingdomLayer									editingLayer			= null;
 	private DrawFeature										currentDrawControl		= null;
+	private boolean											isInEditMode			= false;
 	
 	public MapView(){
 		
@@ -327,7 +328,7 @@ public class MapView implements Display{
 		WMS wmsLayer = wmsLayerHashMap.get(currentLayer);
 		Vector wfsLayer = wfsLayerHashMap.get(currentLayer);
 		
-		if(wmsLayer != null && wfsLayer != null){
+		if(wmsLayer != null && wfsLayer != null && !isInEditMode){
 			wmsLayer.setIsVisible(false);
 			
 			// add wfs (viewing and editing) layer
@@ -343,15 +344,16 @@ public class MapView implements Display{
 			currentDrawControl = createDrawFeatureControl(drawingLayer);
 			mapWidget.getMap().addControl(currentDrawControl);
 			currentDrawControl.activate();
-		}
-		else{
+			
+			isInEditMode = true;
+		}else{
 			draw.setValue(false);
 		}
 	}
 	
 	@Override
 	public void disableEditMode(){
-		if(editingLayer != null){
+		if(editingLayer != null && isInEditMode){
 			WMS wmsLayer = wmsLayerHashMap.get(editingLayer);
 			Vector wfsLayer = wfsLayerHashMap.get(editingLayer);
 			
@@ -364,6 +366,8 @@ public class MapView implements Display{
 			mapWidget.getMap().removeLayer(wfsLayer);
 			
 			wmsLayer.setIsVisible(true);
+			
+			isInEditMode = false;
 		}
 	}
 	
@@ -412,5 +416,17 @@ public class MapView implements Display{
 	@Override
 	public void setLayerVisibility(KingdomLayer layer, boolean visibility){
 		wmsLayerHashMap.get(layer).setIsVisible(visibility);
+	}
+	
+	@Override
+	public void removeLayer(KingdomLayer layer){
+		if(isInEditMode){
+			disableEditMode();
+		}
+		
+		mapWidget.getMap().removeLayer(wmsLayerHashMap.get(layer));
+		wmsLayerHashMap.remove(layer);
+		
+		wfsLayerHashMap.remove(layer);
 	}
 }

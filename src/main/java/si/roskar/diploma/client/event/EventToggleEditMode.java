@@ -29,9 +29,7 @@ public class EventToggleEditMode extends GwtEvent<EventToggleEditModeHandler>{
 	public Type<EventToggleEditModeHandler> getAssociatedType(){
 		return TYPE;
 	}
-
-
-
+	
 	@Override
 	protected void dispatch(EventToggleEditModeHandler handler){
 		handler.onToggleEditMode(this);

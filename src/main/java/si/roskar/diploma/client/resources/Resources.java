@@ -55,6 +55,15 @@ public class Resources{
 		
 		@Source("grid.png")
 		ImageResource grid();
+		
+		@Source("delete.png")
+		ImageResource delete();
+		
+		@Source("cancel.png")
+		ImageResource cancel();
+		
+		@Source("accept.png")
+		ImageResource accept();
 	}
 	
 	public static final Icons	ICONS	= GWT.create(Icons.class);

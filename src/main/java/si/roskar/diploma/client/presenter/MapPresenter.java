@@ -16,6 +16,8 @@ import si.roskar.diploma.client.event.EventChangeDrawButtonType;
 import si.roskar.diploma.client.event.EventChangeDrawButtonType.EventChangeDrawButtonTypeHandler;
 import si.roskar.diploma.client.event.EventEnableDrawingToolbar;
 import si.roskar.diploma.client.event.EventEnableDrawingToolbar.EventEnableDrawingToolbarHandler;
+import si.roskar.diploma.client.event.EventRemoveLayerFromMapView;
+import si.roskar.diploma.client.event.EventRemoveLayerFromMapView.EventRemoveLayerFromMapViewHandler;
 import si.roskar.diploma.client.event.EventSetCurrentLayer;
 import si.roskar.diploma.client.event.EventSetCurrentLayer.EventSetCurrentLayerHandler;
 import si.roskar.diploma.client.event.EventSetLayerVisibility;
@@ -81,6 +83,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		java.util.Map<KingdomLayer, RefreshStrategy> getRefreshStrategyHashMap();
 		
 		void setLayerVisibility(KingdomLayer layer, boolean visibility);
+		
+		void removeLayer(KingdomLayer layer);
 	}
 	
 	public interface AddMarkerDisplay extends View{
@@ -201,7 +205,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				}
 				
 				// LINE
-				if(geometryType.equals(GeometryType.LINE)){
+				if(geometryType.equals(GeometryType.LINE) && eventObject.getVectorFeature().getGeometry().getVertices(true).length > 1){
 					DataServiceAsync.Util.getInstance().insertLine("http://127.0.0.1:8080/geoserver/wms/", geometry, "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
 
 						@Override
@@ -220,7 +224,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				}
 				
 				// POLYGON
-				if(geometryType.equals(GeometryType.POLYGON)){
+				if(geometryType.equals(GeometryType.POLYGON) && eventObject.getVectorFeature().getGeometry().getVertices(false).length > 2){
 					DataServiceAsync.Util.getInstance().insertPolygon("http://127.0.0.1:8080/geoserver/wms/", geometry, "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
 
 						@Override
@@ -328,6 +332,15 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					
 					//TODO: add future edit buttons
 				}
+			}
+		});
+		
+		// handle remove layer from view event
+		Bus.get().addHandler(EventRemoveLayerFromMapView.TYPE, new EventRemoveLayerFromMapViewHandler(){
+
+			@Override
+			public void onRemoveLayerFromMapView(EventRemoveLayerFromMapView event){
+				display.removeLayer(event.getLayer());
 			}
 		});
 	}

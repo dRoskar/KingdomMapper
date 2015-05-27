@@ -3,19 +3,22 @@ package si.roskar.diploma.client.presenter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.naming.event.EventDirContext;
+
 import si.roskar.diploma.client.DataServiceAsync;
 import si.roskar.diploma.client.event.Bus;
 import si.roskar.diploma.client.event.EventAddNewLayer;
 import si.roskar.diploma.client.event.EventAddNewMap;
 import si.roskar.diploma.client.event.EventChangeDrawButtonType;
 import si.roskar.diploma.client.event.EventChangeMapNameHeader;
+import si.roskar.diploma.client.event.EventEnableDrawingToolbar;
 import si.roskar.diploma.client.event.EventEnableMapView;
 import si.roskar.diploma.client.event.EventGetSelectedLayer;
+import si.roskar.diploma.client.event.EventGetSelectedLayer.EventGetSelectedLayerHandler;
+import si.roskar.diploma.client.event.EventRemoveLayerFromMapView;
+import si.roskar.diploma.client.event.EventSetCurrentLayer;
 import si.roskar.diploma.client.event.EventSetLayerVisibility;
 import si.roskar.diploma.client.event.EventToggleEditMode;
-import si.roskar.diploma.client.event.EventGetSelectedLayer.EventGetSelectedLayerHandler;
-import si.roskar.diploma.client.event.EventSetCurrentLayer;
-import si.roskar.diploma.client.event.EventEnableDrawingToolbar;
 import si.roskar.diploma.client.view.AddLayerDialog;
 import si.roskar.diploma.client.view.ExistingMapsWindow;
 import si.roskar.diploma.client.view.NewMapDialog;
@@ -28,8 +31,6 @@ import si.roskar.diploma.shared.MapSize;
 
 import com.google.gwt.event.dom.client.DoubleClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickHandler;
-import com.google.gwt.event.logical.shared.BeforeSelectionEvent;
-import com.google.gwt.event.logical.shared.BeforeSelectionHandler;
 import com.google.gwt.event.logical.shared.HasSelectionHandlers;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
@@ -53,6 +54,8 @@ import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
 import com.sencha.gxt.widget.core.client.form.TextField;
 import com.sencha.gxt.widget.core.client.menu.Item;
+import com.sencha.gxt.widget.core.client.selection.SelectionChangedEvent;
+import com.sencha.gxt.widget.core.client.selection.SelectionChangedEvent.SelectionChangedHandler;
 import com.sencha.gxt.widget.core.client.tree.Tree;
 import com.sencha.gxt.widget.core.client.tree.Tree.CheckState;
 
@@ -61,6 +64,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 	public interface Display extends View{
 		
 		TextButton getAddLayerButton();
+		
+		TextButton getDeleteLayerButton();
 		
 		TextButton getNewMapButton();
 		
@@ -210,6 +215,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 												public void onSuccess(Integer result){
 													newMap.setId(result);
 													setMap(newMap);
+													display.getDeleteLayerButton().disable();
 													
 													// hide dialog
 													newMapDisplay.hide();
@@ -272,6 +278,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 									KingdomMap selectedMap = existingMapsDisplay.getListView().getSelectionModel().getSelectedItem();
 									if(selectedMap != null){
 										setMap(selectedMap);
+										display.getDeleteLayerButton().disable();
 										existingMapsDisplay.hide();
 									}
 								}
@@ -285,6 +292,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 									
 									if(selectedMap != null){
 										setMap(selectedMap);
+										display.getDeleteLayerButton().disable();
 										existingMapsDisplay.hide();
 									}
 								}
@@ -451,68 +459,40 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 			}
 		});
 		
+		// handle delete layer button click
+		display.getDeleteLayerButton().addSelectHandler(new SelectHandler() {
+			
+			@Override
+			public void onSelect(SelectEvent event){
+				deleteLayer();
+			}
+		});
+		
+		// handle delete layer from menu click
 		display.getDeleteLayerItem().addSelectionHandler(new SelectionHandler<Item>() {
 			
 			@Override
 			public void onSelection(SelectionEvent<Item> event){
-				final KingdomLayer layer = display.getLayerTree().getSelectionModel().getSelectedItem();
-				
-				if(layer != null){
-					// are you sure?
-					final Dialog dialog = new Dialog();
-					dialog.setHeadingText("Delete layer");
-					dialog.setPredefinedButtons(PredefinedButton.YES, PredefinedButton.NO);
-					dialog.add(new Label("Are you sure you want to delete this layer? All of its contents will be lost forever!"));
-					dialog.setModal(true);
-					dialog.setHideOnButtonClick(true);
-					
-					dialog.addDialogHideHandler(new DialogHideHandler() {
-						
-						@Override
-						public void onDialogHide(DialogHideEvent event){
-							if(event.getHideButton().compareTo(PredefinedButton.YES) == 0){
-								// remove layer from db
-								DataServiceAsync.Util.getInstance().deleteLayer(layer, new AsyncCallback<Boolean>() {
-									
-									@Override
-									public void onFailure(Throwable caught){
-									}
-									
-									@Override
-									public void onSuccess(Boolean result){
-										// TODO: deletion notification
-										
-										// remove layer from tree
-										display.getLayerTree().getStore().remove(layer);
-										
-										// disable map view if tree is now empty
-										if(display.getLayerTree().getStore().getAllItemsCount() < 1){
-											Bus.get().fireEvent(new EventEnableMapView(false));
-										}
-									}
-								});
-							}
-						}
-					});
-					
-					dialog.show();
-				}
+				deleteLayer();
 			}
 		});
 		
 		// handle layer tree item selection
-		display.getLayerTree().getSelectionModel().addBeforeSelectionHandler(new BeforeSelectionHandler<KingdomLayer>() {
-			
+		display.getLayerTree().getSelectionModel().addSelectionChangedHandler(new SelectionChangedHandler<KingdomLayer>() {
+
 			@Override
-			public void onBeforeSelection(BeforeSelectionEvent<KingdomLayer> event){
-				KingdomLayer selectedLayer = event.getItem();
+			public void onSelectionChanged(SelectionChangedEvent<KingdomLayer> event){
+				if(!event.getSelection().isEmpty()){
+					KingdomLayer selectedLayer = event.getSelection().get(0);
 				
-				if(selectedLayer != null){
 					// change draw button type
 					Bus.get().fireEvent(new EventChangeDrawButtonType(selectedLayer.getGeometryType()));
 					
 					// enable drawing toolbar
 					Bus.get().fireEvent(new EventEnableDrawingToolbar(true));
+					
+					// enable delete layer button
+					display.getDeleteLayerButton().enable();
 					
 					// set current layer
 					Bus.get().fireEvent(new EventSetCurrentLayer(selectedLayer));
@@ -520,6 +500,9 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 				else{
 					// disable drawing toolbar
 					Bus.get().fireEvent(new EventEnableDrawingToolbar(false));
+					
+					// disable edit mode
+					Bus.get().fireEvent(new EventToggleEditMode(false));
 				}
 			}
 		});
@@ -593,5 +576,51 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 				Bus.get().fireEvent(new EventEnableMapView(true));
 			}
 		});
+	}
+	
+	private void deleteLayer(){
+		KingdomLayer layer = display.getLayerTree().getSelectionModel().getSelectedItem();
+		
+		if(layer != null){
+			// are you sure?
+			final Dialog dialog = new Dialog();
+			dialog.setHeadingText("Delete layer");
+			dialog.setPredefinedButtons(PredefinedButton.YES, PredefinedButton.NO);
+			dialog.add(new Label("Are you sure you want to delete this layer? All of its contents will be lost forever!"));
+			dialog.setModal(true);
+			dialog.setHideOnButtonClick(true);
+			
+			dialog.addDialogHideHandler(new DialogHideHandler() {
+				
+				@Override
+				public void onDialogHide(DialogHideEvent event){
+					if(event.getHideButton().compareTo(PredefinedButton.YES) == 0){
+						// remove layer from db
+						DataServiceAsync.Util.getInstance().deleteLayer(display.getLayerTree().getSelectionModel().getSelectedItem(), new AsyncCallback<Boolean>() {
+							
+							@Override
+							public void onFailure(Throwable caught){
+							}
+							
+							@Override
+							public void onSuccess(Boolean result){
+								// remove layer from mapview
+								Bus.get().fireEvent(new EventRemoveLayerFromMapView(display.getLayerTree().getSelectionModel().getSelectedItem()));
+								
+								// remove layer from tree
+								display.getLayerTree().getStore().remove(display.getLayerTree().getSelectionModel().getSelectedItem());
+								
+								// disable drawing bar
+								Bus.get().fireEvent(new EventEnableDrawingToolbar(false));
+								
+								// TODO: deletion notification
+							}
+						});
+					}
+				}
+			});
+			
+			dialog.show();
+		}
 	}
 }

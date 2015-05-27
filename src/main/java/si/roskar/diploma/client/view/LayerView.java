@@ -44,6 +44,7 @@ public class LayerView implements Display{
 	private TextButton					newMap				= null;
 	private TextButton					existingMaps		= null;
 	private TextButton					addLayer			= null;
+	private TextButton					deleteLayer			= null;
 	private TreeStore<KingdomLayer>		layerStore			= null;
 	private Tree<KingdomLayer, String>	layerTree			= null;
 	private ContentPanel				layerTreePanel		= null;
@@ -70,10 +71,15 @@ public class LayerView implements Display{
 		
 		// create layer button bar
 		ToolBar layerToolbar = new ToolBar();
-		addLayer = new TextButton("Add Layer", Resources.ICONS.add());
+		addLayer = new TextButton("Add layer", Resources.ICONS.add());
 		addLayer.setToolTip("Add layer");
 		addLayer.disable();
+		
+		deleteLayer = new TextButton("Delete layer", Resources.ICONS.delete());
+		deleteLayer.setToolTip("Delete layer");
+		deleteLayer.disable();
 		layerToolbar.add(addLayer);
+		layerToolbar.add(deleteLayer);
 		
 		// create content panel
 		layerTreePanel = new ContentPanel();
@@ -120,6 +126,11 @@ public class LayerView implements Display{
 	@Override
 	public TextButton getAddLayerButton(){
 		return addLayer;
+	}
+	
+	@Override
+	public TextButton getDeleteLayerButton(){
+		return deleteLayer;
 	}
 	
 	@Override
