@@ -4,15 +4,15 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class KingdomLayer implements IsSerializable{
 	
-	private int			id;
-	private String		name			= null;
-	private String		style			= null;
-	private boolean		visible			= false;
-	private String		format			= "image/png";
-	private String		projection		= "EPSG:4326";
-	private float		opacity			= 1.0f;
-	private String		geometryType	= null;
-	private KingdomMap	map				= null;
+	private int				id;
+	private String			name			= null;
+	private String			style			= null;
+	private boolean			visible			= false;
+	private String			format			= "image/png";
+	private String			projection		= "EPSG:4326";
+	private float			opacity			= 1.0f;
+	private GeometryType	geometryType	= null;
+	private KingdomMap		map				= null;
 	
 	public KingdomLayer(){
 		
@@ -36,7 +36,7 @@ public class KingdomLayer implements IsSerializable{
 	public void setId(int id){
 		this.id = id;
 	}
-
+	
 	public String getName(){
 		return name;
 	}
@@ -85,11 +85,11 @@ public class KingdomLayer implements IsSerializable{
 		this.opacity = opacity;
 	}
 	
-	public String getGeometryType(){
+	public GeometryType getGeometryType(){
 		return geometryType;
 	}
 	
-	public void setGeometryType(String geometryType){
+	public void setGeometryType(GeometryType geometryType){
 		this.geometryType = geometryType;
 	}
 	

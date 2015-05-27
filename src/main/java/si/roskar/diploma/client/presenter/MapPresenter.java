@@ -12,8 +12,8 @@ import si.roskar.diploma.client.event.EventAddNewLayer;
 import si.roskar.diploma.client.event.EventAddNewLayer.EventAddNewLayerHandler;
 import si.roskar.diploma.client.event.EventAddNewMap;
 import si.roskar.diploma.client.event.EventAddNewMap.EventAddNewMapHandler;
-import si.roskar.diploma.client.event.EventChangeDrawButtonType;
-import si.roskar.diploma.client.event.EventChangeDrawButtonType.EventChangeDrawButtonTypeHandler;
+import si.roskar.diploma.client.event.EventChangeEditButtonGroup;
+import si.roskar.diploma.client.event.EventChangeEditButtonGroup.EventChangeEditButtonGroupHandler;
 import si.roskar.diploma.client.event.EventEnableDrawingToolbar;
 import si.roskar.diploma.client.event.EventEnableDrawingToolbar.EventEnableDrawingToolbarHandler;
 import si.roskar.diploma.client.event.EventEnableMapView;
@@ -59,7 +59,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		ToggleButton getDrawButton();
 		
-		void setDrawButtonType(String geometryType);
+		void setEditButtonGroup(GeometryType geometryType);
 		
 		Map getOLMap();
 		
@@ -160,12 +160,13 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			@Override
 			public void onFeatureAdded(FeatureAddedEvent eventObject){
 				// get geometry type
-				String geometryType = display.getCurrentLayer().getGeometryType();
+				GeometryType geometryType = display.getCurrentLayer().getGeometryType();
 				
 				String geometry = eventObject.getVectorFeature().getGeometry().toString();
 				
-				// POINT
-				if(geometryType.equals(GeometryType.POINT)){
+				// MARKER
+				if(geometryType.equals(GeometryType.MARKER)){
+					// adding a marker
 					if(!addMarkerDisplay.isBound()){
 						addMarkerDisplay.getAddButton().addSelectHandler(new SelectHandler() {
 							
@@ -207,6 +208,25 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					}
 					
 					addMarkerDisplay.show(geometry);
+				}
+				
+				// POINT
+				if(geometryType.equals(GeometryType.POINT)){
+					DataServiceAsync.Util.getInstance().insertMarker("http://127.0.0.1:8080/geoserver/wms/", geometry, "", "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
+
+						@Override
+						public void onFailure(Throwable caught){
+						}
+
+						@Override
+						public void onSuccess(Void result){
+							System.out.println("point added");
+							
+							// redraw layers
+							display.getRefreshStrategyHashMap().get(display.getCurrentLayer()).refresh();
+							display.getCurrentOLWmsLayer().redraw();
+						}
+					});
 				}
 				
 				// LINE
@@ -263,11 +283,11 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		});
 		
 		// handle draw button type change event
-		Bus.get().addHandler(EventChangeDrawButtonType.TYPE, new EventChangeDrawButtonTypeHandler() {
+		Bus.get().addHandler(EventChangeEditButtonGroup.TYPE, new EventChangeEditButtonGroupHandler() {
 			
 			@Override
-			public void onEventChangeDrawButtonType(EventChangeDrawButtonType event){
-				display.setDrawButtonType(event.getGeometryType());
+			public void onEventChangeEditButtonGroup(EventChangeEditButtonGroup event){
+				display.setEditButtonGroup(event.getGeometryType());
 			}
 		});
 		

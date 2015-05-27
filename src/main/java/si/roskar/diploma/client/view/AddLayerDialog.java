@@ -24,6 +24,7 @@ public class AddLayerDialog extends Window implements AddLayerDisplay{
 	private ToggleButton	pointType		= null;
 	private ToggleButton	lineType		= null;
 	private ToggleButton	polygonType		= null;
+	private ToggleButton	markerType		= null;
 	private TextButton		addButton		= null;
 	private TextButton		cancelButton	= null;
 	private ToggleGroup		toggleGroup		= null;
@@ -59,21 +60,27 @@ public class AddLayerDialog extends Window implements AddLayerDisplay{
 		pointType = new ToggleButton();
 		pointType.setIcon(Resources.ICONS.pointBig());
 		pointType.setToolTip("Point");
-		pointType.setItemId(GeometryType.POINT);
+		pointType.setItemId(GeometryType.POINT.getGeometryName());
 		
 		lineType = new ToggleButton();
 		lineType.setIcon(Resources.ICONS.lineBig());
 		lineType.setToolTip("Line");
-		lineType.setItemId(GeometryType.LINE);
+		lineType.setItemId(GeometryType.LINE.getGeometryName());
 		
 		polygonType = new ToggleButton();
 		polygonType.setIcon(Resources.ICONS.polygonBig());
 		polygonType.setToolTip("Polygon");
-		polygonType.setItemId(GeometryType.POLYGON);
+		polygonType.setItemId(GeometryType.POLYGON.getGeometryName());
+		
+		markerType = new ToggleButton();
+		markerType.setIcon(Resources.ICONS.markerBig());
+		markerType.setToolTip("Marker");
+		markerType.setItemId(GeometryType.MARKER.getGeometryName());
 		
 		toggleGroup.add(pointType);
 		toggleGroup.add(lineType);
 		toggleGroup.add(polygonType);
+		toggleGroup.add(markerType);
 		
 		// geometry type selection group
 		FieldSet fs = new FieldSet();
@@ -87,6 +94,7 @@ public class AddLayerDialog extends Window implements AddLayerDisplay{
 		bb.add(pointType);
 		bb.add(lineType);
 		bb.add(polygonType);
+		bb.add(markerType);
 		bb.add(new FillToolItem());
 		bb.forceLayout();
 		
@@ -160,7 +168,7 @@ public class AddLayerDialog extends Window implements AddLayerDisplay{
 		}
 		
 		// if none of the buttons are depressed
-		if(!pointType.getValue() && !lineType.getValue() && !polygonType.getValue()){
+		if(!pointType.getValue() && !lineType.getValue() && !polygonType.getValue() && !markerType.getValue()){
 			isValid = false;
 		}
 		

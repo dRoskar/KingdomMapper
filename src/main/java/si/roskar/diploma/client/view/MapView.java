@@ -53,7 +53,7 @@ public class MapView implements Display{
 	private TextButton										navigateBack			= null;
 	private TextButton										navigateForward			= null;
 	private ToggleButton									grid					= null;
-	private ToggleButton									draw					= null;
+	private ToggleButton									drawButton				= null;
 	private KingdomMap										kingdomMap				= null;
 	private ToolBar											drawingToolbar			= null;
 	private KingdomLayer									currentLayer			= null;
@@ -118,11 +118,11 @@ public class MapView implements Display{
 		// create drawing toolbar
 		drawingToolbar = new ToolBar();
 		
-		draw = new ToggleButton();
-		draw.setIcon(Resources.ICONS.line());
-		draw.setToolTip("Draw");
+		drawButton = new ToggleButton();
+		drawButton.setIcon(Resources.ICONS.line());
+		drawButton.setToolTip("Draw");
 		
-		drawingToolbar.add(draw);
+		drawingToolbar.add(drawButton);
 		drawingToolbar.disable();
 		
 		// create map container
@@ -159,7 +159,7 @@ public class MapView implements Display{
 	
 	@Override
 	public ToggleButton getDrawButton(){
-		return draw;
+		return drawButton;
 	}
 	
 	@Override
@@ -168,16 +168,19 @@ public class MapView implements Display{
 	}
 	
 	@Override
-	public void setDrawButtonType(String geometryType){
+	public void setEditButtonGroup(GeometryType geometryType){
 		if(geometryType.equals(GeometryType.POINT)){
-			draw.setIcon(Resources.ICONS.point());
-			draw.setData("geometryType", geometryType);
+			drawButton.setIcon(Resources.ICONS.point());
+			drawButton.setData("geometryType", geometryType);
 		}else if(geometryType.equals(GeometryType.LINE)){
-			draw.setIcon(Resources.ICONS.line());
-			draw.setData("geometryType", geometryType);
-		}else{
-			draw.setIcon(Resources.ICONS.polygon());
-			draw.setData("geometryType", geometryType);
+			drawButton.setIcon(Resources.ICONS.line());
+			drawButton.setData("geometryType", geometryType);
+		}else if(geometryType.equals(GeometryType.POLYGON)){
+			drawButton.setIcon(Resources.ICONS.polygon());
+			drawButton.setData("geometryType", geometryType);
+		}else if(geometryType.equals(GeometryType.MARKER)){
+			drawButton.setIcon(Resources.ICONS.marker());
+			drawButton.setData("geometryType", geometryType);
 		}
 	}
 	
@@ -254,14 +257,15 @@ public class MapView implements Display{
 		}else{
 			if(layer.getGeometryType().equals(GeometryType.POINT)){
 				layerParams.setLayers("kingdom:point");
-				layerParams.setCQLFilter("layer_id = " + layer.getId());
 			}else if(layer.getGeometryType().equals(GeometryType.LINE)){
 				layerParams.setLayers("kingdom:line");
-				layerParams.setCQLFilter("layer_id = " + layer.getId());
-			}else{
+			}else if(layer.getGeometryType().equals(GeometryType.POLYGON)){
 				layerParams.setLayers("kingdom:polygon");
-				layerParams.setCQLFilter("layer_id = " + layer.getId());
+			}else if(layer.getGeometryType().equals(GeometryType.MARKER)){
+				layerParams.setLayers("kingdom:point");
 			}
+			
+			layerParams.setCQLFilter("layer_id = " + layer.getId());
 		}
 		
 		WMS wms = new WMS(layer.getName(), "http://127.0.0.1:8080/geoserver/wms/", layerParams, wmsOptions);
@@ -286,8 +290,10 @@ public class MapView implements Display{
 				wfsProtocolOptions.setFeatureType("point");
 			}else if(layer.getGeometryType().equals(GeometryType.LINE)){
 				wfsProtocolOptions.setFeatureType("line");
-			}else{
+			}else if(layer.getGeometryType().equals(GeometryType.POLYGON)){
 				wfsProtocolOptions.setFeatureType("polygon");
+			}else if(layer.getGeometryType().equals(GeometryType.MARKER)){
+				wfsProtocolOptions.setFeatureType("point");
 			}
 			
 			wfsProtocolOptions.setFeatureNameSpace("http://kingdom.si");
@@ -347,7 +353,7 @@ public class MapView implements Display{
 			
 			isInEditMode = true;
 		}else{
-			draw.setValue(false);
+			drawButton.setValue(false);
 		}
 	}
 	
@@ -373,7 +379,7 @@ public class MapView implements Display{
 	
 	private DrawFeature createDrawFeatureControl(Vector vectorLayer){
 		if(editingLayer != null){
-			if(editingLayer.getGeometryType().equals(GeometryType.POINT)){
+			if(editingLayer.getGeometryType().equals(GeometryType.POINT) || editingLayer.getGeometryType().equals(GeometryType.MARKER)){
 				DrawFeature drawPointFeature = new DrawFeature(vectorLayer, new PointHandler());
 				return drawPointFeature;
 			}else if(editingLayer.getGeometryType().equals(GeometryType.LINE)){

@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
+import si.roskar.diploma.shared.GeometryType;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.Tools;
 
@@ -28,7 +29,7 @@ public class LayerJDBCTemplate{
 		this.jdbcTemplateObject = new JdbcTemplate(dataSource);
 	}
 	
-	public int insert(String name, String style, boolean visibility, String geometryType, int mapId){
+	public int insert(String name, String style, boolean visibility, GeometryType geometryType, int mapId){
 		
 		// escape unicode
 		name = Tools.encodeToNumericCharacterReference(name);
@@ -37,7 +38,7 @@ public class LayerJDBCTemplate{
 		name = name.replace("'", "''");
 		
 		String visibilityString = visibility == true ? "TRUE" : "FALSE";
-		final String SQL = "INSERT INTO public.\"Layer\"(name, style, visibility, geometry_type, map_id) VALUES ('" + name + "', '" + style + "', " + visibilityString + ", '" + geometryType + "', "
+		final String SQL = "INSERT INTO public.\"Layer\"(name, style, visibility, geometry_type, map_id) VALUES ('" + name + "', '" + style + "', " + visibilityString + ", '" + geometryType.getGeometryName() + "', "
 				+ mapId + ")";
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		

@@ -5,6 +5,7 @@ import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
 
+import si.roskar.diploma.shared.GeometryType;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
 
@@ -17,7 +18,7 @@ public class LayerDataMapper implements RowMapper<KingdomLayer>{
 		layer.setName(rs.getString("name"));
 		layer.setStyle(rs.getString("style").equals("null") ? "" : rs.getString("style"));
 		layer.setVisible(rs.getBoolean("visibility"));
-		layer.setGeometryType(rs.getString("geometry_type"));
+		layer.setGeometryType(GeometryType.getTypeFromGeometryName(rs.getString("geometry_type")));
 		
 		KingdomMap map = new KingdomMap();
 		map.setId(rs.getInt("map_id"));

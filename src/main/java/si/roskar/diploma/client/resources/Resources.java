@@ -64,6 +64,12 @@ public class Resources{
 		
 		@Source("accept.png")
 		ImageResource accept();
+		
+		@Source("marker.png")
+		ImageResource marker();
+		
+		@Source("marker_big.png")
+		ImageResource markerBig();
 	}
 	
 	public static final Icons	ICONS	= GWT.create(Icons.class);

@@ -4,8 +4,8 @@
 [X] redraw when features are added
 [X] adding new maps
 [X] adding new layers
-[ ] if deleting layer, delete all its items first; same if deleting maps; same if deleting users
-[ ] deleting layers / maps makes things not break
+[X] if deleting layer, delete all its items first; same if deleting maps; same if deleting users
+[X] deleting layers / maps makes things not break
 [X] layer tree checking controls visibility
 [ ] Markers and points are different things
 	

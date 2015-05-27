@@ -7,7 +7,7 @@ import si.roskar.diploma.client.DataServiceAsync;
 import si.roskar.diploma.client.event.Bus;
 import si.roskar.diploma.client.event.EventAddNewLayer;
 import si.roskar.diploma.client.event.EventAddNewMap;
-import si.roskar.diploma.client.event.EventChangeDrawButtonType;
+import si.roskar.diploma.client.event.EventChangeEditButtonGroup;
 import si.roskar.diploma.client.event.EventChangeMapNameHeader;
 import si.roskar.diploma.client.event.EventEnableDrawingToolbar;
 import si.roskar.diploma.client.event.EventEnableMapView;
@@ -22,6 +22,7 @@ import si.roskar.diploma.client.view.AddLayerDialog;
 import si.roskar.diploma.client.view.ExistingMapsWindow;
 import si.roskar.diploma.client.view.NewMapDialog;
 import si.roskar.diploma.client.view.View;
+import si.roskar.diploma.shared.GeometryType;
 import si.roskar.diploma.shared.KingdomGridLayer;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
@@ -401,7 +402,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 								final KingdomLayer newLayer = new KingdomLayer();
 								newLayer.setName(addLayerDisplay.getNameField().getText());
 								newLayer.setVisible(true);
-								newLayer.setGeometryType(((ToggleButton) addLayerDisplay.getToggleGroup().getValue()).getItemId());
+								newLayer.setGeometryType(GeometryType.getTypeFromGeometryName(((ToggleButton) addLayerDisplay.getToggleGroup().getValue()).getItemId()));
 								newLayer.setMap(display.getCurrentMap());
 								
 								// check if layer already exists for this map
@@ -502,8 +503,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 				if(!event.getSelection().isEmpty()){
 					KingdomLayer selectedLayer = event.getSelection().get(0);
 					
-					// change draw button type
-					Bus.get().fireEvent(new EventChangeDrawButtonType(selectedLayer.getGeometryType()));
+					// change edit button group
+					Bus.get().fireEvent(new EventChangeEditButtonGroup(selectedLayer.getGeometryType()));
 					
 					// enable drawing toolbar
 					Bus.get().fireEvent(new EventEnableDrawingToolbar(true));
