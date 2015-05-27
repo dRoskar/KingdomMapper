@@ -3,8 +3,6 @@ package si.roskar.diploma.client.presenter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.event.EventDirContext;
-
 import si.roskar.diploma.client.DataServiceAsync;
 import si.roskar.diploma.client.event.Bus;
 import si.roskar.diploma.client.event.EventAddNewLayer;
@@ -15,6 +13,7 @@ import si.roskar.diploma.client.event.EventEnableDrawingToolbar;
 import si.roskar.diploma.client.event.EventEnableMapView;
 import si.roskar.diploma.client.event.EventGetSelectedLayer;
 import si.roskar.diploma.client.event.EventGetSelectedLayer.EventGetSelectedLayerHandler;
+import si.roskar.diploma.client.event.EventRemoveCurrentMap;
 import si.roskar.diploma.client.event.EventRemoveLayerFromMapView;
 import si.roskar.diploma.client.event.EventSetCurrentLayer;
 import si.roskar.diploma.client.event.EventSetLayerVisibility;
@@ -83,7 +82,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 		
 		void setLayers(List<KingdomLayer> layers);
 		
-		void enableLayerView();
+		void enableLayerView(boolean enable);
 		
 		Slider getOpacitySlider();
 		
@@ -319,28 +318,46 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 											@Override
 											public void onDialogHide(DialogHideEvent event){
 												if(event.getHideButton().compareTo(PredefinedButton.YES) == 0){
-													// delete map
-													DataServiceAsync.Util.getInstance().deleteMap(selectedMap, new AsyncCallback<Boolean>() {
-														
+													// load map layers
+													DataServiceAsync.Util.getInstance().getLayerList(selectedMap, new AsyncCallback<List<KingdomLayer>>() {
+
 														@Override
 														public void onFailure(Throwable caught){
-															
 														}
-														
+
 														@Override
-														public void onSuccess(Boolean result){
-															// TODO: deletion
-															// notification
+														public void onSuccess(List<KingdomLayer> result){
+															// add layers to map object
+															selectedMap.setLayers(result);
 															
-															// delete from list
-															existingMapsDisplay.getListView().getStore().remove(selectedMap);
-															existingMapsDisplay.getListView().refresh();
-															
-															// TODO:
-															// if deleted map is
-															// current map
-															// if deleted map is
-															// only map
+															// delete map
+															DataServiceAsync.Util.getInstance().deleteMap(selectedMap, new AsyncCallback<Boolean>() {
+																
+																@Override
+																public void onFailure(Throwable caught){
+																	
+																}
+																
+																@Override
+																public void onSuccess(Boolean result){
+																	// delete from list
+																	existingMapsDisplay.getListView().getStore().remove(selectedMap);
+																	existingMapsDisplay.getListView().refresh();
+																	
+																	if(display.getCurrentMap().getId() == selectedMap.getId()){
+																		// clear layer list
+																		display.getAddLayerButton().disable();
+																		display.getDeleteLayerButton().disable();
+																		display.getLayerTree().getStore().clear();
+																		display.enableLayerView(false);
+																		
+																		Bus.get().fireEvent(new EventRemoveCurrentMap());
+																	}
+																	
+																	// TODO: deletion
+																	// notification
+																}
+															});
 														}
 													});
 												}
@@ -479,12 +496,12 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 		
 		// handle layer tree item selection
 		display.getLayerTree().getSelectionModel().addSelectionChangedHandler(new SelectionChangedHandler<KingdomLayer>() {
-
+			
 			@Override
 			public void onSelectionChanged(SelectionChangedEvent<KingdomLayer> event){
 				if(!event.getSelection().isEmpty()){
 					KingdomLayer selectedLayer = event.getSelection().get(0);
-				
+					
 					// change draw button type
 					Bus.get().fireEvent(new EventChangeDrawButtonType(selectedLayer.getGeometryType()));
 					
@@ -496,8 +513,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 					
 					// set current layer
 					Bus.get().fireEvent(new EventSetCurrentLayer(selectedLayer));
-				}
-				else{
+				}else{
 					// disable drawing toolbar
 					Bus.get().fireEvent(new EventEnableDrawingToolbar(false));
 					
@@ -508,8 +524,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 		});
 		
 		// handle get selected layer event
-		Bus.get().addHandler(EventGetSelectedLayer.TYPE, new EventGetSelectedLayerHandler(){
-
+		Bus.get().addHandler(EventGetSelectedLayer.TYPE, new EventGetSelectedLayerHandler() {
+			
 			@Override
 			public void onGetSelectedLayer(EventGetSelectedLayer event){
 				event.setLayer(display.getSelectedLayer());
@@ -518,7 +534,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 		
 		// handle layer tree checks
 		display.getLayerTree().addCheckChangeHandler(new CheckChangeHandler<KingdomLayer>() {
-
+			
 			@Override
 			public void onCheckChange(CheckChangeEvent<KingdomLayer> event){
 				Bus.get().fireEvent(new EventSetLayerVisibility(event.getItem(), event.getChecked().equals(CheckState.CHECKED)));
@@ -534,7 +550,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 		display.getLayerTree().getStore().clear();
 		
 		// enable controls
-		display.enableLayerView();
+		display.enableLayerView(true);
 		
 		// set as current map
 		display.setCurrentMap(newMap);

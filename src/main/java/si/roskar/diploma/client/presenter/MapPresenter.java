@@ -16,6 +16,9 @@ import si.roskar.diploma.client.event.EventChangeDrawButtonType;
 import si.roskar.diploma.client.event.EventChangeDrawButtonType.EventChangeDrawButtonTypeHandler;
 import si.roskar.diploma.client.event.EventEnableDrawingToolbar;
 import si.roskar.diploma.client.event.EventEnableDrawingToolbar.EventEnableDrawingToolbarHandler;
+import si.roskar.diploma.client.event.EventEnableMapView;
+import si.roskar.diploma.client.event.EventRemoveCurrentMap;
+import si.roskar.diploma.client.event.EventRemoveCurrentMap.EventRemoveCurrentMapHandler;
 import si.roskar.diploma.client.event.EventRemoveLayerFromMapView;
 import si.roskar.diploma.client.event.EventRemoveLayerFromMapView.EventRemoveLayerFromMapViewHandler;
 import si.roskar.diploma.client.event.EventSetCurrentLayer;
@@ -85,6 +88,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		void setLayerVisibility(KingdomLayer layer, boolean visibility);
 		
 		void removeLayer(KingdomLayer layer);
+		
+		void removeMapOverlays();
 	}
 	
 	public interface AddMarkerDisplay extends View{
@@ -320,7 +325,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			@Override
 			public void onToggleEditMode(EventToggleEditMode event){
 				if(event.isEditModeEnabled()){
-					display.enableEditMode(); 
+					display.enableEditMode();
 				}
 				else{
 					display.disableEditMode();
@@ -341,6 +346,16 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			@Override
 			public void onRemoveLayerFromMapView(EventRemoveLayerFromMapView event){
 				display.removeLayer(event.getLayer());
+			}
+		});
+		
+		// handle remove current map event
+		Bus.get().addHandler(EventRemoveCurrentMap.TYPE, new EventRemoveCurrentMapHandler(){
+
+			@Override
+			public void onRemoveCurrentMap(EventRemoveCurrentMap event){
+				display.removeMapOverlays();
+				Bus.get().fireEvent(new EventEnableMapView(false));
 			}
 		});
 	}

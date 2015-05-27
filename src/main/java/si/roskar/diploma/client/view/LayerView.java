@@ -191,9 +191,16 @@ public class LayerView implements Display{
 	}
 	
 	@Override
-	public void enableLayerView(){
-		layerTreePanel.enable();
-		addLayer.enable();
+	public void enableLayerView(boolean enable){
+		if(enable){
+			layerTreePanel.enable();
+			addLayer.enable();
+		}
+		else{
+			layerTreePanel.disable();
+			addLayer.disable();
+			deleteLayer.disable();
+		}
 	}
 	
 	@Override

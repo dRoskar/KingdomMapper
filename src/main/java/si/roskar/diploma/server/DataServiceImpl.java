@@ -65,7 +65,20 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	
 	@Override
 	public boolean deleteMap(KingdomMap map){
-		return mapJdbcTemplate.deleteMap(map.getId());
+		boolean successLayers = true;
+		boolean successMap;
+		
+		// remove all of maps layers
+		for(KingdomLayer layer : map.getLayers()){
+			if(!deleteLayer(layer)){
+				successLayers = false;
+			}
+		}
+		
+		// remove map
+		successMap = mapJdbcTemplate.deleteMap(map.getId());
+		
+		return successLayers && successMap;
 	}
 	
 	// =========================================

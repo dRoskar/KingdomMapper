@@ -429,4 +429,9 @@ public class MapView implements Display{
 		
 		wfsLayerHashMap.remove(layer);
 	}
+	
+	@Override
+	public void removeMapOverlays(){
+		mapWidget.getMap().removeOverlayLayers();
+	}
 }
