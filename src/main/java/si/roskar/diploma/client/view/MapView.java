@@ -448,6 +448,11 @@ public class MapView implements Display{
 	}
 	
 	@Override
+	public DrawFeature getCurrentDrawControl(){
+		return currentDrawControl;
+	}
+	
+	@Override
 	public void setLayerVisibility(KingdomLayer layer, boolean visibility){
 		wmsLayerHashMap.get(layer).setIsVisible(visibility);
 	}

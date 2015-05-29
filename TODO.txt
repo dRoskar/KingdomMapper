@@ -16,7 +16,7 @@
 	[X] z index handling when adding new layers
 	
 [X] update layer data (visibility, Z axis) at key events (on window close, on new map loaded/added
-[ ] update user data (last map open) at key events
+[X] update user data (last map open) at key events
 [ ] cancel drawing with escape (http://demo.gwt-openlayers.org/gwt_ol_showcase/GwtOpenLayersShowcase.html?example=Cancel%20drawing)
 
 [ ] vector editing

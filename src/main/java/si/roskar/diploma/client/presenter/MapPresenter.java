@@ -3,6 +3,7 @@ package si.roskar.diploma.client.presenter;
 import java.util.List;
 
 import org.gwtopenmaps.openlayers.client.Map;
+import org.gwtopenmaps.openlayers.client.control.DrawFeature;
 import org.gwtopenmaps.openlayers.client.event.VectorFeatureAddedListener;
 import org.gwtopenmaps.openlayers.client.layer.Vector;
 import org.gwtopenmaps.openlayers.client.layer.WMS;
@@ -37,6 +38,9 @@ import si.roskar.diploma.shared.GeometryType;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
 
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Window;
@@ -44,6 +48,7 @@ import com.google.gwt.user.client.Window.ClosingEvent;
 import com.google.gwt.user.client.Window.ClosingHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasWidgets;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.button.ToggleButton;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
@@ -89,6 +94,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		Vector getCurrentOLWfsLayer();
 		
 		WMS getCurrentOLWmsLayer();
+		
+		DrawFeature getCurrentDrawControl();
 		
 		java.util.Map<KingdomLayer, RefreshStrategy> getRefreshStrategyHashMap();
 		
@@ -436,6 +443,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			}
 		});
 		
+		// save data when window is closed
 		Window.addWindowClosingHandler(new ClosingHandler(){
 
 			@Override
@@ -443,6 +451,17 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				updateLayersDB(display.getLayerList());
 			}
 		});
+		
+		// handle escape key presses
+		RootPanel.get().addDomHandler(new KeyDownHandler(){
+
+			@Override
+			public void onKeyDown(KeyDownEvent event){
+				if(event.getNativeKeyCode() ==  KeyCodes.KEY_ESCAPE){
+					display.getCurrentDrawControl().cancel();
+				}
+			}
+		}, KeyDownEvent.getType());
 	}
 	
 	private void updateLayersDB(List<KingdomLayer> layers){
