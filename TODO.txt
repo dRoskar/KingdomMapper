@@ -15,7 +15,7 @@
 	[X] Refresh layer tree sort at z index change
 	[X] z index handling when adding new layers
 	
-[ ] update layer data (visibility, Z axis) at key events
+[X] update layer data (visibility, Z axis) at key events (on window close, on new map loaded/added
 [ ] update user data (last map open) at key events
 [ ] cancel drawing with escape (http://demo.gwt-openlayers.org/gwt_ol_showcase/GwtOpenLayersShowcase.html?example=Cancel%20drawing)
 
@@ -55,4 +55,5 @@
 [X] database special characters (naming a layer "santa's house" kills the app)
 [X] when drawing a polygon, user can hold shift and click, making a polygon with only one point, which is invalid (probably also fails for lines)
 [ ] maps with special characters show up encoded in the existing map picker
-[ ] layer tree sort uncheks and unselects layers (I think the selected layer is still selected, just not visually)
+[X] layer tree sort uncheks and unselects layers (I think the selected layer is still selected, just not visually)
+[X] deleting the last layer in the tree causes an error

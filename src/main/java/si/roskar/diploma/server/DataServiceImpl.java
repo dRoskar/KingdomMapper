@@ -104,7 +104,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		boolean successFeatures;
 		boolean successLayer;
 		// remove all of layers features
-		if(layer.getGeometryType().equals(GeometryType.POINT)){
+		if(layer.getGeometryType().equals(GeometryType.POINT) || layer.getGeometryType().equals(GeometryType.MARKER)){
 			successFeatures = vectorJdbcTemplate.deletePointsInLayer(layer.getId());
 		}
 		else if(layer.getGeometryType().equals(GeometryType.LINE)){
@@ -121,6 +121,18 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		successLayer = layerJdbcTemplate.deleteLayer(layer.getId());
 		
 		return successFeatures && successLayer;
+	}
+	
+	@Override
+	public boolean updateLayers(List<KingdomLayer> layers){
+		boolean success = true;
+		for(KingdomLayer layer : layers){
+			if(!layerJdbcTemplate.updateLayer(layer.getId(), layer.getName(), layer.getStyle(), layer.isVisible(), layer.getZIndex())){
+				success = false;
+			}
+		}
+		
+		return success;
 	}
 	
 	// ===========================================

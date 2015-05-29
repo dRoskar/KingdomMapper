@@ -1,5 +1,7 @@
 package si.roskar.diploma.client.presenter;
 
+import java.util.List;
+
 import org.gwtopenmaps.openlayers.client.Map;
 import org.gwtopenmaps.openlayers.client.event.VectorFeatureAddedListener;
 import org.gwtopenmaps.openlayers.client.layer.Vector;
@@ -18,7 +20,6 @@ import si.roskar.diploma.client.event.EventEnableDrawingToolbar;
 import si.roskar.diploma.client.event.EventEnableDrawingToolbar.EventEnableDrawingToolbarHandler;
 import si.roskar.diploma.client.event.EventEnableMapView;
 import si.roskar.diploma.client.event.EventGetSelectedLayer;
-import si.roskar.diploma.client.event.EventSortLayerTree;
 import si.roskar.diploma.client.event.EventRemoveCurrentMap;
 import si.roskar.diploma.client.event.EventRemoveCurrentMap.EventRemoveCurrentMapHandler;
 import si.roskar.diploma.client.event.EventRemoveLayerFromMapView;
@@ -27,6 +28,7 @@ import si.roskar.diploma.client.event.EventSetCurrentLayer;
 import si.roskar.diploma.client.event.EventSetCurrentLayer.EventSetCurrentLayerHandler;
 import si.roskar.diploma.client.event.EventSetLayerVisibility;
 import si.roskar.diploma.client.event.EventSetLayerVisibility.EventSetLayerVisibilityHandler;
+import si.roskar.diploma.client.event.EventSortLayerTree;
 import si.roskar.diploma.client.event.EventToggleEditMode;
 import si.roskar.diploma.client.event.EventToggleEditMode.EventToggleEditModeHandler;
 import si.roskar.diploma.client.view.AddMarkerDialog;
@@ -37,6 +39,9 @@ import si.roskar.diploma.shared.KingdomMap;
 
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.Window.ClosingEvent;
+import com.google.gwt.user.client.Window.ClosingHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.sencha.gxt.widget.core.client.button.TextButton;
@@ -100,6 +105,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		void bringLayerToFront(KingdomLayer selectedLayer);
 		
 		void sendLayerToBack(KingdomLayer selectedLayer);
+		
+		List<KingdomLayer> getLayerList();
 	}
 	
 	public interface AddMarkerDisplay extends View{
@@ -151,6 +158,10 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			
 			@Override
 			public void onAddNewMap(EventAddNewMap event){
+				if(display.getLayerList() != null){
+				updateLayersDB(display.getLayerList());
+				}
+				
 				display.addNewMap(event.getNewMap());
 			}
 		});
@@ -418,9 +429,31 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					public void setLayer(KingdomLayer selectedLayer){
 						if(selectedLayer != null){
 							display.sendLayerToBack(selectedLayer);
-							Bus.get().fireEvent(new EventSortLayerTree());						}
+							Bus.get().fireEvent(new EventSortLayerTree());
+						}
 					}
 				});
+			}
+		});
+		
+		Window.addWindowClosingHandler(new ClosingHandler(){
+
+			@Override
+			public void onWindowClosing(ClosingEvent event){
+				updateLayersDB(display.getLayerList());
+			}
+		});
+	}
+	
+	private void updateLayersDB(List<KingdomLayer> layers){
+		DataServiceAsync.Util.getInstance().updateLayers(layers, new AsyncCallback<Boolean>() {
+
+			@Override
+			public void onFailure(Throwable caught){
+			}
+
+			@Override
+			public void onSuccess(Boolean result){
 			}
 		});
 	}

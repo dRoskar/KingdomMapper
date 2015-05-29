@@ -86,9 +86,9 @@ public class LayerJDBCTemplate{
 		return true;
 	}
 	
-	public boolean updateLayer(String name, String style, boolean visibility, int zIndex){
+	public boolean updateLayer(int layerId, String name, String style, boolean visibility, int zIndex){
 		String visibilityString = visibility == true ? "TRUE" : "FALSE";
-		String SQL = "UPDATE public.\"Layer\" SET name = '" + name + "', style = '" + style + "', visibility = " + visibilityString + ", z_index = " + zIndex;
+		String SQL = "UPDATE public.\"Layer\" SET name = '" + name + "', style = '" + style + "', visibility = " + visibilityString + ", z_index = " + zIndex + "  WHERE id = " + layerId;
 		jdbcTemplateObject.update(SQL);
 		
 		return true;

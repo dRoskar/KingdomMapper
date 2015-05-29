@@ -30,6 +30,8 @@ public interface DataService extends RemoteService{
 	
 	boolean deleteLayer(KingdomLayer layer);
 	
+	boolean updateLayers(List<KingdomLayer> layers);
+	
 	void insertMarker(String wmsUrl, String wktGeometry, String label, String description, int layerId);
 	
 	void insertLine(String wmsUrl, String wktGeometry, String description, int layerId);

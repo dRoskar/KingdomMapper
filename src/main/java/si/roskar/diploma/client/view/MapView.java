@@ -549,4 +549,9 @@ public class MapView implements Display{
 		
 		return layers;
 	}
+	
+	@Override
+	public List<KingdomLayer> getLayerList(){
+		return layerList;
+	}
 }

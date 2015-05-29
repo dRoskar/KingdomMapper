@@ -170,6 +170,7 @@ public class LayerView implements Display{
 	
 	@Override
 	public void addLayer(KingdomLayer layer){
+		currentMap.addLayer(layer);
 		layerTree.disableEvents();
 		layerStore.add(layer);
 		if(layer.isVisible()){
