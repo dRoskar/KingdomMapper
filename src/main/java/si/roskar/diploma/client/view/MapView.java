@@ -1,6 +1,9 @@
 package si.roskar.diploma.client.view;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import org.gwtopenmaps.openlayers.client.Bounds;
 import org.gwtopenmaps.openlayers.client.Map;
@@ -34,6 +37,7 @@ import si.roskar.diploma.shared.GeometryType;
 import si.roskar.diploma.shared.KingdomGridLayer;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
+import si.roskar.diploma.shared.LayerZIndexComparator;
 import si.roskar.diploma.shared.MapSize;
 
 import com.google.gwt.user.client.ui.Widget;
@@ -41,6 +45,7 @@ import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.button.ToggleButton;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer.VerticalLayoutData;
+import com.sencha.gxt.widget.core.client.toolbar.SeparatorToolItem;
 import com.sencha.gxt.widget.core.client.toolbar.ToolBar;
 
 public class MapView implements Display{
@@ -52,6 +57,8 @@ public class MapView implements Display{
 	private TextButton										zoomToExtent			= null;
 	private TextButton										navigateBack			= null;
 	private TextButton										navigateForward			= null;
+	private TextButton										bringToFront			= null;
+	private TextButton										sendToBack				= null;
 	private ToggleButton									grid					= null;
 	private ToggleButton									drawButton				= null;
 	private KingdomMap										kingdomMap				= null;
@@ -65,6 +72,7 @@ public class MapView implements Display{
 	private KingdomLayer									editingLayer			= null;
 	private DrawFeature										currentDrawControl		= null;
 	private boolean											isInEditMode			= false;
+	private List<KingdomLayer>								layerList				= null;
 	
 	public MapView(){
 		
@@ -122,7 +130,18 @@ public class MapView implements Display{
 		drawButton.setIcon(Resources.ICONS.line());
 		drawButton.setToolTip("Draw");
 		
+		bringToFront = new TextButton();
+		bringToFront.setIcon(Resources.ICONS.moveToFront());
+		bringToFront.setToolTip("Bring to front");
+		
+		sendToBack = new TextButton();
+		sendToBack.setIcon(Resources.ICONS.sendToBack());
+		sendToBack.setToolTip("Send to back");
+		
 		drawingToolbar.add(drawButton);
+		drawingToolbar.add(new SeparatorToolItem());
+		drawingToolbar.add(bringToFront);
+		drawingToolbar.add(sendToBack);
 		drawingToolbar.disable();
 		
 		// create map container
@@ -208,6 +227,8 @@ public class MapView implements Display{
 	}
 	
 	private void setUpLayers(KingdomMap map){
+		layerList = new ArrayList<KingdomLayer>();
+		
 		wmsLayerHashMap = new HashMap<KingdomLayer, WMS>();
 		wfsLayerHashMap = new HashMap<KingdomLayer, Vector>();
 		refreshStrategyHashMap = new HashMap<KingdomLayer, RefreshStrategy>();
@@ -242,6 +263,8 @@ public class MapView implements Display{
 	
 	@Override
 	public void addLayer(KingdomLayer layer){
+		layerList.add(layer);
+		
 		// WMS
 		WMSOptions wmsOptions = new WMSOptions();
 		wmsOptions.setTransitionEffect(TransitionEffect.NONE);
@@ -272,8 +295,11 @@ public class MapView implements Display{
 		
 		wms.setOpacity(layer.getOpacity());
 		wms.setIsVisible(layer.isVisible());
+		wms.setZIndex(layer.getZIndex());
 		
 		mapWidget.getMap().addLayer(wms);
+		
+		wms.setZIndex(layer.getZIndex());
 		
 		wmsLayerHashMap.put(layer, wms);
 		
@@ -314,6 +340,7 @@ public class MapView implements Display{
 			
 			Vector wfsLayer = new Vector(layer.getName() + "Wfs", vectorOptions);
 			wfsLayer.setFilter(wfsFilter);
+			wfsLayer.setZIndex(layer.getZIndex());
 			
 			wfsLayerHashMap.put(layer, wfsLayer);
 			refreshStrategyHashMap.put(layer, refreshStrategy);
@@ -420,7 +447,7 @@ public class MapView implements Display{
 	}
 	
 	@Override
-	public void setLayerVisibility(KingdomLayer layer, boolean visibility){
+	public void setLayerVisibility(KingdomLayer layer, boolean visibility){	
 		wmsLayerHashMap.get(layer).setIsVisible(visibility);
 	}
 	
@@ -439,5 +466,87 @@ public class MapView implements Display{
 	@Override
 	public void removeMapOverlays(){
 		mapWidget.getMap().removeOverlayLayers();
+	}
+	
+	@Override
+	public TextButton getBringToFrontButton(){
+		return bringToFront;
+	}
+	
+	@Override
+	public TextButton getSendToBackButton(){
+		return sendToBack;
+	}
+	
+	@Override
+	public void bringLayerToFront(KingdomLayer selectedLayer){
+		// get a list of current layers without the grids
+		List<KingdomLayer> layers = new ArrayList<KingdomLayer>();
+		
+		for(KingdomLayer current : layerList){
+			if(!(current instanceof KingdomGridLayer)){
+				layers.add(current);
+			}
+		}
+		
+		// re-sort to eliminate potential holes in the sort order
+		resortLayerZIndices(layers);
+		
+		// find selected layer and give it a top index
+		for(KingdomLayer layer : layers){
+			if(layer.getId() == selectedLayer.getId()){
+				layer.setZIndex(layers.size() + 1);
+			}
+		}
+		
+		resortLayerZIndices(layers);
+		
+		// set OL Z indices
+		for(KingdomLayer layer : layers){
+			wmsLayerHashMap.get(layer).setZIndex(layer.getZIndex());
+			wfsLayerHashMap.get(layer).setZIndex(layer.getZIndex());
+		}
+	}
+	
+	@Override
+	public void sendLayerToBack(KingdomLayer selectedLayer){
+		// get a list of current layers without the grids
+		List<KingdomLayer> layers = new ArrayList<KingdomLayer>();
+		
+		for(KingdomLayer current : layerList){
+			if(!(current instanceof KingdomGridLayer)){
+				layers.add(current);
+			}
+		}
+		
+		// re-sort to eliminate potential holes in the sort order
+		resortLayerZIndices(layers);
+		
+		// find selected layer and give it a bottom index
+		for(KingdomLayer layer : layers){
+			if(layer.getId() == selectedLayer.getId()){
+				layer.setZIndex(0);
+			}
+		}
+		
+		resortLayerZIndices(layers);
+		
+		// set OL Z indices
+		for(KingdomLayer layer : layers){
+			wmsLayerHashMap.get(layer).setZIndex(layer.getZIndex());
+			wfsLayerHashMap.get(layer).setZIndex(layer.getZIndex());
+		}
+	}
+	
+	private List<KingdomLayer> resortLayerZIndices(List<KingdomLayer> layers){
+		// sort layers by Z index
+		Collections.sort(layers, new LayerZIndexComparator());
+		
+		// re-apply Z index value to eliminate holes in the sort order
+		for(int i = 1; i < (layers.size() + 1); i++){
+			layers.get(i - 1).setZIndex(i);
+		}
+		
+		return layers;
 	}
 }

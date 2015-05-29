@@ -86,7 +86,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	// ===== ===== LAYER DATA SERVICES ===== =====
 	@Override
 	public Integer addLayer(KingdomLayer layer){
-		return layerJdbcTemplate.insert(layer.getName(), layer.getStyle(), layer.isVisible(), layer.getGeometryType(), layer.getMap().getId());
+		return layerJdbcTemplate.insert(layer.getName(), layer.getStyle(), layer.isVisible(), layer.getGeometryType(), layer.getZIndex(), layer.getMap().getId());
 	}
 	
 	@Override

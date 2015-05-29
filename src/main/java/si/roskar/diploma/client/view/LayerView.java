@@ -7,6 +7,7 @@ import si.roskar.diploma.client.resources.Resources;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
 import si.roskar.diploma.shared.KingdomUser;
+import si.roskar.diploma.shared.LayerZIndexComparator;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
@@ -18,6 +19,8 @@ import com.sencha.gxt.core.client.Style.SelectionMode;
 import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.data.shared.ModelKeyProvider;
 import com.sencha.gxt.data.shared.PropertyAccess;
+import com.sencha.gxt.data.shared.SortDir;
+import com.sencha.gxt.data.shared.Store.StoreSortInfo;
 import com.sencha.gxt.data.shared.TreeStore;
 import com.sencha.gxt.widget.core.client.ContentPanel;
 import com.sencha.gxt.widget.core.client.Slider;
@@ -40,19 +43,19 @@ public class LayerView implements Display{
 		ValueProvider<KingdomLayer, String> nameProp();
 	}
 	
-	private VerticalLayoutContainer		container			= null;
-	private TextButton					newMap				= null;
-	private TextButton					existingMaps		= null;
-	private TextButton					addLayer			= null;
-	private TextButton					deleteLayer			= null;
-	private TreeStore<KingdomLayer>		layerStore			= null;
-	private Tree<KingdomLayer, String>	layerTree			= null;
-	private ContentPanel				layerTreePanel		= null;
-	private KingdomUser					currentUser			= null;
-	private KingdomMap					currentMap			= null;
+	private VerticalLayoutContainer			container			= null;
+	private TextButton						newMap				= null;
+	private TextButton						existingMaps		= null;
+	private TextButton						addLayer			= null;
+	private TextButton						deleteLayer			= null;
+	private TreeStore<KingdomLayer>			layerStore			= null;
+	private Tree<KingdomLayer, String>		layerTree			= null;
+	private ContentPanel					layerTreePanel		= null;
+	private KingdomUser						currentUser			= null;
+	private KingdomMap						currentMap			= null;
 	
-	private Menu						layerContextMenu	= null;
-	private Slider						opacitySlider		= null;
+	private Menu							layerContextMenu	= null;
+	private Slider							opacitySlider		= null;
 	
 	public LayerView(){
 		LayerProperties properties = GWT.create(LayerProperties.class);
@@ -86,7 +89,9 @@ public class LayerView implements Display{
 		layerTreePanel.setHeadingHtml("Layers");
 		layerTreePanel.disable();
 		
+		StoreSortInfo<KingdomLayer> sortInfo = new StoreSortInfo<KingdomLayer>(new LayerZIndexComparator(), SortDir.DESC);
 		layerStore = new TreeStore<KingdomLayer>(properties.key());
+		layerStore.addSortInfo(sortInfo);
 		
 		layerTree = new Tree<KingdomLayer, String>(layerStore, properties.nameProp());
 		layerTree.setCheckable(true);
@@ -195,8 +200,7 @@ public class LayerView implements Display{
 		if(enable){
 			layerTreePanel.enable();
 			addLayer.enable();
-		}
-		else{
+		}else{
 			layerTreePanel.disable();
 			addLayer.disable();
 			deleteLayer.disable();

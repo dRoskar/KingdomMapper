@@ -7,9 +7,17 @@
 [X] if deleting layer, delete all its items first; same if deleting maps; same if deleting users
 [X] deleting layers / maps makes things not break
 [X] layer tree checking controls visibility
-[ ] Markers and points are different things
+[X] Markers and points are different things
 	
-[ ] layer tree position correlates to z axis
+[X] layer tree position correlates to z axis
+	[X] Bring to front
+	[X] Send to back
+	[X] Refresh layer tree sort at z index change
+	[X] z index handling when adding new layers
+	
+[ ] update layer data (visibility, Z axis) at key events
+[ ] update user data (last map open) at key events
+[ ] cancel drawing with escape (http://demo.gwt-openlayers.org/gwt_ol_showcase/GwtOpenLayersShowcase.html?example=Cancel%20drawing)
 
 [ ] vector editing
 	[ ] moving vertices
@@ -17,6 +25,8 @@
 	[ ] deleting features
 	[ ] adding description
 	[ ] changing styles
+	
+[ ] Remember what map user was editing last
 
 [ ] editing and layer visibility
 	[ ] if layer is not visible you can't edit it (disable edit menu)
@@ -43,5 +53,6 @@
 [X] wfs layers aren't showing data
 [X] switch maps around a bit, load an empty map, create a layer, add a polynom, makes 3 polynoms. I think the drawing vector might be getting stacked
 [X] database special characters (naming a layer "santa's house" kills the app)
-[ ] when drawing a polygon, user can hold shift and click, making a polygon with only one point, which is invalid (probably also fails for lines)
+[X] when drawing a polygon, user can hold shift and click, making a polygon with only one point, which is invalid (probably also fails for lines)
 [ ] maps with special characters show up encoded in the existing map picker
+[ ] layer tree sort uncheks and unselects layers (I think the selected layer is still selected, just not visually)

@@ -70,6 +70,12 @@ public class Resources{
 		
 		@Source("marker_big.png")
 		ImageResource markerBig();
+		
+		@Source("shape_move_front.png")
+		ImageResource moveToFront();
+		
+		@Source("shape_move_back.png")
+		ImageResource sendToBack();
 	}
 	
 	public static final Icons	ICONS	= GWT.create(Icons.class);

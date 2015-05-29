@@ -17,6 +17,8 @@ import si.roskar.diploma.client.event.EventChangeEditButtonGroup.EventChangeEdit
 import si.roskar.diploma.client.event.EventEnableDrawingToolbar;
 import si.roskar.diploma.client.event.EventEnableDrawingToolbar.EventEnableDrawingToolbarHandler;
 import si.roskar.diploma.client.event.EventEnableMapView;
+import si.roskar.diploma.client.event.EventGetSelectedLayer;
+import si.roskar.diploma.client.event.EventSortLayerTree;
 import si.roskar.diploma.client.event.EventRemoveCurrentMap;
 import si.roskar.diploma.client.event.EventRemoveCurrentMap.EventRemoveCurrentMapHandler;
 import si.roskar.diploma.client.event.EventRemoveLayerFromMapView;
@@ -90,6 +92,14 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		void removeLayer(KingdomLayer layer);
 		
 		void removeMapOverlays();
+		
+		TextButton getBringToFrontButton();
+		
+		TextButton getSendToBackButton();
+		
+		void bringLayerToFront(KingdomLayer selectedLayer);
+		
+		void sendLayerToBack(KingdomLayer selectedLayer);
 	}
 	
 	public interface AddMarkerDisplay extends View{
@@ -376,6 +386,41 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			public void onRemoveCurrentMap(EventRemoveCurrentMap event){
 				display.removeMapOverlays();
 				Bus.get().fireEvent(new EventEnableMapView(false));
+			}
+		});
+		
+		// handle bring to front button click
+		display.getBringToFrontButton().addSelectHandler(new SelectHandler() {
+			
+			@Override
+			public void onSelect(SelectEvent event){
+				Bus.get().fireEvent(new EventGetSelectedLayer() {
+					
+					@Override
+					public void setLayer(KingdomLayer selectedLayer){
+						if(selectedLayer != null){
+							display.bringLayerToFront(selectedLayer);
+							Bus.get().fireEvent(new EventSortLayerTree());
+						}
+					}
+				});
+			}
+		});
+		
+		// handle send to back button click
+		display.getSendToBackButton().addSelectHandler(new SelectHandler() {
+			
+			@Override
+			public void onSelect(SelectEvent event){
+					Bus.get().fireEvent(new EventGetSelectedLayer() {
+					
+					@Override
+					public void setLayer(KingdomLayer selectedLayer){
+						if(selectedLayer != null){
+							display.sendLayerToBack(selectedLayer);
+							Bus.get().fireEvent(new EventSortLayerTree());						}
+					}
+				});
 			}
 		});
 	}

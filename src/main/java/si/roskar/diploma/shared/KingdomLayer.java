@@ -11,6 +11,7 @@ public class KingdomLayer implements IsSerializable{
 	private String			format			= "image/png";
 	private String			projection		= "EPSG:4326";
 	private float			opacity			= 1.0f;
+	private int				zIndex			= 0;
 	private GeometryType	geometryType	= null;
 	private KingdomMap		map				= null;
 	
@@ -81,6 +82,14 @@ public class KingdomLayer implements IsSerializable{
 		return opacity;
 	}
 	
+	public int getZIndex(){
+		return zIndex;
+	}
+
+	public void setZIndex(int zIndex){
+		this.zIndex = zIndex;
+	}
+
 	public void setOpacity(float opacity){
 		this.opacity = opacity;
 	}

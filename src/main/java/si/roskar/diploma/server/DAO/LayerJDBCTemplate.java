@@ -29,17 +29,17 @@ public class LayerJDBCTemplate{
 		this.jdbcTemplateObject = new JdbcTemplate(dataSource);
 	}
 	
-	public int insert(String name, String style, boolean visibility, GeometryType geometryType, int mapId){
+	public int insert(String name, String style, boolean visibility, GeometryType geometryType, int zIndex, int mapId){
 		
 		// escape unicode
 		name = Tools.encodeToNumericCharacterReference(name);
-				
+		
 		// escape apostrophes
 		name = name.replace("'", "''");
 		
 		String visibilityString = visibility == true ? "TRUE" : "FALSE";
-		final String SQL = "INSERT INTO public.\"Layer\"(name, style, visibility, geometry_type, map_id) VALUES ('" + name + "', '" + style + "', " + visibilityString + ", '" + geometryType.getGeometryName() + "', "
-				+ mapId + ")";
+		final String SQL = "INSERT INTO public.\"Layer\"(name, style, visibility, geometry_type, z_index, map_id) VALUES ('" + name + "', '" + style + "', " + visibilityString + ", '"
+				+ geometryType.getGeometryName() + "', " + zIndex + ", " + mapId + ")";
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		
 		jdbcTemplateObject.update(new PreparedStatementCreator() {
@@ -57,7 +57,7 @@ public class LayerJDBCTemplate{
 		
 		// escape unicode
 		name = Tools.encodeToNumericCharacterReference(name);
-				
+		
 		// escape apostrophes
 		name = name.replace("'", "''");
 		
@@ -81,6 +81,14 @@ public class LayerJDBCTemplate{
 	public boolean deleteLayer(int layerId){
 		final String SQL = "DELETE FROM public.\"Layer\" where id = " + layerId;
 		
+		jdbcTemplateObject.update(SQL);
+		
+		return true;
+	}
+	
+	public boolean updateLayer(String name, String style, boolean visibility, int zIndex){
+		String visibilityString = visibility == true ? "TRUE" : "FALSE";
+		String SQL = "UPDATE public.\"Layer\" SET name = '" + name + "', style = '" + style + "', visibility = " + visibilityString + ", z_index = " + zIndex;
 		jdbcTemplateObject.update(SQL);
 		
 		return true;

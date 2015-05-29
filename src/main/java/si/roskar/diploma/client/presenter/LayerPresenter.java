@@ -13,6 +13,8 @@ import si.roskar.diploma.client.event.EventEnableDrawingToolbar;
 import si.roskar.diploma.client.event.EventEnableMapView;
 import si.roskar.diploma.client.event.EventGetSelectedLayer;
 import si.roskar.diploma.client.event.EventGetSelectedLayer.EventGetSelectedLayerHandler;
+import si.roskar.diploma.client.event.EventSortLayerTree;
+import si.roskar.diploma.client.event.EventSortLayerTree.EventSortLayerTreeHandler;
 import si.roskar.diploma.client.event.EventRemoveCurrentMap;
 import si.roskar.diploma.client.event.EventRemoveLayerFromMapView;
 import si.roskar.diploma.client.event.EventSetCurrentLayer;
@@ -321,14 +323,15 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 												if(event.getHideButton().compareTo(PredefinedButton.YES) == 0){
 													// load map layers
 													DataServiceAsync.Util.getInstance().getLayerList(selectedMap, new AsyncCallback<List<KingdomLayer>>() {
-
+														
 														@Override
 														public void onFailure(Throwable caught){
 														}
-
+														
 														@Override
 														public void onSuccess(List<KingdomLayer> result){
-															// add layers to map object
+															// add layers to map
+															// object
 															selectedMap.setLayers(result);
 															
 															// delete map
@@ -341,12 +344,15 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 																
 																@Override
 																public void onSuccess(Boolean result){
-																	// delete from list
+																	// delete
+																	// from list
 																	existingMapsDisplay.getListView().getStore().remove(selectedMap);
 																	existingMapsDisplay.getListView().refresh();
 																	
 																	if(display.getCurrentMap().getId() == selectedMap.getId()){
-																		// clear layer list
+																		// clear
+																		// layer
+																		// list
 																		display.getAddLayerButton().disable();
 																		display.getDeleteLayerButton().disable();
 																		display.getLayerTree().getStore().clear();
@@ -355,7 +361,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 																		Bus.get().fireEvent(new EventRemoveCurrentMap());
 																	}
 																	
-																	// TODO: deletion
+																	// TODO:
+																	// deletion
 																	// notification
 																}
 															});
@@ -404,6 +411,16 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 								newLayer.setVisible(true);
 								newLayer.setGeometryType(GeometryType.getTypeFromGeometryName(((ToggleButton) addLayerDisplay.getToggleGroup().getValue()).getItemId()));
 								newLayer.setMap(display.getCurrentMap());
+								
+								// get all z indexes and give this guy the highest one
+								int highestZIndex = 0;
+								for(KingdomLayer layer : display.getCurrentMap().getLayers()){
+									if(layer.getZIndex() > highestZIndex){
+										highestZIndex = layer.getZIndex();
+									}
+								}
+								
+								newLayer.setZIndex(highestZIndex + 1);
 								
 								// check if layer already exists for this map
 								DataServiceAsync.Util.getInstance().layerExists(newLayer, new AsyncCallback<Boolean>() {
@@ -538,7 +555,36 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 			
 			@Override
 			public void onCheckChange(CheckChangeEvent<KingdomLayer> event){
+				event.getItem().setVisible(event.getChecked().equals(CheckState.CHECKED));
 				Bus.get().fireEvent(new EventSetLayerVisibility(event.getItem(), event.getChecked().equals(CheckState.CHECKED)));
+			}
+		});
+		
+		// handle sort layer tree handler
+		Bus.get().addHandler(EventSortLayerTree.TYPE, new EventSortLayerTreeHandler(){
+
+			@Override
+			public void onSortLayerTree(EventSortLayerTree event){
+				// save selected layer
+				KingdomLayer selectedLayer = display.getSelectedLayer();
+				
+				display.getLayerTree().disableEvents();
+				
+				// sort tree (bug in library causes items to get unchecked and (visibly) unselected)
+				display.getLayerTree().getStore().applySort(false);
+				
+				// reselect unselected items
+				display.getLayerTree().getSelectionModel().deselect(selectedLayer);
+				display.getLayerTree().getSelectionModel().select(selectedLayer, true);
+				
+				// recheck unchecked items
+				for(KingdomLayer layer : display.getCurrentMap().getLayers()){
+					if(layer.isVisible()){
+						
+						display.getLayerTree().setChecked(layer, CheckState.CHECKED);
+					}
+				}
+				display.getLayerTree().enableEvents();
 			}
 		});
 	};
@@ -573,6 +619,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 				
 				// prepend grid layer
 				KingdomGridLayer gridLayer = new KingdomGridLayer(-2, "Grid", "grid", true, "image/png", "EPSG:4326", 0.5f, MapSize.COUNTRY_MAP);
+				gridLayer.setZIndex(0);
 				
 				List<KingdomLayer> layers = new ArrayList<KingdomLayer>();
 				layers.add(gridLayer);
