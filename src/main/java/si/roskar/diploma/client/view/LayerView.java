@@ -57,11 +57,11 @@ public class LayerView implements Display{
 	private Menu							layerContextMenu	= null;
 	private Slider							opacitySlider		= null;
 	
-	public LayerView(){
+	public LayerView(KingdomUser user){
 		LayerProperties properties = GWT.create(LayerProperties.class);
 		
 		// ===== ===== TEMP DEFAULT USER = BORIS ===== ===== =====
-		currentUser = new KingdomUser(1, "Boris", "theforefather");
+		currentUser = user;
 		
 		// =======================================================
 		

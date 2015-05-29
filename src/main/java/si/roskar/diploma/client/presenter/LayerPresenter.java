@@ -13,13 +13,15 @@ import si.roskar.diploma.client.event.EventEnableDrawingToolbar;
 import si.roskar.diploma.client.event.EventEnableMapView;
 import si.roskar.diploma.client.event.EventGetSelectedLayer;
 import si.roskar.diploma.client.event.EventGetSelectedLayer.EventGetSelectedLayerHandler;
-import si.roskar.diploma.client.event.EventSortLayerTree;
-import si.roskar.diploma.client.event.EventSortLayerTree.EventSortLayerTreeHandler;
 import si.roskar.diploma.client.event.EventRemoveCurrentMap;
 import si.roskar.diploma.client.event.EventRemoveLayerFromMapView;
 import si.roskar.diploma.client.event.EventSetCurrentLayer;
 import si.roskar.diploma.client.event.EventSetLayerVisibility;
+import si.roskar.diploma.client.event.EventSortLayerTree;
+import si.roskar.diploma.client.event.EventSortLayerTree.EventSortLayerTreeHandler;
 import si.roskar.diploma.client.event.EventToggleEditMode;
+import si.roskar.diploma.client.event.EventUILoaded;
+import si.roskar.diploma.client.event.EventUILoaded.EventUILoadedHandler;
 import si.roskar.diploma.client.view.AddLayerDialog;
 import si.roskar.diploma.client.view.ExistingMapsWindow;
 import si.roskar.diploma.client.view.NewMapDialog;
@@ -176,6 +178,32 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 	
 	@Override
 	protected void bind(){
+		
+		// handle UI loaded event
+		Bus.get().addHandler(EventUILoaded.TYPE, new EventUILoadedHandler(){
+
+			@Override
+			public void onUILoaded(EventUILoaded event){
+				// check if user was already working on a map on his last visit
+				if(display.getCurrentUser().getLastMapId() > 0){
+					// get the map
+					DataServiceAsync.Util.getInstance().getMap(display.getCurrentUser().getLastMapId(), new AsyncCallback<KingdomMap>() {
+
+						@Override
+						public void onFailure(Throwable caught){
+						}
+
+						@Override
+						public void onSuccess(KingdomMap result){
+							if(result != null){
+								setMap(result);
+								display.getDeleteLayerButton().disable();
+							}
+						}
+					});
+				}
+			}
+		});
 		
 		// handle new map clicks
 		display.getNewMapButton().addSelectHandler(new SelectHandler() {

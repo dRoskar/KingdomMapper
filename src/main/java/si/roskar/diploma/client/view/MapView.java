@@ -37,6 +37,7 @@ import si.roskar.diploma.shared.GeometryType;
 import si.roskar.diploma.shared.KingdomGridLayer;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
+import si.roskar.diploma.shared.KingdomUser;
 import si.roskar.diploma.shared.LayerZIndexComparator;
 import si.roskar.diploma.shared.MapSize;
 
@@ -447,7 +448,7 @@ public class MapView implements Display{
 	}
 	
 	@Override
-	public void setLayerVisibility(KingdomLayer layer, boolean visibility){	
+	public void setLayerVisibility(KingdomLayer layer, boolean visibility){
 		wmsLayerHashMap.get(layer).setIsVisible(visibility);
 	}
 	

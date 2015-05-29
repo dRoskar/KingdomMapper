@@ -57,3 +57,4 @@
 [ ] maps with special characters show up encoded in the existing map picker
 [X] layer tree sort uncheks and unselects layers (I think the selected layer is still selected, just not visually)
 [X] deleting the last layer in the tree causes an error
+[ ] select layer, turn edit mode on and off, and send layer to top. grid is top again

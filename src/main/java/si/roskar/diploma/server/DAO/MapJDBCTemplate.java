@@ -75,6 +75,18 @@ public class MapJDBCTemplate{
 		return jdbcTemplateObject.query(SQL, new MapDataMapper());
 	}
 	
+	public KingdomMap getMap(int id){
+		final String SQL = "SELECT * FROM public.\"Map\" WHERE id=" + id;
+		
+		List<KingdomMap> results = jdbcTemplateObject.query(SQL, new MapDataMapper());
+		
+		if(!results.isEmpty()){
+			return results.get(0);
+		}
+		
+		return null;
+	}
+	
 	public boolean deleteMap(int mapId){
 		final String SQL = "DELETE FROM public.\"Map\" where id = " + mapId;
 		

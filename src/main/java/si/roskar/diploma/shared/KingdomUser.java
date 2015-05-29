@@ -7,6 +7,7 @@ public class KingdomUser implements IsSerializable{
 	private int		id;
 	private String	name		= null;
 	private String	password	= null;
+	private int		lastMapId		= -1;
 	
 	public KingdomUser(){
 		
@@ -17,28 +18,36 @@ public class KingdomUser implements IsSerializable{
 		this.name = name;
 		this.password = password;
 	}
-
+	
 	public int getId(){
 		return id;
 	}
-
+	
 	public void setId(int id){
 		this.id = id;
 	}
-
+	
 	public String getName(){
 		return name;
 	}
-
+	
 	public void setName(String name){
 		this.name = name;
 	}
-
+	
 	public String getPassword(){
 		return password;
 	}
-
+	
 	public void setPassword(String password){
 		this.password = password;
+	}
+	
+	public int getLastMapId(){
+		return lastMapId;
+	}
+	
+	public void setLastMapId(int lastMap){
+		this.lastMapId = lastMap;
 	}
 }
