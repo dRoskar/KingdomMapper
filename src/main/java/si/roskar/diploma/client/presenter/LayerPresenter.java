@@ -19,7 +19,7 @@ import si.roskar.diploma.client.event.EventSetCurrentLayer;
 import si.roskar.diploma.client.event.EventSetLayerVisibility;
 import si.roskar.diploma.client.event.EventSortLayerTree;
 import si.roskar.diploma.client.event.EventSortLayerTree.EventSortLayerTreeHandler;
-import si.roskar.diploma.client.event.EventToggleEditMode;
+import si.roskar.diploma.client.event.EventDisableEditMode;
 import si.roskar.diploma.client.event.EventUILoaded;
 import si.roskar.diploma.client.event.EventUILoaded.EventUILoadedHandler;
 import si.roskar.diploma.client.view.AddLayerDialog;
@@ -212,7 +212,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 			public void onSelect(SelectEvent event){
 				newMapDisplay.show();
 				
-				Bus.get().fireEvent(new EventToggleEditMode(false));
+				Bus.get().fireEvent(new EventDisableEditMode());
 				
 				// bind events
 				if(!newMapDisplay.isBound()){
@@ -284,7 +284,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 			@Override
 			public void onSelect(SelectEvent event){
 				// disable edit mode
-				Bus.get().fireEvent(new EventToggleEditMode(false));
+				Bus.get().fireEvent(new EventDisableEditMode());
 				
 				// fetch existing map data
 				DataServiceAsync.Util.getInstance().getMapList(display.getCurrentUser(), new AsyncCallback<List<KingdomMap>>() {
@@ -564,7 +564,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 					Bus.get().fireEvent(new EventEnableDrawingToolbar(false));
 					
 					// disable edit mode
-					Bus.get().fireEvent(new EventToggleEditMode(false));
+					Bus.get().fireEvent(new EventDisableEditMode());
 				}
 			}
 		});

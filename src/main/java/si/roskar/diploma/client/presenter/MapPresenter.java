@@ -7,7 +7,6 @@ import org.gwtopenmaps.openlayers.client.control.DrawFeature;
 import org.gwtopenmaps.openlayers.client.event.VectorFeatureAddedListener;
 import org.gwtopenmaps.openlayers.client.layer.Vector;
 import org.gwtopenmaps.openlayers.client.layer.WMS;
-import org.gwtopenmaps.openlayers.client.strategy.RefreshStrategy;
 
 import si.roskar.diploma.client.DataServiceAsync;
 import si.roskar.diploma.client.event.Bus;
@@ -17,6 +16,8 @@ import si.roskar.diploma.client.event.EventAddNewMap;
 import si.roskar.diploma.client.event.EventAddNewMap.EventAddNewMapHandler;
 import si.roskar.diploma.client.event.EventChangeEditButtonGroup;
 import si.roskar.diploma.client.event.EventChangeEditButtonGroup.EventChangeEditButtonGroupHandler;
+import si.roskar.diploma.client.event.EventDisableEditMode;
+import si.roskar.diploma.client.event.EventDisableEditMode.EventDisableEditModeHandler;
 import si.roskar.diploma.client.event.EventEnableDrawingToolbar;
 import si.roskar.diploma.client.event.EventEnableDrawingToolbar.EventEnableDrawingToolbarHandler;
 import si.roskar.diploma.client.event.EventEnableMapView;
@@ -30,10 +31,10 @@ import si.roskar.diploma.client.event.EventSetCurrentLayer.EventSetCurrentLayerH
 import si.roskar.diploma.client.event.EventSetLayerVisibility;
 import si.roskar.diploma.client.event.EventSetLayerVisibility.EventSetLayerVisibilityHandler;
 import si.roskar.diploma.client.event.EventSortLayerTree;
-import si.roskar.diploma.client.event.EventToggleEditMode;
-import si.roskar.diploma.client.event.EventToggleEditMode.EventToggleEditModeHandler;
+import si.roskar.diploma.client.util.WFSLayerPackage;
 import si.roskar.diploma.client.view.AddMarkerDialog;
 import si.roskar.diploma.client.view.View;
+import si.roskar.diploma.shared.EditingMode;
 import si.roskar.diploma.shared.GeometryType;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
@@ -71,6 +72,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		ToggleButton getDrawButton();
 		
+		ToggleButton getMoveVerticesButton();
+		
 		void setEditButtonGroup(GeometryType geometryType);
 		
 		Map getOLMap();
@@ -83,11 +86,11 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		void toggleGridVisible(boolean visible);
 		
-		void enableEditMode();
+		void enableEditMode(EditingMode mode);
 		
 		void disableEditMode();
 		
-		java.util.Map<KingdomLayer, Vector> getWfsLayerHashMap();
+		java.util.Map<KingdomLayer, WFSLayerPackage> getWfsLayerPackageHashMap();
 		
 		Vector getDrawingLayer();
 		
@@ -96,8 +99,6 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		WMS getCurrentOLWmsLayer();
 		
 		DrawFeature getCurrentDrawControl();
-		
-		java.util.Map<KingdomLayer, RefreshStrategy> getRefreshStrategyHashMap();
 		
 		void setLayerVisibility(KingdomLayer layer, boolean visibility);
 		
@@ -214,7 +215,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 											System.out.println("marker added");
 											
 											// redraw layers
-											display.getRefreshStrategyHashMap().get(display.getCurrentLayer()).refresh();
+											display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getRefreshStrategy().refresh();
 											display.getCurrentOLWmsLayer().redraw();
 										}
 									});
@@ -251,7 +252,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 							System.out.println("point added");
 							
 							// redraw layers
-							display.getRefreshStrategyHashMap().get(display.getCurrentLayer()).refresh();
+							display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getRefreshStrategy().refresh();
 							display.getCurrentOLWmsLayer().redraw();
 						}
 					});
@@ -270,7 +271,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 							System.out.println("line added");
 							
 							// redraw layers
-							display.getRefreshStrategyHashMap().get(display.getCurrentLayer()).refresh();
+							display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getRefreshStrategy().refresh();
 							display.getCurrentOLWmsLayer().redraw();
 						}
 					});
@@ -289,7 +290,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 							System.out.println("polygon added");
 							
 							// redraw layers
-							display.getRefreshStrategyHashMap().get(display.getCurrentLayer()).refresh();
+							display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getRefreshStrategy().refresh();
 							display.getCurrentOLWmsLayer().redraw();
 						}
 					});
@@ -329,7 +330,12 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				// if edit mode is on switch active wfs layers
 				if(display.getDrawButton().getValue()){
 					display.disableEditMode();
-					display.enableEditMode();
+					display.enableEditMode(EditingMode.DRAW);
+				}
+				
+				if(display.getMoveVerticesButton().getValue()){
+					display.disableEditMode();
+					display.enableEditMode(EditingMode.MOVE_VERTICES);
 				}
 			}
 		});
@@ -350,7 +356,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			public void onValueChange(ValueChangeEvent<Boolean> event){
 				if(event.getValue()){
 					// enable edit mode
-					display.enableEditMode();
+					display.enableEditMode(EditingMode.DRAW);
 				}else{
 					// disable edit mode
 					display.disableEditMode();
@@ -358,6 +364,21 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			}
 		});
 		
+		// handle move vertices button click
+		display.getMoveVerticesButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+
+			@Override
+			public void onValueChange(ValueChangeEvent<Boolean> event){
+				if(event.getValue()){
+					// enable edit mode
+					display.enableEditMode(EditingMode.MOVE_VERTICES);
+				}
+				else{
+					// disable edit mode
+					display.disableEditMode();
+				}
+			}
+		});
 		// handle layer visibility event
 		Bus.get().addHandler(EventSetLayerVisibility.TYPE, new EventSetLayerVisibilityHandler(){
 
@@ -368,23 +389,22 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		});
 		
 		// handle edit mode toggle events
-		Bus.get().addHandler(EventToggleEditMode.TYPE, new EventToggleEditModeHandler(){
+		Bus.get().addHandler(EventDisableEditMode.TYPE, new EventDisableEditModeHandler(){
 
 			@Override
-			public void onToggleEditMode(EventToggleEditMode event){
-				if(event.isEditModeEnabled()){
-					display.enableEditMode();
+			public void onDisableEditMode(EventDisableEditMode event){
+				display.disableEditMode();
+				
+				// toggle any edit buttons
+				if(display.getDrawButton().getValue()){
+					display.getDrawButton().setValue(false, false);
 				}
-				else{
-					display.disableEditMode();
-					
-					// toggle any edit buttons
-					if(display.getDrawButton().getValue()){
-						display.getDrawButton().setValue(false, false);
-					}
-					
-					//TODO: add future edit buttons
+				
+				if(display.getMoveVerticesButton().getValue()){
+					display.getMoveVerticesButton().setValue(false, false);
 				}
+				
+				//TODO: add future edit buttons
 			}
 		});
 		

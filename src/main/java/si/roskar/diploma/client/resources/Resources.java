@@ -76,6 +76,9 @@ public class Resources{
 		
 		@Source("shape_move_back.png")
 		ImageResource sendToBack();
+		
+		@Source ("vertex-move.png")
+		ImageResource vertexMove();
 	}
 	
 	public static final Icons	ICONS	= GWT.create(Icons.class);

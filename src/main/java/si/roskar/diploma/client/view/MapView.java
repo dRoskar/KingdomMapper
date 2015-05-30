@@ -13,9 +13,17 @@ import org.gwtopenmaps.openlayers.client.MapWidget;
 import org.gwtopenmaps.openlayers.client.OpenLayers;
 import org.gwtopenmaps.openlayers.client.Projection;
 import org.gwtopenmaps.openlayers.client.control.DrawFeature;
+import org.gwtopenmaps.openlayers.client.control.ModifyFeature;
+import org.gwtopenmaps.openlayers.client.control.ModifyFeature.OnModificationEndListener;
+import org.gwtopenmaps.openlayers.client.control.ModifyFeature.OnModificationListener;
+import org.gwtopenmaps.openlayers.client.control.ModifyFeatureOptions;
 import org.gwtopenmaps.openlayers.client.control.ScaleLine;
+import org.gwtopenmaps.openlayers.client.event.VectorFeatureModifiedListener;
+import org.gwtopenmaps.openlayers.client.feature.VectorFeature;
+import org.gwtopenmaps.openlayers.client.feature.VectorFeature.State;
 import org.gwtopenmaps.openlayers.client.filter.ComparisonFilter;
 import org.gwtopenmaps.openlayers.client.filter.ComparisonFilter.Types;
+import org.gwtopenmaps.openlayers.client.format.Format;
 import org.gwtopenmaps.openlayers.client.handler.PathHandler;
 import org.gwtopenmaps.openlayers.client.handler.PointHandler;
 import org.gwtopenmaps.openlayers.client.handler.PolygonHandler;
@@ -25,7 +33,10 @@ import org.gwtopenmaps.openlayers.client.layer.VectorOptions;
 import org.gwtopenmaps.openlayers.client.layer.WMS;
 import org.gwtopenmaps.openlayers.client.layer.WMSOptions;
 import org.gwtopenmaps.openlayers.client.layer.WMSParams;
+import org.gwtopenmaps.openlayers.client.protocol.CRUDOptions.Callback;
+import org.gwtopenmaps.openlayers.client.protocol.Response;
 import org.gwtopenmaps.openlayers.client.protocol.WFSProtocol;
+import org.gwtopenmaps.openlayers.client.protocol.WFSProtocolCRUDOptions;
 import org.gwtopenmaps.openlayers.client.protocol.WFSProtocolOptions;
 import org.gwtopenmaps.openlayers.client.strategy.FixedStrategy;
 import org.gwtopenmaps.openlayers.client.strategy.RefreshStrategy;
@@ -33,15 +44,17 @@ import org.gwtopenmaps.openlayers.client.strategy.Strategy;
 
 import si.roskar.diploma.client.presenter.MapPresenter.Display;
 import si.roskar.diploma.client.resources.Resources;
+import si.roskar.diploma.client.util.WFSLayerPackage;
+import si.roskar.diploma.shared.EditingMode;
 import si.roskar.diploma.shared.GeometryType;
 import si.roskar.diploma.shared.KingdomGridLayer;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
-import si.roskar.diploma.shared.KingdomUser;
 import si.roskar.diploma.shared.LayerZIndexComparator;
 import si.roskar.diploma.shared.MapSize;
 
 import com.google.gwt.user.client.ui.Widget;
+import com.sencha.gxt.core.client.util.ToggleGroup;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.button.ToggleButton;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
@@ -62,12 +75,13 @@ public class MapView implements Display{
 	private TextButton										sendToBack				= null;
 	private ToggleButton									grid					= null;
 	private ToggleButton									drawButton				= null;
+	private ToggleButton									moveVerticesButton		= null;
+	private ToggleGroup										editButtonToggleGroup	= null;
 	private KingdomMap										kingdomMap				= null;
 	private ToolBar											drawingToolbar			= null;
 	private KingdomLayer									currentLayer			= null;
 	private java.util.Map<KingdomLayer, WMS>				wmsLayerHashMap			= null;
-	private java.util.Map<KingdomLayer, Vector>				wfsLayerHashMap			= null;
-	private java.util.Map<KingdomLayer, RefreshStrategy>	refreshStrategyHashMap	= null;
+	private java.util.Map<KingdomLayer, WFSLayerPackage>	wfsLayerPackageHashMap	= null;
 	private Vector											drawingLayer			= null;
 	private WMS												gridLayer				= null;
 	private KingdomLayer									editingLayer			= null;
@@ -131,6 +145,10 @@ public class MapView implements Display{
 		drawButton.setIcon(Resources.ICONS.line());
 		drawButton.setToolTip("Draw");
 		
+		moveVerticesButton = new ToggleButton();
+		moveVerticesButton.setIcon(Resources.ICONS.vertexMove());
+		moveVerticesButton.setToolTip("Move vertices");
+		
 		bringToFront = new TextButton();
 		bringToFront.setIcon(Resources.ICONS.moveToFront());
 		bringToFront.setToolTip("Bring to front");
@@ -139,7 +157,13 @@ public class MapView implements Display{
 		sendToBack.setIcon(Resources.ICONS.sendToBack());
 		sendToBack.setToolTip("Send to back");
 		
+		editButtonToggleGroup = new ToggleGroup();
+		editButtonToggleGroup.add(drawButton);
+		editButtonToggleGroup.add(moveVerticesButton);
+		
 		drawingToolbar.add(drawButton);
+		drawingToolbar.add(new SeparatorToolItem());
+		drawingToolbar.add(moveVerticesButton);
 		drawingToolbar.add(new SeparatorToolItem());
 		drawingToolbar.add(bringToFront);
 		drawingToolbar.add(sendToBack);
@@ -180,6 +204,11 @@ public class MapView implements Display{
 	@Override
 	public ToggleButton getDrawButton(){
 		return drawButton;
+	}
+	
+	@Override
+	public ToggleButton getMoveVerticesButton(){
+		return moveVerticesButton;
 	}
 	
 	@Override
@@ -231,16 +260,14 @@ public class MapView implements Display{
 		layerList = new ArrayList<KingdomLayer>();
 		
 		wmsLayerHashMap = new HashMap<KingdomLayer, WMS>();
-		wfsLayerHashMap = new HashMap<KingdomLayer, Vector>();
-		refreshStrategyHashMap = new HashMap<KingdomLayer, RefreshStrategy>();
+		wfsLayerPackageHashMap = new HashMap<KingdomLayer, WFSLayerPackage>();
 		
 		// clear old layers
 		mapWidget.getMap().removeOverlayLayers();
 		
 		// clear cached layers
 		wmsLayerHashMap.clear();
-		wfsLayerHashMap.clear();
-		refreshStrategyHashMap.clear();
+		wfsLayerPackageHashMap.clear();
 		
 		currentLayer = null;
 		editingLayer = null;
@@ -324,11 +351,18 @@ public class MapView implements Display{
 			}
 			
 			wfsProtocolOptions.setFeatureNameSpace("http://kingdom.si");
+			wfsProtocolOptions.setSrsName("EPSG:4326");
+			wfsProtocolOptions.setVersion("1.1.0");
 			
 			WFSProtocol wfsProtocol = new WFSProtocol(wfsProtocolOptions);
 			
+			// refresh strategy
 			RefreshStrategy refreshStrategy = new RefreshStrategy();
 			refreshStrategy.setForce(true);
+			
+			// save strategy
+//			SaveStrategy saveStrategy = new SaveStrategy();
+//			saveStrategy.setAuto(true);
 			
 			VectorOptions vectorOptions = new VectorOptions();
 			vectorOptions.setProtocol(wfsProtocol);
@@ -343,8 +377,84 @@ public class MapView implements Display{
 			wfsLayer.setFilter(wfsFilter);
 			wfsLayer.setZIndex(layer.getZIndex());
 			
-			wfsLayerHashMap.put(layer, wfsLayer);
-			refreshStrategyHashMap.put(layer, refreshStrategy);
+			// wfs style
+			// Style normalStyle = new Style();
+			// normalStyle.setStrokeWidth(2);
+			// normalStyle.setStrokeColor("#FF0000");
+			// normalStyle.setFillColor("#FFFF00");
+			// normalStyle.setFillOpacity(0.4);
+			//
+			// Style selectedStyle = new Style();
+			// selectedStyle.setStrokeWidth(3);
+			// selectedStyle.setStrokeColor("#FFFF00");
+			// selectedStyle.setFillColor("#FF0000");
+			// selectedStyle.setFillOpacity(0.6);
+			// selectedStyle.setStrokeOpacity(0.8);
+			//
+			// StyleMap styleMap = new StyleMap(normalStyle, selectedStyle,
+			// selectedStyle);
+			//
+			// wfsLayer.setStyleMap(styleMap);
+			
+			// modify feature
+			ModifyFeatureOptions modifyFeatureOptions = new ModifyFeatureOptions();
+			modifyFeatureOptions.setMode(ModifyFeature.RESHAPE);
+			
+			ModifyFeature modifyFeature = new ModifyFeature(wfsLayer, modifyFeatureOptions);
+			
+			modifyFeatureOptions.onModification(new OnModificationListener() {
+
+				@Override
+				public void onModification(VectorFeature vectorFeature){
+					System.out.println("heefedefeedwe");
+				}
+			});
+			
+			wfsLayer.addVectorFeatureModifiedListener(new VectorFeatureModifiedListener() {
+
+				@Override
+				public void onFeatureModified(FeatureModifiedEvent eventObject){
+					VectorFeature vectorFeature = eventObject.getVectorFeature();
+					
+					vectorFeature.toState(State.Unknown);
+					vectorFeature.toState(State.Update);
+					
+					wfsLayerPackageHashMap.get(editingLayer).getWfsProtocol().commit(vectorFeature, new WFSProtocolCRUDOptions(new Callback(){
+
+						@Override
+						public void computeResponse(Response response){
+							if(response.success()){
+								wmsLayerHashMap.get(editingLayer).redraw();
+								wfsLayerPackageHashMap.get(editingLayer).getRefreshStrategy().refresh();
+							}
+						}
+					}));
+				}
+			});
+			
+			modifyFeatureOptions.onModificationEnd(new OnModificationEndListener() {
+				
+				@Override
+				public void onModificationEnd(VectorFeature vectorFeature){
+					vectorFeature.toState(State.Unknown);
+					vectorFeature.toState(State.Update);
+					
+					wfsLayerPackageHashMap.get(editingLayer).getWfsProtocol().commit(vectorFeature, new WFSProtocolCRUDOptions(new Callback(){
+
+						@Override
+						public void computeResponse(Response response){
+							if(response.success()){
+								wmsLayerHashMap.get(editingLayer).redraw();
+								wfsLayerPackageHashMap.get(editingLayer).getRefreshStrategy().refresh();
+							}
+						}
+					}));
+				}
+			});
+			
+			WFSLayerPackage layerPackage = new WFSLayerPackage(wfsLayer, modifyFeature, refreshStrategy, wfsProtocol);
+			
+			wfsLayerPackageHashMap.put(layer, layerPackage);
 		}
 	}
 	
@@ -356,11 +466,20 @@ public class MapView implements Display{
 	}
 	
 	@Override
-	public void enableEditMode(){
+	public void enableEditMode(EditingMode mode){
+		// disable old modify control (just in case)
+		if(editingLayer != null){
+			ModifyFeature modifyFeature = wfsLayerPackageHashMap.get(editingLayer).getModifyFeatureControl();
+			if(modifyFeature != null && modifyFeature.isActive()){
+				modifyFeature.deactivate();
+				mapWidget.getMap().removeControl(modifyFeature);
+			}
+		}
+		
 		editingLayer = currentLayer;
 		
 		WMS wmsLayer = wmsLayerHashMap.get(currentLayer);
-		Vector wfsLayer = wfsLayerHashMap.get(currentLayer);
+		Vector wfsLayer = wfsLayerPackageHashMap.get(currentLayer).getWfsLayer();
 		
 		if(wmsLayer != null && wfsLayer != null && !isInEditMode){
 			wmsLayer.setIsVisible(false);
@@ -374,10 +493,18 @@ public class MapView implements Display{
 				currentDrawControl.destroy();
 			}
 			
-			// enable drawing
-			currentDrawControl = createDrawFeatureControl(drawingLayer);
-			mapWidget.getMap().addControl(currentDrawControl);
-			currentDrawControl.activate();
+			if(mode.equals(EditingMode.DRAW)){
+				// enable drawing
+				currentDrawControl = createDrawFeatureControl(drawingLayer);
+				mapWidget.getMap().addControl(currentDrawControl);
+				currentDrawControl.activate();
+			}else if(mode.equals(EditingMode.MOVE_VERTICES)){
+				// enable draging
+				ModifyFeature modifyFeature = wfsLayerPackageHashMap.get(currentLayer).getModifyFeatureControl();
+				mapWidget.getMap().addControl(modifyFeature);
+//				modifyFeature.setMode(ModifyFeature.RESHAPE);
+				modifyFeature.activate();
+			}
 			
 			isInEditMode = true;
 		}else{
@@ -389,12 +516,21 @@ public class MapView implements Display{
 	public void disableEditMode(){
 		if(editingLayer != null && isInEditMode){
 			WMS wmsLayer = wmsLayerHashMap.get(editingLayer);
-			Vector wfsLayer = wfsLayerHashMap.get(editingLayer);
+			Vector wfsLayer = wfsLayerPackageHashMap.get(editingLayer).getWfsLayer();
 			
 			// remove draw control
-			currentDrawControl.deactivate();
-			mapWidget.getMap().removeControl(currentDrawControl);
-			currentDrawControl.destroy();
+			if(currentDrawControl != null){
+				currentDrawControl.deactivate();
+				mapWidget.getMap().removeControl(currentDrawControl);
+				currentDrawControl.destroy();
+			}
+			
+			// disable modify control
+			ModifyFeature modifyFeature = wfsLayerPackageHashMap.get(editingLayer).getModifyFeatureControl();
+			if(modifyFeature != null && modifyFeature.isActive()){
+				modifyFeature.deactivate();
+				mapWidget.getMap().removeControl(modifyFeature);
+			}
 			
 			// remove wfs (viewing/editing) layer
 			mapWidget.getMap().removeLayer(wfsLayer);
@@ -423,13 +559,8 @@ public class MapView implements Display{
 	}
 	
 	@Override
-	public java.util.Map<KingdomLayer, Vector> getWfsLayerHashMap(){
-		return wfsLayerHashMap;
-	}
-	
-	@Override
-	public java.util.Map<KingdomLayer, RefreshStrategy> getRefreshStrategyHashMap(){
-		return refreshStrategyHashMap;
+	public java.util.Map<KingdomLayer, WFSLayerPackage> getWfsLayerPackageHashMap(){
+		return wfsLayerPackageHashMap;
 	}
 	
 	@Override
@@ -439,7 +570,7 @@ public class MapView implements Display{
 	
 	@Override
 	public Vector getCurrentOLWfsLayer(){
-		return wfsLayerHashMap.get(currentLayer);
+		return wfsLayerPackageHashMap.get(currentLayer).getWfsLayer();
 	}
 	
 	@Override
@@ -466,7 +597,7 @@ public class MapView implements Display{
 		mapWidget.getMap().removeLayer(wmsLayerHashMap.get(layer));
 		wmsLayerHashMap.remove(layer);
 		
-		wfsLayerHashMap.remove(layer);
+		wfsLayerPackageHashMap.remove(layer);
 	}
 	
 	@Override
@@ -510,7 +641,7 @@ public class MapView implements Display{
 		// set OL Z indices
 		for(KingdomLayer layer : layers){
 			wmsLayerHashMap.get(layer).setZIndex(layer.getZIndex());
-			wfsLayerHashMap.get(layer).setZIndex(layer.getZIndex());
+			wfsLayerPackageHashMap.get(layer).getWfsLayer().setZIndex(layer.getZIndex());
 		}
 	}
 	
@@ -540,7 +671,7 @@ public class MapView implements Display{
 		// set OL Z indices
 		for(KingdomLayer layer : layers){
 			wmsLayerHashMap.get(layer).setZIndex(layer.getZIndex());
-			wfsLayerHashMap.get(layer).setZIndex(layer.getZIndex());
+			wfsLayerPackageHashMap.get(layer).getWfsLayer().setZIndex(layer.getZIndex());
 		}
 	}
 	
