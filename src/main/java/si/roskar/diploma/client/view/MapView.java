@@ -14,16 +14,13 @@ import org.gwtopenmaps.openlayers.client.OpenLayers;
 import org.gwtopenmaps.openlayers.client.Projection;
 import org.gwtopenmaps.openlayers.client.control.DrawFeature;
 import org.gwtopenmaps.openlayers.client.control.ModifyFeature;
-import org.gwtopenmaps.openlayers.client.control.ModifyFeature.OnModificationEndListener;
-import org.gwtopenmaps.openlayers.client.control.ModifyFeature.OnModificationListener;
 import org.gwtopenmaps.openlayers.client.control.ModifyFeatureOptions;
 import org.gwtopenmaps.openlayers.client.control.ScaleLine;
+import org.gwtopenmaps.openlayers.client.event.EventHandler;
+import org.gwtopenmaps.openlayers.client.event.EventObject;
 import org.gwtopenmaps.openlayers.client.event.VectorFeatureModifiedListener;
-import org.gwtopenmaps.openlayers.client.feature.VectorFeature;
-import org.gwtopenmaps.openlayers.client.feature.VectorFeature.State;
 import org.gwtopenmaps.openlayers.client.filter.ComparisonFilter;
 import org.gwtopenmaps.openlayers.client.filter.ComparisonFilter.Types;
-import org.gwtopenmaps.openlayers.client.format.Format;
 import org.gwtopenmaps.openlayers.client.handler.PathHandler;
 import org.gwtopenmaps.openlayers.client.handler.PointHandler;
 import org.gwtopenmaps.openlayers.client.handler.PolygonHandler;
@@ -33,13 +30,11 @@ import org.gwtopenmaps.openlayers.client.layer.VectorOptions;
 import org.gwtopenmaps.openlayers.client.layer.WMS;
 import org.gwtopenmaps.openlayers.client.layer.WMSOptions;
 import org.gwtopenmaps.openlayers.client.layer.WMSParams;
-import org.gwtopenmaps.openlayers.client.protocol.CRUDOptions.Callback;
-import org.gwtopenmaps.openlayers.client.protocol.Response;
 import org.gwtopenmaps.openlayers.client.protocol.WFSProtocol;
-import org.gwtopenmaps.openlayers.client.protocol.WFSProtocolCRUDOptions;
 import org.gwtopenmaps.openlayers.client.protocol.WFSProtocolOptions;
 import org.gwtopenmaps.openlayers.client.strategy.FixedStrategy;
 import org.gwtopenmaps.openlayers.client.strategy.RefreshStrategy;
+import org.gwtopenmaps.openlayers.client.strategy.SaveStrategy;
 import org.gwtopenmaps.openlayers.client.strategy.Strategy;
 
 import si.roskar.diploma.client.presenter.MapPresenter.Display;
@@ -76,6 +71,7 @@ public class MapView implements Display{
 	private ToggleButton									grid					= null;
 	private ToggleButton									drawButton				= null;
 	private ToggleButton									moveVerticesButton		= null;
+	private ToggleButton									moveFeaturesButton		= null;
 	private ToggleGroup										editButtonToggleGroup	= null;
 	private KingdomMap										kingdomMap				= null;
 	private ToolBar											drawingToolbar			= null;
@@ -85,6 +81,7 @@ public class MapView implements Display{
 	private Vector											drawingLayer			= null;
 	private WMS												gridLayer				= null;
 	private KingdomLayer									editingLayer			= null;
+	private KingdomLayer									modifiedLayer			= null;
 	private DrawFeature										currentDrawControl		= null;
 	private boolean											isInEditMode			= false;
 	private List<KingdomLayer>								layerList				= null;
@@ -145,6 +142,10 @@ public class MapView implements Display{
 		drawButton.setIcon(Resources.ICONS.line());
 		drawButton.setToolTip("Draw");
 		
+		moveFeaturesButton = new ToggleButton();
+		moveFeaturesButton.setIcon(Resources.ICONS.polygonMove());
+		moveFeaturesButton.setToolTip("Move features");
+		
 		moveVerticesButton = new ToggleButton();
 		moveVerticesButton.setIcon(Resources.ICONS.vertexMove());
 		moveVerticesButton.setToolTip("Move vertices");
@@ -159,10 +160,12 @@ public class MapView implements Display{
 		
 		editButtonToggleGroup = new ToggleGroup();
 		editButtonToggleGroup.add(drawButton);
+		editButtonToggleGroup.add(moveFeaturesButton);
 		editButtonToggleGroup.add(moveVerticesButton);
 		
 		drawingToolbar.add(drawButton);
 		drawingToolbar.add(new SeparatorToolItem());
+		drawingToolbar.add(moveFeaturesButton);
 		drawingToolbar.add(moveVerticesButton);
 		drawingToolbar.add(new SeparatorToolItem());
 		drawingToolbar.add(bringToFront);
@@ -204,6 +207,11 @@ public class MapView implements Display{
 	@Override
 	public ToggleButton getDrawButton(){
 		return drawButton;
+	}
+	
+	@Override
+	public ToggleButton getMoveFeaturesButton(){
+		return moveFeaturesButton;
 	}
 	
 	@Override
@@ -361,12 +369,21 @@ public class MapView implements Display{
 			refreshStrategy.setForce(true);
 			
 			// save strategy
-//			SaveStrategy saveStrategy = new SaveStrategy();
-//			saveStrategy.setAuto(true);
+			SaveStrategy saveStrategy = new SaveStrategy();
+			saveStrategy.getEvents().register("success", saveStrategy, new EventHandler() {
+				
+				@Override
+				public void onHandle(EventObject eventObject){
+					// feature saved - refresh the wms layer
+					wmsLayerHashMap.get(modifiedLayer).redraw();
+				}
+			});
+			
+			saveStrategy.setAuto(true);
 			
 			VectorOptions vectorOptions = new VectorOptions();
 			vectorOptions.setProtocol(wfsProtocol);
-			vectorOptions.setStrategies(new Strategy[] { new FixedStrategy(), refreshStrategy });
+			vectorOptions.setStrategies(new Strategy[] { new FixedStrategy(), refreshStrategy, saveStrategy });
 			
 			ComparisonFilter wfsFilter = new ComparisonFilter();
 			wfsFilter.setType(Types.EQUAL_TO);
@@ -377,78 +394,17 @@ public class MapView implements Display{
 			wfsLayer.setFilter(wfsFilter);
 			wfsLayer.setZIndex(layer.getZIndex());
 			
-			// wfs style
-			// Style normalStyle = new Style();
-			// normalStyle.setStrokeWidth(2);
-			// normalStyle.setStrokeColor("#FF0000");
-			// normalStyle.setFillColor("#FFFF00");
-			// normalStyle.setFillOpacity(0.4);
-			//
-			// Style selectedStyle = new Style();
-			// selectedStyle.setStrokeWidth(3);
-			// selectedStyle.setStrokeColor("#FFFF00");
-			// selectedStyle.setFillColor("#FF0000");
-			// selectedStyle.setFillOpacity(0.6);
-			// selectedStyle.setStrokeOpacity(0.8);
-			//
-			// StyleMap styleMap = new StyleMap(normalStyle, selectedStyle,
-			// selectedStyle);
-			//
-			// wfsLayer.setStyleMap(styleMap);
-			
 			// modify feature
 			ModifyFeatureOptions modifyFeatureOptions = new ModifyFeatureOptions();
 			modifyFeatureOptions.setMode(ModifyFeature.RESHAPE);
 			
 			ModifyFeature modifyFeature = new ModifyFeature(wfsLayer, modifyFeatureOptions);
 			
-			modifyFeatureOptions.onModification(new OnModificationListener() {
-
-				@Override
-				public void onModification(VectorFeature vectorFeature){
-					System.out.println("heefedefeedwe");
-				}
-			});
-			
 			wfsLayer.addVectorFeatureModifiedListener(new VectorFeatureModifiedListener() {
-
-				@Override
-				public void onFeatureModified(FeatureModifiedEvent eventObject){
-					VectorFeature vectorFeature = eventObject.getVectorFeature();
-					
-					vectorFeature.toState(State.Unknown);
-					vectorFeature.toState(State.Update);
-					
-					wfsLayerPackageHashMap.get(editingLayer).getWfsProtocol().commit(vectorFeature, new WFSProtocolCRUDOptions(new Callback(){
-
-						@Override
-						public void computeResponse(Response response){
-							if(response.success()){
-								wmsLayerHashMap.get(editingLayer).redraw();
-								wfsLayerPackageHashMap.get(editingLayer).getRefreshStrategy().refresh();
-							}
-						}
-					}));
-				}
-			});
-			
-			modifyFeatureOptions.onModificationEnd(new OnModificationEndListener() {
 				
 				@Override
-				public void onModificationEnd(VectorFeature vectorFeature){
-					vectorFeature.toState(State.Unknown);
-					vectorFeature.toState(State.Update);
-					
-					wfsLayerPackageHashMap.get(editingLayer).getWfsProtocol().commit(vectorFeature, new WFSProtocolCRUDOptions(new Callback(){
-
-						@Override
-						public void computeResponse(Response response){
-							if(response.success()){
-								wmsLayerHashMap.get(editingLayer).redraw();
-								wfsLayerPackageHashMap.get(editingLayer).getRefreshStrategy().refresh();
-							}
-						}
-					}));
+				public void onFeatureModified(FeatureModifiedEvent eventObject){
+					modifiedLayer = currentLayer;
 				}
 			});
 			
@@ -498,11 +454,17 @@ public class MapView implements Display{
 				currentDrawControl = createDrawFeatureControl(drawingLayer);
 				mapWidget.getMap().addControl(currentDrawControl);
 				currentDrawControl.activate();
+			}else if(mode.equals(EditingMode.MOVE_FEATURES)){
+				// enable draging
+				ModifyFeature modifyFeature = wfsLayerPackageHashMap.get(currentLayer).getModifyFeatureControl();
+				mapWidget.getMap().addControl(modifyFeature);
+				modifyFeature.setMode(ModifyFeature.DRAG);
+				modifyFeature.activate();
 			}else if(mode.equals(EditingMode.MOVE_VERTICES)){
 				// enable draging
 				ModifyFeature modifyFeature = wfsLayerPackageHashMap.get(currentLayer).getModifyFeatureControl();
 				mapWidget.getMap().addControl(modifyFeature);
-//				modifyFeature.setMode(ModifyFeature.RESHAPE);
+				modifyFeature.setMode(ModifyFeature.RESHAPE);
 				modifyFeature.activate();
 			}
 			

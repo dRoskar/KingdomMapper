@@ -20,8 +20,9 @@
 [X] cancel drawing with escape (http://demo.gwt-openlayers.org/gwt_ol_showcase/GwtOpenLayersShowcase.html?example=Cancel%20drawing)
 
 [ ] vector editing
-	[ ] moving vertices
+	[ ] moving features
 	[ ] inserting and moving vertices
+	[ ] buttons display depending on type of layer selected
 	[ ] deleting features
 	[ ] adding description
 	[ ] changing styles
@@ -57,4 +58,5 @@
 [ ] maps with special characters show up encoded in the existing map picker
 [X] layer tree sort uncheks and unselects layers (I think the selected layer is still selected, just not visually)
 [X] deleting the last layer in the tree causes an error
-[ ] select layer, turn edit mode on and off, and send layer to top. grid is top again
+[ ] select layer, turn edit mode on and off, and send layer to top. grid is top again (probably gets assigned a huge z index somewhere in between, maybe if setting it to 0 everytime you resort will fix this)
+[ ] select layer, toggle vertice-moving, drag a vertex, click move to front, switch off edit mode, layer is not in front

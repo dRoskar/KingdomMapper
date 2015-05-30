@@ -72,6 +72,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		ToggleButton getDrawButton();
 		
+		ToggleButton getMoveFeaturesButton();
+		
 		ToggleButton getMoveVerticesButton();
 		
 		void setEditButtonGroup(GeometryType geometryType);
@@ -337,6 +339,11 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					display.disableEditMode();
 					display.enableEditMode(EditingMode.MOVE_VERTICES);
 				}
+				
+				if(display.getMoveFeaturesButton().getValue()){
+					display.disableEditMode();
+					display.enableEditMode(EditingMode.MOVE_FEATURES);
+				}
 			}
 		});
 		
@@ -364,6 +371,22 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			}
 		});
 		
+		// handle move features button click
+		display.getMoveFeaturesButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+
+			@Override
+			public void onValueChange(ValueChangeEvent<Boolean> event){
+				if(event.getValue()){
+					// enable edit mode
+					display.enableEditMode(EditingMode.MOVE_FEATURES);
+				}
+				else{
+					// disable edit mode
+					display.disableEditMode();
+				}
+			}
+		});
+		
 		// handle move vertices button click
 		display.getMoveVerticesButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
 
@@ -379,6 +402,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				}
 			}
 		});
+		
 		// handle layer visibility event
 		Bus.get().addHandler(EventSetLayerVisibility.TYPE, new EventSetLayerVisibilityHandler(){
 
