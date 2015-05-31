@@ -76,6 +76,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		ToggleButton getMoveVerticesButton();
 		
+		ToggleButton getDeleteFeaturesButton();
+		
 		void setEditButtonGroup(GeometryType geometryType);
 		
 		Map getOLMap();
@@ -344,6 +346,11 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					display.disableEditMode();
 					display.enableEditMode(EditingMode.MOVE_FEATURES);
 				}
+				
+				if(display.getDeleteFeaturesButton().getValue()){
+					display.disableEditMode();
+					display.enableEditMode(EditingMode.DELETE_FEATURES);
+				}
 			}
 		});
 		
@@ -395,6 +402,22 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				if(event.getValue()){
 					// enable edit mode
 					display.enableEditMode(EditingMode.MOVE_VERTICES);
+				}
+				else{
+					// disable edit mode
+					display.disableEditMode();
+				}
+			}
+		});
+		
+		// handle delete feature button click
+		display.getDeleteFeaturesButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+
+			@Override
+			public void onValueChange(ValueChangeEvent<Boolean> event){
+				if(event.getValue()){
+					// enable edit mode
+					display.enableEditMode(EditingMode.DELETE_FEATURES);
 				}
 				else{
 					// disable edit mode

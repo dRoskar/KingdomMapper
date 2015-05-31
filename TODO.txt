@@ -22,7 +22,7 @@
 [.] vector editing
 	[X] moving features
 	[X] inserting and moving vertices
-	[ ] buttons display depending on type of layer selected
+	[.] buttons display depending on type of layer selected
 	[ ] deleting features
 	[ ] adding description
 	[ ] changing styles

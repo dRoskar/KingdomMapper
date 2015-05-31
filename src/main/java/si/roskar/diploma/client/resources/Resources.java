@@ -82,6 +82,9 @@ public class Resources{
 		
 		@Source ("polygon_move.png")
 		ImageResource polygonMove();
+		
+		@Source ("line_delete.png")
+		ImageResource lineDelete();
 	}
 	
 	public static final Icons	ICONS	= GWT.create(Icons.class);

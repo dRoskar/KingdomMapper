@@ -16,9 +16,13 @@ import org.gwtopenmaps.openlayers.client.control.DrawFeature;
 import org.gwtopenmaps.openlayers.client.control.ModifyFeature;
 import org.gwtopenmaps.openlayers.client.control.ModifyFeatureOptions;
 import org.gwtopenmaps.openlayers.client.control.ScaleLine;
+import org.gwtopenmaps.openlayers.client.control.SelectFeature;
 import org.gwtopenmaps.openlayers.client.event.EventHandler;
 import org.gwtopenmaps.openlayers.client.event.EventObject;
+import org.gwtopenmaps.openlayers.client.event.FeatureHighlightedListener;
 import org.gwtopenmaps.openlayers.client.event.VectorFeatureModifiedListener;
+import org.gwtopenmaps.openlayers.client.feature.VectorFeature;
+import org.gwtopenmaps.openlayers.client.feature.VectorFeature.State;
 import org.gwtopenmaps.openlayers.client.filter.ComparisonFilter;
 import org.gwtopenmaps.openlayers.client.filter.ComparisonFilter.Types;
 import org.gwtopenmaps.openlayers.client.handler.PathHandler;
@@ -30,7 +34,11 @@ import org.gwtopenmaps.openlayers.client.layer.VectorOptions;
 import org.gwtopenmaps.openlayers.client.layer.WMS;
 import org.gwtopenmaps.openlayers.client.layer.WMSOptions;
 import org.gwtopenmaps.openlayers.client.layer.WMSParams;
+import org.gwtopenmaps.openlayers.client.protocol.CRUDOptions;
+import org.gwtopenmaps.openlayers.client.protocol.CRUDOptions.Callback;
+import org.gwtopenmaps.openlayers.client.protocol.Response;
 import org.gwtopenmaps.openlayers.client.protocol.WFSProtocol;
+import org.gwtopenmaps.openlayers.client.protocol.WFSProtocolCRUDOptions;
 import org.gwtopenmaps.openlayers.client.protocol.WFSProtocolOptions;
 import org.gwtopenmaps.openlayers.client.strategy.FixedStrategy;
 import org.gwtopenmaps.openlayers.client.strategy.RefreshStrategy;
@@ -72,6 +80,7 @@ public class MapView implements Display{
 	private ToggleButton									drawButton				= null;
 	private ToggleButton									moveFeaturesButton		= null;
 	private ToggleButton									moveVerticesButton		= null;
+	private ToggleButton									deleteFeaturesButton	= null;
 	private ToggleGroup										editButtonToggleGroup	= null;
 	private KingdomMap										kingdomMap				= null;
 	private ToolBar											drawingToolbar			= null;
@@ -151,6 +160,10 @@ public class MapView implements Display{
 		moveVerticesButton.setToolTip("Move vertices");
 		moveVerticesButton.hide();
 		
+		deleteFeaturesButton = new ToggleButton();
+		deleteFeaturesButton.setIcon(Resources.ICONS.lineDelete());
+		deleteFeaturesButton.setToolTip("Delete features");
+		
 		bringToFront = new TextButton();
 		bringToFront.setIcon(Resources.ICONS.moveToFront());
 		bringToFront.setToolTip("Bring to front");
@@ -163,11 +176,13 @@ public class MapView implements Display{
 		editButtonToggleGroup.add(drawButton);
 		editButtonToggleGroup.add(moveFeaturesButton);
 		editButtonToggleGroup.add(moveVerticesButton);
+		editButtonToggleGroup.add(deleteFeaturesButton);
 		
 		drawingToolbar.add(drawButton);
 		drawingToolbar.add(new SeparatorToolItem());
 		drawingToolbar.add(moveFeaturesButton);
 		drawingToolbar.add(moveVerticesButton);
+		drawingToolbar.add(deleteFeaturesButton);
 		drawingToolbar.add(new SeparatorToolItem());
 		drawingToolbar.add(bringToFront);
 		drawingToolbar.add(sendToBack);
@@ -218,6 +233,11 @@ public class MapView implements Display{
 	@Override
 	public ToggleButton getMoveVerticesButton(){
 		return moveVerticesButton;
+	}
+	
+	@Override
+	public ToggleButton getDeleteFeaturesButton(){
+		return deleteFeaturesButton;
 	}
 	
 	@Override
@@ -421,7 +441,29 @@ public class MapView implements Display{
 				}
 			});
 			
-			WFSLayerPackage layerPackage = new WFSLayerPackage(wfsLayer, modifyFeature, refreshStrategy, wfsProtocol);
+			// delete feature
+			SelectFeature deleteFeature = new SelectFeature(wfsLayer);
+			deleteFeature.addFeatureHighlightedListener(new FeatureHighlightedListener() {
+				
+				@Override
+				public void onFeatureHighlighted(VectorFeature vectorFeature){
+					modifiedLayer = currentLayer;
+					
+					vectorFeature.toState(State.Unknown);
+					vectorFeature.toState(State.Delete);
+					
+					wfsLayerPackageHashMap.get(editingLayer).getWfsProtocol().commit(vectorFeature, new WFSProtocolCRUDOptions(new Callback() {
+						
+						@Override
+						public void computeResponse(Response response){
+							wmsLayerHashMap.get(modifiedLayer).redraw();
+							wfsLayerPackageHashMap.get(modifiedLayer).getWfsLayer().redraw();
+						}
+					}));
+				}
+			});
+			
+			WFSLayerPackage layerPackage = new WFSLayerPackage(wfsLayer, modifyFeature, refreshStrategy, wfsProtocol, deleteFeature, saveStrategy);
 			
 			wfsLayerPackageHashMap.put(layer, layerPackage);
 		}
@@ -436,12 +478,18 @@ public class MapView implements Display{
 	
 	@Override
 	public void enableEditMode(EditingMode mode){
-		// disable old modify control (just in case)
+		// disable old editing controls (just in case)
 		if(editingLayer != null){
 			ModifyFeature modifyFeature = wfsLayerPackageHashMap.get(editingLayer).getModifyFeatureControl();
 			if(modifyFeature != null && modifyFeature.isActive()){
 				modifyFeature.deactivate();
 				mapWidget.getMap().removeControl(modifyFeature);
+			}
+			
+			SelectFeature deleteFeature = wfsLayerPackageHashMap.get(editingLayer).getDeleteFeatureControl();
+			if(deleteFeature != null && deleteFeature.isActive()){
+				deleteFeature.deactivate();
+				mapWidget.getMap().removeControl(deleteFeature);
 			}
 		}
 		
@@ -479,6 +527,11 @@ public class MapView implements Display{
 				mapWidget.getMap().addControl(modifyFeature);
 				modifyFeature.setMode(ModifyFeature.RESHAPE);
 				modifyFeature.activate();
+			}else if(mode.equals(EditingMode.DELETE_FEATURES)){
+				// enable deleting
+				SelectFeature deleteFeature = wfsLayerPackageHashMap.get(currentLayer).getDeleteFeatureControl();
+				mapWidget.getMap().addControl(deleteFeature);
+				deleteFeature.activate();
 			}
 			
 			isInEditMode = true;
@@ -505,6 +558,13 @@ public class MapView implements Display{
 			if(modifyFeature != null && modifyFeature.isActive()){
 				modifyFeature.deactivate();
 				mapWidget.getMap().removeControl(modifyFeature);
+			}
+			
+			// disable delete control
+			SelectFeature deleteFeature = wfsLayerPackageHashMap.get(editingLayer).getDeleteFeatureControl();
+			if(deleteFeature != null && deleteFeature.isActive()){
+				deleteFeature.deactivate();
+				mapWidget.getMap().removeControl(deleteFeature);
 			}
 			
 			// remove wfs (viewing/editing) layer
