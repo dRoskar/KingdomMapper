@@ -70,8 +70,8 @@ public class MapView implements Display{
 	private TextButton										sendToBack				= null;
 	private ToggleButton									grid					= null;
 	private ToggleButton									drawButton				= null;
-	private ToggleButton									moveVerticesButton		= null;
 	private ToggleButton									moveFeaturesButton		= null;
+	private ToggleButton									moveVerticesButton		= null;
 	private ToggleGroup										editButtonToggleGroup	= null;
 	private KingdomMap										kingdomMap				= null;
 	private ToolBar											drawingToolbar			= null;
@@ -149,6 +149,7 @@ public class MapView implements Display{
 		moveVerticesButton = new ToggleButton();
 		moveVerticesButton.setIcon(Resources.ICONS.vertexMove());
 		moveVerticesButton.setToolTip("Move vertices");
+		moveVerticesButton.hide();
 		
 		bringToFront = new TextButton();
 		bringToFront.setIcon(Resources.ICONS.moveToFront());
@@ -229,15 +230,27 @@ public class MapView implements Display{
 		if(geometryType.equals(GeometryType.POINT)){
 			drawButton.setIcon(Resources.ICONS.point());
 			drawButton.setData("geometryType", geometryType);
+			
+			moveVerticesButton.hide();
+			drawingToolbar.forceLayout();
 		}else if(geometryType.equals(GeometryType.LINE)){
 			drawButton.setIcon(Resources.ICONS.line());
 			drawButton.setData("geometryType", geometryType);
+			
+			moveVerticesButton.show();
+			drawingToolbar.forceLayout();
 		}else if(geometryType.equals(GeometryType.POLYGON)){
 			drawButton.setIcon(Resources.ICONS.polygon());
 			drawButton.setData("geometryType", geometryType);
+			
+			moveVerticesButton.show();
+			drawingToolbar.forceLayout();
 		}else if(geometryType.equals(GeometryType.MARKER)){
 			drawButton.setIcon(Resources.ICONS.marker());
 			drawButton.setData("geometryType", geometryType);
+			
+			moveVerticesButton.hide();
+			drawingToolbar.forceLayout();
 		}
 	}
 	

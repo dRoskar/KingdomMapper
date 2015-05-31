@@ -19,15 +19,15 @@
 [X] update user data (last map open) at key events
 [X] cancel drawing with escape (http://demo.gwt-openlayers.org/gwt_ol_showcase/GwtOpenLayersShowcase.html?example=Cancel%20drawing)
 
-[ ] vector editing
-	[ ] moving features
-	[ ] inserting and moving vertices
+[.] vector editing
+	[X] moving features
+	[X] inserting and moving vertices
 	[ ] buttons display depending on type of layer selected
 	[ ] deleting features
 	[ ] adding description
 	[ ] changing styles
 	
-[ ] Remember what map user was editing last
+[X] Remember what map user was editing last
 
 [ ] editing and layer visibility
 	[ ] if layer is not visible you can't edit it (disable edit menu)
