@@ -78,6 +78,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		ToggleButton getDeleteFeaturesButton();
 		
+		ToggleButton getAddHoleButton();
+		
 		void setEditButtonGroup(GeometryType geometryType);
 		
 		Map getOLMap();
@@ -384,9 +386,27 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				if(event.getValue()){
 					// enable edit mode
 					display.enableEditMode(EditingMode.DRAW);
+					
+					// if drawing polygons
+					if(display.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON)){
+						display.getAddHoleButton().show();
+						display.getDrawingToolbar().forceLayout();						
+					}
+					else{
+						display.getAddHoleButton().setValue(false);
+						display.getAddHoleButton().hide();
+						display.getDrawingToolbar().forceLayout();	
+					}
 				}else{
 					// disable edit mode
 					display.disableEditMode();
+					
+					// if drawing polygons
+					if(display.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON)){
+						display.getAddHoleButton().setValue(false);
+						display.getAddHoleButton().hide();
+						display.getDrawingToolbar().forceLayout();						
+					}
 				}
 			}
 		});

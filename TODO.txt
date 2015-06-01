@@ -34,7 +34,7 @@
 	[X] layer can't be made invisible while editing; scratch that - disable editing mode if layer is made invisible while editing
 	[X] if layer is switched to invisible layer while edit mode is on, keep the button pressed, so a visible layer can be selected next and edited, but don't allow the current (invisible) layer to be edited; disable edit menu
 
-[ ] if you're editing and switch to a different layer that doesn't have that function switch to function that is most alike or turn editing off
+[X] if you're editing and switch to a different layer that doesn't have that function, dont't allow editing that layer but keep the mode on
 	
 [ ] polygons with holes
 [ ] user specified styles
@@ -50,6 +50,7 @@
 [ ] print
 [ ] add different grid size choices
 [ ] limit zoom out
+[ ] add icon license
 
 
 ## BUGS ##

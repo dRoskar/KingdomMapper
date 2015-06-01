@@ -80,6 +80,7 @@ public class MapView implements Display{
 	private ToggleButton									moveFeaturesButton		= null;
 	private ToggleButton									moveVerticesButton		= null;
 	private ToggleButton									deleteFeaturesButton	= null;
+	private ToggleButton									addHoleButton			= null;
 	private ToggleGroup										editButtonToggleGroup	= null;
 	private KingdomMap										kingdomMap				= null;
 	private ToolBar											drawingToolbar			= null;
@@ -163,6 +164,11 @@ public class MapView implements Display{
 		deleteFeaturesButton.setIcon(Resources.ICONS.lineDelete());
 		deleteFeaturesButton.setToolTip("Delete features");
 		
+		addHoleButton = new ToggleButton();
+		addHoleButton.setIcon(Resources.ICONS.holeAdd());
+		addHoleButton.setToolTip("Add holes");
+		addHoleButton.hide();
+		
 		bringToFront = new TextButton();
 		bringToFront.setIcon(Resources.ICONS.moveToFront());
 		bringToFront.setToolTip("Bring to front");
@@ -178,6 +184,7 @@ public class MapView implements Display{
 		editButtonToggleGroup.add(deleteFeaturesButton);
 		
 		drawingToolbar.add(drawButton);
+		drawingToolbar.add(addHoleButton);
 		drawingToolbar.add(new SeparatorToolItem());
 		drawingToolbar.add(moveFeaturesButton);
 		drawingToolbar.add(moveVerticesButton);
@@ -239,6 +246,11 @@ public class MapView implements Display{
 		return deleteFeaturesButton;
 	}
 	
+	@Override 
+	public ToggleButton getAddHoleButton(){
+		return addHoleButton;
+	}
+	
 	@Override
 	public ToggleButton getGridButton(){
 		return grid;
@@ -251,24 +263,34 @@ public class MapView implements Display{
 			drawButton.setData("geometryType", geometryType);
 			
 			moveVerticesButton.hide();
+			addHoleButton.setValue(false);
+			addHoleButton.hide();
 			drawingToolbar.forceLayout();
 		}else if(geometryType.equals(GeometryType.LINE)){
 			drawButton.setIcon(Resources.ICONS.line());
 			drawButton.setData("geometryType", geometryType);
 			
 			moveVerticesButton.show();
+			addHoleButton.setValue(false);
+			addHoleButton.hide();
 			drawingToolbar.forceLayout();
 		}else if(geometryType.equals(GeometryType.POLYGON)){
 			drawButton.setIcon(Resources.ICONS.polygon());
 			drawButton.setData("geometryType", geometryType);
 			
 			moveVerticesButton.show();
+			if(isInEditMode){
+				addHoleButton.show();
+				drawingToolbar.forceLayout();
+			}
 			drawingToolbar.forceLayout();
 		}else if(geometryType.equals(GeometryType.MARKER)){
 			drawButton.setIcon(Resources.ICONS.marker());
 			drawButton.setData("geometryType", geometryType);
 			
 			moveVerticesButton.hide();
+			addHoleButton.setValue(false);
+			addHoleButton.hide();
 			drawingToolbar.forceLayout();
 		}
 	}
@@ -597,6 +619,15 @@ public class MapView implements Display{
 				DrawFeature drawLineFeature = new DrawFeature(vectorLayer, new PathHandler());
 				return drawLineFeature;
 			}else if(editingLayer.getGeometryType().equals(GeometryType.POLYGON)){
+				// DrawFeatureOptions drawOptions = new DrawFeatureOptions();
+				// PathHandlerOptions pathHandlerOptions = new
+				// PathHandlerOptions();
+				// pathHandlerOptions.getJSObject().setProperty("holeModifier",
+				// "ctrlKey");
+				// drawOptions.setHandlerOptions(pathHandlerOptions);
+				
+				// DrawFeature drawPolygonFeature = new DrawFeature(vectorLayer,
+				// new PolygonHandler(), drawOptions);
 				DrawFeature drawPolygonFeature = new DrawFeature(vectorLayer, new PolygonHandler());
 				return drawPolygonFeature;
 			}
