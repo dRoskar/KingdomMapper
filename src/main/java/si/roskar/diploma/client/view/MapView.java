@@ -507,6 +507,11 @@ public class MapView implements Display{
 		WMS wmsLayer = wmsLayerHashMap.get(currentLayer);
 		Vector wfsLayer = wfsLayerPackageHashMap.get(currentLayer).getWfsLayer();
 		
+		// special cases
+		if(mode.equals(EditingMode.MOVE_VERTICES) && (currentLayer.getGeometryType().equals(GeometryType.POINT) || currentLayer.getGeometryType().equals(GeometryType.MARKER))){
+			return;
+		}
+		
 		if(wmsLayer != null && wfsLayer != null && !isInEditMode && currentLayer.isVisible()){
 			wmsLayer.setIsVisible(false);
 			
