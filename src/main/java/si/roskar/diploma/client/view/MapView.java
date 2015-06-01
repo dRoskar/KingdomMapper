@@ -34,7 +34,6 @@ import org.gwtopenmaps.openlayers.client.layer.VectorOptions;
 import org.gwtopenmaps.openlayers.client.layer.WMS;
 import org.gwtopenmaps.openlayers.client.layer.WMSOptions;
 import org.gwtopenmaps.openlayers.client.layer.WMSParams;
-import org.gwtopenmaps.openlayers.client.protocol.CRUDOptions;
 import org.gwtopenmaps.openlayers.client.protocol.CRUDOptions.Callback;
 import org.gwtopenmaps.openlayers.client.protocol.Response;
 import org.gwtopenmaps.openlayers.client.protocol.WFSProtocol;
@@ -285,6 +284,16 @@ public class MapView implements Display{
 	}
 	
 	@Override
+	public KingdomLayer getEditingLayer(){
+		return editingLayer;
+	}
+	
+	@Override
+	public boolean isInEditMode(){
+		return isInEditMode;
+	}
+	
+	@Override
 	public void setCurrentLayer(KingdomLayer currentLayer){
 		this.currentLayer = currentLayer;
 	}
@@ -498,7 +507,7 @@ public class MapView implements Display{
 		WMS wmsLayer = wmsLayerHashMap.get(currentLayer);
 		Vector wfsLayer = wfsLayerPackageHashMap.get(currentLayer).getWfsLayer();
 		
-		if(wmsLayer != null && wfsLayer != null && !isInEditMode){
+		if(wmsLayer != null && wfsLayer != null && !isInEditMode && currentLayer.isVisible()){
 			wmsLayer.setIsVisible(false);
 			
 			// add wfs (viewing and editing) layer
@@ -535,8 +544,6 @@ public class MapView implements Display{
 			}
 			
 			isInEditMode = true;
-		}else{
-			drawButton.setValue(false);
 		}
 	}
 	

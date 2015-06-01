@@ -23,16 +23,18 @@
 	[X] moving features
 	[X] inserting and moving vertices
 	[.] buttons display depending on type of layer selected
-	[ ] deleting features
+	[X] deleting features
 	[ ] adding description
 	[ ] changing styles
 	
 [X] Remember what map user was editing last
 
-[ ] editing and layer visibility
-	[ ] if layer is not visible you can't edit it (disable edit menu)
-	[ ] layer can't be made invisible while editing
-	[ ] if layer is switched to invisible layer while edit mode is on, exit edit mode and disable edit menu
+[X] editing and layer visibility
+	[X] if layer is not visible you can't edit it (disable edit menu)
+	[X] layer can't be made invisible while editing; scratch that - disable editing mode if layer is made invisible while editing
+	[X] if layer is switched to invisible layer while edit mode is on, keep the button pressed, so a visible layer can be selected next and edited, but don't allow the current (invisible) layer to be edited; disable edit menu
+
+[ ] if you're editing and switch to a different layer that doesn't have that function switch to function that is most alike or turn editing off
 	
 [ ] polygons with holes
 [ ] user specified styles
@@ -41,6 +43,7 @@
 [ ] loading bars
 [ ] info indicators
 [ ] measure
+[ ] changing icons (with layer type)
 [ ] user (security) integration
 	[ ] validation no special chars
 	[ ] hash and salt strategy

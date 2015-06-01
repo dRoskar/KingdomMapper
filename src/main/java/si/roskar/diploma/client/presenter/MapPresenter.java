@@ -84,6 +84,10 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		KingdomLayer getCurrentLayer();
 		
+		KingdomLayer getEditingLayer();
+		
+		boolean isInEditMode();
+		
 		void setCurrentLayer(KingdomLayer currentLayer);
 		
 		ToggleButton getGridButton();
@@ -331,6 +335,13 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			public void onSetCurrentLayer(EventSetCurrentLayer event){
 				display.setCurrentLayer(event.getCurrentLayer());
 				
+				if(!event.getCurrentLayer().isVisible()){
+					display.getDrawingToolbar().disable();
+				}
+				else{
+					display.getDrawingToolbar().enable();
+				}
+				
 				// if edit mode is on switch active wfs layers
 				if(display.getDrawButton().getValue()){
 					display.disableEditMode();
@@ -351,6 +362,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					display.disableEditMode();
 					display.enableEditMode(EditingMode.DELETE_FEATURES);
 				}
+				
+				// TODO: add for more edit modes
 			}
 		});
 		
@@ -431,7 +444,22 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 
 			@Override
 			public void onSetLayerVisibility(EventSetLayerVisibility event){
+				// if we were just editing this layer disable edit mode
+				if(event.getLayer().getId() == display.getEditingLayer().getId() && display.isInEditMode()){
+					Bus.get().fireEvent(new EventDisableEditMode());
+				}
+				
 				display.setLayerVisibility(event.getLayer(), event.isVisible());
+				
+				// if this layer is also selected
+				if(event.getLayer().getId() == display.getCurrentLayer().getId()){
+					if(event.isVisible() ){
+						display.getDrawingToolbar().enable();
+					}
+					else{
+						display.getDrawingToolbar().disable();
+					}
+				}
 			}
 		});
 		
@@ -447,9 +475,17 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					display.getDrawButton().setValue(false, false);
 				}
 				
+				if(display.getMoveFeaturesButton().getValue()){
+					display.getMoveFeaturesButton().setValue(false, false);
+				}
+				
 				if(display.getMoveVerticesButton().getValue()){
 					display.getMoveVerticesButton().setValue(false, false);
 				}
+				
+				if(display.getDeleteFeaturesButton().getValue()){
+					display.getDeleteFeaturesButton().setValue(false, false);
+				};
 				
 				//TODO: add future edit buttons
 			}
