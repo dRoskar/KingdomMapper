@@ -8,6 +8,10 @@ import org.gwtopenmaps.openlayers.client.geometry.LinearRing;
 import org.gwtopenmaps.openlayers.client.geometry.Point;
 import org.gwtopenmaps.openlayers.client.geometry.Polygon;
 
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
+import com.vividsolutions.jts.io.gml2.GMLWriter;
+
 public class Tools{
 	public static String toCamelCase(String value){
 		// format string
@@ -73,50 +77,15 @@ public class Tools{
 		
 		return wkt;
 	}
-	
-	public static String wktToGmlFriendly(String wktGeometry){
-		// convert point
-		if(wktGeometry.contains("POINT")){
-			// remove geometry type label
-			wktGeometry = wktGeometry.substring(wktGeometry.indexOf("("));
-			
-			// remove outer brackets
-			wktGeometry = wktGeometry.substring(1, wktGeometry.length() -1);
-			
-			// switch space and colon
-			wktGeometry = wktGeometry.replace(" ", ",");
-			
-			return wktGeometry;
-		}
+
+	public static String wktToGml(String wktGeometry){
+		WKTReader wktReader = new WKTReader();
+		GMLWriter gmlWriter = new GMLWriter();
 		
-		if(wktGeometry.contains("LINESTRING")){
-			// remove geometry type label
-			wktGeometry = wktGeometry.substring(wktGeometry.indexOf("("));
-			
-			// remove outer brackets
-			wktGeometry = wktGeometry.substring(1, wktGeometry.length() -1);
-			
-			// switch spaces and colons
-			wktGeometry = wktGeometry.replace(",", "|");
-			wktGeometry = wktGeometry.replace(" ", ",");
-			wktGeometry = wktGeometry.replace("|", " ");
-			
-			return wktGeometry;
-		}
-		
-		if(wktGeometry.contains("POLYGON")){
-			// remove geometry type label
-			wktGeometry = wktGeometry.substring(wktGeometry.indexOf("("));
-			
-			// remove outer brackets
-			wktGeometry = wktGeometry.substring(2, wktGeometry.length() -2);
-			
-			// switch spaces and colons
-			wktGeometry = wktGeometry.replace(",", "|");
-			wktGeometry = wktGeometry.replace(" ", ",");
-			wktGeometry = wktGeometry.replace("|", " ");
-			
-			return wktGeometry;
+		try{
+			return gmlWriter.write(wktReader.read(wktGeometry));
+		}catch(ParseException e){
+			e.printStackTrace();
 		}
 		
 		return null;

@@ -18,12 +18,9 @@ import si.roskar.diploma.shared.Tools;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.gml2.GMLWriter;
-import com.vividsolutions.jts.io.gml2.GMLReader;
-import com.vividsolutions.jts.util.GeometricShapeFactory;
 
 public class DataServiceImpl extends RemoteServiceServlet implements DataService{
 	
@@ -171,11 +168,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 				+ "	   <kingdom:label>" + label + "</kingdom:label>" 
 				+ "      <kingdom:description>" + description + "</kingdom:description>\r\n"
 				+ "      <kingdom:layer_id>" + layerId + "</kingdom:layer_id>\r\n" 
-				+ "      <geometry>\r\n" 
-				+ "        <gml:Point srsName=\"http://www.opengis.net/gml/srs/epsg.xml#4326\">\r\n"
-				+ "          <gml:coordinates>" + Tools.wktToGmlFriendly(wktGeometry) + "</gml:coordinates>\r\n" 
-				+ "        </gml:Point>\r\n" 
-				+ "      </geometry>\r\n" 
+				+ "      <geometry>" + Tools.wktToGml(wktGeometry) + "</geometry>\r\n" 
 				+ "    </kingdom:point>\r\n"
 				+ "  </wfs:Insert>\r\n" 
 				+ "</wfs:Transaction>";
@@ -260,11 +253,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 				+ "    <kingdom:line>\r\n" 
 				+ "      <kingdom:description>" + description + "</kingdom:description>\r\n" 
 				+ "      <kingdom:layer_id>" + layerId + "</kingdom:layer_id>\r\n" 
-				+ "      <geometry>\r\n" 
-				+ "        <gml:LineString srsName=\"http://www.opengis.net/gml/srs/epsg.xml#4326\">\r\n" 
-				+ "          <gml:coordinates>" + Tools.wktToGmlFriendly(wktGeometry) + "</gml:coordinates>\r\n" 
-				+ "        </gml:LineString>\r\n" 
-				+ "      </geometry>\r\n" 
+				+ "      <geometry>" + Tools.wktToGml(wktGeometry) + "</geometry>\r\n" 
 				+ "    </kingdom:line>\r\n" 
 				+ "  </wfs:Insert>\r\n"
 				+ "</wfs:Transaction>";
@@ -302,15 +291,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 				+ "    <kingdom:polygon>\r\n" 
 				+ "      <kingdom:description>" + description + "</kingdom:description>\r\n" 
 				+ "      <kingdom:layer_id>" + layerId + "</kingdom:layer_id>\r\n" 
-				+ "      <geometry>\r\n" 
-				+ "        <gml:Polygon srsName=\"http://www.opengis.net/gml/srs/epsg.xml#4326\">\r\n" 
-				+ "          <gml:outerBoundaryIs>"
-				+ "            <gml:LinearRing>" 
-				+ "              <gml:coordinates>" + Tools.wktToGmlFriendly(wktGeometry) + "</gml:coordinates>\r\n" 
-				+ "            </gml:LinearRing>"
-				+ "          </gml:outerBoundaryIs>" 
-				+ "        </gml:Polygon>\r\n" 
-				+ "      </geometry>\r\n" 
+				+ "      <geometry> " + Tools.wktToGml(wktGeometry) + "</geometry>\r\n" 
 				+ "    </kingdom:polygon>\r\n" 
 				+ "  </wfs:Insert>\r\n" 
 				+ "</wfs:Transaction>";
