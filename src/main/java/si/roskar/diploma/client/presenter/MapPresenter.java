@@ -5,6 +5,7 @@ import java.util.List;
 import org.gwtopenmaps.openlayers.client.Map;
 import org.gwtopenmaps.openlayers.client.control.DrawFeature;
 import org.gwtopenmaps.openlayers.client.event.VectorFeatureAddedListener;
+import org.gwtopenmaps.openlayers.client.feature.VectorFeature;
 import org.gwtopenmaps.openlayers.client.layer.Vector;
 import org.gwtopenmaps.openlayers.client.layer.WMS;
 
@@ -89,6 +90,10 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		KingdomLayer getEditingLayer();
 		
 		boolean isInEditMode();
+		
+		boolean isInAddingHolesMode();
+		
+		void setAddingHolesMode(boolean isInAddingHolesMode);
 		
 		void setCurrentLayer(KingdomLayer currentLayer);
 		
@@ -288,7 +293,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				}
 				
 				// POLYGON
-				if(geometryType.equals(GeometryType.POLYGON) && eventObject.getVectorFeature().getGeometry().getVertices(false).length > 2){
+				if(geometryType.equals(GeometryType.POLYGON) && eventObject.getVectorFeature().getGeometry().getVertices(false).length > 2 && !display.isInAddingHolesMode()){
 					DataServiceAsync.Util.getInstance().insertPolygon("http://127.0.0.1:8080/geoserver/wms/", geometry, "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
 
 						@Override
@@ -304,6 +309,37 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 							display.getCurrentOLWmsLayer().redraw();
 						}
 					});
+				}
+				
+				// HOLE
+				if(geometryType.equals(GeometryType.POLYGON) && eventObject.getVectorFeature().getGeometry().getVertices(false).length > 2 && display.isInAddingHolesMode()){
+					// get all geometries from the displayed vector layer
+					VectorFeature[] features = display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getWfsLayer().getFeatures();
+					
+					// if new geometry bounds intersect any of the existing geometry bounds
+					for(VectorFeature feature : features){
+						if(feature.getGeometry().getBounds().intersectsBounds(eventObject.getVectorFeature().getGeometry().getBounds())){
+							
+							System.out.println("intersection!");
+							
+							// slice on serverside, if changes were made, update the geometry
+							DataServiceAsync.Util.getInstance().slicePolygonGeometry("http://127.0.0.1:8080/geoserver/wms/", feature.getGeometry().toString(), eventObject.getVectorFeature().getGeometry().toString(), feature.getFID(), new AsyncCallback<Boolean>() {
+
+								@Override
+								public void onFailure(Throwable caught){
+								}
+
+								@Override
+								public void onSuccess(Boolean result){
+									if(result){
+										// polygon was updated; refresh layers
+										display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getRefreshStrategy().refresh();
+										display.getCurrentOLWmsLayer().redraw();
+									}
+								}
+							});
+						}
+					}
 				}
 			}
 		});
@@ -408,6 +444,15 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 						display.getDrawingToolbar().forceLayout();						
 					}
 				}
+			}
+		});
+		
+		// handle add holes button click
+		display.getAddHoleButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+
+			@Override
+			public void onValueChange(ValueChangeEvent<Boolean> event){
+				display.setAddingHolesMode(event.getValue());
 			}
 		});
 		

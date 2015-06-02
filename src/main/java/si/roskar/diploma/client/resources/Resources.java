@@ -88,6 +88,9 @@ public class Resources{
 		
 		@Source ("ring_add.png")
 		ImageResource holeAdd();
+		
+		@Source ("erase.png")
+		ImageResource erase();
 	}
 	
 	public static final Icons	ICONS	= GWT.create(Icons.class);

@@ -39,4 +39,8 @@ public interface DataService extends RemoteService{
 	void insertLine(String wmsUrl, String wktGeometry, String description, int layerId);
 	
 	void insertPolygon(String wmsUrl, String wktGeometry, String description, int layerId);
+	
+	boolean slicePolygonGeometry(String wmsUrl, String originalPolygonWktGeometry, String intersectorWktGeometry, String polygonFid);
+	
+	void updatePolygonGeometry(String wmsUrl, String wktGeometry, String polygonFid);
 }

@@ -44,6 +44,7 @@
 [ ] info indicators
 [ ] measure
 [ ] changing icons (with layer type)
+[ ] use JST for wkt to gml instead of your own crappy function
 [ ] user (security) integration
 	[ ] validation no special chars
 	[ ] hash and salt strategy
@@ -64,3 +65,4 @@
 [X] deleting the last layer in the tree causes an error
 [ ] select layer, turn edit mode on and off, and send layer to top. grid is top again (probably gets assigned a huge z index somewhere in between, maybe if setting it to 0 everytime you resort will fix this)
 [ ] select layer, toggle vertice-moving, drag a vertex, click move to front, switch off edit mode, layer is not in front
+[ ] layer with multiple features, select erase tool, click on a feature, it's gone. Click on empty space, feature is back (only on wfs layer)

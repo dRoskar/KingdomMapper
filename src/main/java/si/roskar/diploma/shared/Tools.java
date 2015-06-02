@@ -1,5 +1,13 @@
 package si.roskar.diploma.shared;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.gwtopenmaps.openlayers.client.geometry.Geometry;
+import org.gwtopenmaps.openlayers.client.geometry.LinearRing;
+import org.gwtopenmaps.openlayers.client.geometry.Point;
+import org.gwtopenmaps.openlayers.client.geometry.Polygon;
+
 public class Tools{
 	public static String toCamelCase(String value){
 		// format string
@@ -112,5 +120,34 @@ public class Tools{
 		}
 		
 		return null;
+	}
+	
+	public static Polygon getPolygonFromGeometry(Geometry geometry){
+		// extract linear rings from geometry
+		String wkt = geometry.toString();
+		
+		if(!wkt.contains("POLYGON")){
+			return null;
+		}
+		// trim
+		wkt = wkt.substring(7, wkt.length());
+		wkt = wkt.substring(1, wkt.length() - 1);
+		
+		// get outer ring
+		String[] rings = wkt.split("\\)");
+		String outerRingString = rings[0];
+		outerRingString = outerRingString.substring(1);
+		
+		String[] points = outerRingString.split(",");
+		
+		List<Point> pointObjects = new ArrayList<Point>();
+		for(String point : points){
+			String[] pointString = point.split(" ");
+			pointObjects.add(new Point(Double.parseDouble(pointString[0]), Double.parseDouble(pointString[1])));
+		}
+		
+		LinearRing outerRing = new LinearRing((Point[])pointObjects.toArray());
+		
+		return new Polygon(new LinearRing[] { outerRing });
 	}
 }

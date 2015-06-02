@@ -17,6 +17,13 @@ import si.roskar.diploma.shared.KingdomUser;
 import si.roskar.diploma.shared.Tools;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
+import com.vividsolutions.jts.io.gml2.GMLWriter;
+import com.vividsolutions.jts.io.gml2.GMLReader;
+import com.vividsolutions.jts.util.GeometricShapeFactory;
 
 public class DataServiceImpl extends RemoteServiceServlet implements DataService{
 	
@@ -111,14 +118,11 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		// remove all of layers features
 		if(layer.getGeometryType().equals(GeometryType.POINT) || layer.getGeometryType().equals(GeometryType.MARKER)){
 			successFeatures = vectorJdbcTemplate.deletePointsInLayer(layer.getId());
-		}
-		else if(layer.getGeometryType().equals(GeometryType.LINE)){
+		}else if(layer.getGeometryType().equals(GeometryType.LINE)){
 			successFeatures = vectorJdbcTemplate.deleteLinesInLayer(layer.getId());
-		}
-		else if(layer.getGeometryType().equals(GeometryType.POLYGON)){
+		}else if(layer.getGeometryType().equals(GeometryType.POLYGON)){
 			successFeatures = vectorJdbcTemplate.deletePoligonsInLayer(layer.getId());
-		}
-		else{
+		}else{
 			successFeatures = false;
 		}
 		
@@ -155,16 +159,27 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		description = description.replace("'", "''");
 		
 		// assemble request XML
+		//@formatter:off
 		String xml = "<wfs:Transaction service=\"WFS\" version=\"1.0.0\"\r\n"
 				+ "  xmlns:wfs=\"http://www.opengis.net/wfs\"\r\n"
 				+ "  xmlns:kingdom=\"http://kingdom.si\"\r\n"
 				+ "  xmlns:gml=\"http://www.opengis.net/gml\"\r\n"
 				+ "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
 				+ "  xsi:schemaLocation=\"http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename=topp:tasmania_roads\">\r\n"
-				+ "  <wfs:Insert>\r\n" + "    <kingdom:point>\r\n" + "	   <kingdom:label>" + label + "</kingdom:label>" + "      <kingdom:description>" + description + "</kingdom:description>\r\n"
-				+ "      <kingdom:layer_id>" + layerId + "</kingdom:layer_id>\r\n" + "      <geometry>\r\n" + "        <gml:Point srsName=\"http://www.opengis.net/gml/srs/epsg.xml#4326\">\r\n"
-				+ "          <gml:coordinates>" + Tools.wktToGmlFriendly(wktGeometry) + "</gml:coordinates>\r\n" + "        </gml:Point>\r\n" + "      </geometry>\r\n" + "    </kingdom:point>\r\n"
-				+ "  </wfs:Insert>\r\n" + "</wfs:Transaction>";
+				+ "  <wfs:Insert>\r\n" 
+				+ "    <kingdom:point>\r\n" 
+				+ "	   <kingdom:label>" + label + "</kingdom:label>" 
+				+ "      <kingdom:description>" + description + "</kingdom:description>\r\n"
+				+ "      <kingdom:layer_id>" + layerId + "</kingdom:layer_id>\r\n" 
+				+ "      <geometry>\r\n" 
+				+ "        <gml:Point srsName=\"http://www.opengis.net/gml/srs/epsg.xml#4326\">\r\n"
+				+ "          <gml:coordinates>" + Tools.wktToGmlFriendly(wktGeometry) + "</gml:coordinates>\r\n" 
+				+ "        </gml:Point>\r\n" 
+				+ "      </geometry>\r\n" 
+				+ "    </kingdom:point>\r\n"
+				+ "  </wfs:Insert>\r\n" 
+				+ "</wfs:Transaction>";
+		//@formatter:on
 		
 		// decode description (it's a multiLineString wink* wink*)
 		// description = description.substring(15);
@@ -234,16 +249,26 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		description = description.replace("'", "''");
 		
 		// assemble request XML
+		//@formatter:off
 		String xml = "<wfs:Transaction service=\"WFS\" version=\"1.0.0\"\r\n"
 				+ "  xmlns:wfs=\"http://www.opengis.net/wfs\"\r\n"
 				+ "  xmlns:kingdom=\"http://kingdom.si\"\r\n"
 				+ "  xmlns:gml=\"http://www.opengis.net/gml\"\r\n"
 				+ "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
 				+ "  xsi:schemaLocation=\"http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename=topp:tasmania_roads\">\r\n"
-				+ "  <wfs:Insert>\r\n" + "    <kingdom:line>\r\n" + "      <kingdom:description>" + description + "</kingdom:description>\r\n" + "      <kingdom:layer_id>" + layerId
-				+ "</kingdom:layer_id>\r\n" + "      <geometry>\r\n" + "        <gml:LineString srsName=\"http://www.opengis.net/gml/srs/epsg.xml#4326\">\r\n" + "          <gml:coordinates>"
-				+ Tools.wktToGmlFriendly(wktGeometry) + "</gml:coordinates>\r\n" + "        </gml:LineString>\r\n" + "      </geometry>\r\n" + "    </kingdom:line>\r\n" + "  </wfs:Insert>\r\n"
+				+ "  <wfs:Insert>\r\n" 
+				+ "    <kingdom:line>\r\n" 
+				+ "      <kingdom:description>" + description + "</kingdom:description>\r\n" 
+				+ "      <kingdom:layer_id>" + layerId + "</kingdom:layer_id>\r\n" 
+				+ "      <geometry>\r\n" 
+				+ "        <gml:LineString srsName=\"http://www.opengis.net/gml/srs/epsg.xml#4326\">\r\n" 
+				+ "          <gml:coordinates>" + Tools.wktToGmlFriendly(wktGeometry) + "</gml:coordinates>\r\n" 
+				+ "        </gml:LineString>\r\n" 
+				+ "      </geometry>\r\n" 
+				+ "    </kingdom:line>\r\n" 
+				+ "  </wfs:Insert>\r\n"
 				+ "</wfs:Transaction>";
+		//@formatter:on
 		
 		try{
 			byte[] response = netIo.post(wmsUrl, xml);
@@ -266,16 +291,30 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		description = description.replace("'", "''");
 		
 		// assemble request XML
+		//@formatter:off
 		String xml = "<wfs:Transaction service=\"WFS\" version=\"1.0.0\"\r\n"
 				+ "  xmlns:wfs=\"http://www.opengis.net/wfs\"\r\n"
 				+ "  xmlns:kingdom=\"http://kingdom.si\"\r\n"
 				+ "  xmlns:gml=\"http://www.opengis.net/gml\"\r\n"
 				+ "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
 				+ "  xsi:schemaLocation=\"http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename=topp:tasmania_roads\">\r\n"
-				+ "  <wfs:Insert>\r\n" + "    <kingdom:polygon>\r\n" + "      <kingdom:description>" + description + "</kingdom:description>\r\n" + "      <kingdom:layer_id>" + layerId
-				+ "</kingdom:layer_id>\r\n" + "      <geometry>\r\n" + "        <gml:Polygon srsName=\"http://www.opengis.net/gml/srs/epsg.xml#4326\">\r\n" + "          <gml:outerBoundaryIs>"
-				+ "            <gml:LinearRing>" + "              <gml:coordinates>" + Tools.wktToGmlFriendly(wktGeometry) + "</gml:coordinates>\r\n" + "            </gml:LinearRing>"
-				+ "          </gml:outerBoundaryIs>" + "        </gml:Polygon>\r\n" + "      </geometry>\r\n" + "    </kingdom:polygon>\r\n" + "  </wfs:Insert>\r\n" + "</wfs:Transaction>";
+				+ "  <wfs:Insert>\r\n" 
+				+ "    <kingdom:polygon>\r\n" 
+				+ "      <kingdom:description>" + description + "</kingdom:description>\r\n" 
+				+ "      <kingdom:layer_id>" + layerId + "</kingdom:layer_id>\r\n" 
+				+ "      <geometry>\r\n" 
+				+ "        <gml:Polygon srsName=\"http://www.opengis.net/gml/srs/epsg.xml#4326\">\r\n" 
+				+ "          <gml:outerBoundaryIs>"
+				+ "            <gml:LinearRing>" 
+				+ "              <gml:coordinates>" + Tools.wktToGmlFriendly(wktGeometry) + "</gml:coordinates>\r\n" 
+				+ "            </gml:LinearRing>"
+				+ "          </gml:outerBoundaryIs>" 
+				+ "        </gml:Polygon>\r\n" 
+				+ "      </geometry>\r\n" 
+				+ "    </kingdom:polygon>\r\n" 
+				+ "  </wfs:Insert>\r\n" 
+				+ "</wfs:Transaction>";
+		//@formatter:on
 		
 		try{
 			byte[] response = netIo.post(wmsUrl, xml);
@@ -287,5 +326,70 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 			e.printStackTrace();
 		}
 	}
+	
+	public void updatePolygonGeometry(String wmsUrl, String gmlGeometry, String polygonFid){
+		NetIO netIo = new NetIO();
+		
+		// assemble request XML
+		//@formatter:off
+		String xml = "<wfs:Transaction service=\"WFS\" version=\"1.0.0\"\r\n" + 
+				"  xmlns:ogc=\"http://www.opengis.net/ogc\"\r\n" + 
+				"  xmlns:kingdom=\"http://kingdom.si\"\r\n" +
+				"  xmlns:gml=\"http://www.opengis.net/gml\"\r\n" +
+				"  xmlns:wfs=\"http://www.opengis.net/wfs\">\r\n" +
+				"  <wfs:Update typeName=\"kingdom:polygon\">\r\n" + 
+				"    <wfs:Property>\r\n" + 
+				"      <wfs:Name>geometry</wfs:Name>\r\n" + 
+				"      <wfs:Value>" + gmlGeometry + "</wfs:Value>\r\n" +
+				"    </wfs:Property>\r\n" + 
+				"    <ogc:Filter>\r\n" + 
+				"      <ogc:FeatureId fid=\"" + polygonFid + "\"/>\r\n" +
+				"    </ogc:Filter>\r\n" + 
+				"  </wfs:Update>\r\n" + 
+				"</wfs:Transaction>";
+		//@formatter:on
+		
+		try{
+			byte[] response = netIo.post(wmsUrl, xml);
+			
+			String responseString = new String(response);
+			
+			System.out.println(responseString);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	// =============================
+	
+	// ===== ===== UTIL ===== =====
+	public boolean slicePolygonGeometry(String wmsUrl, String originalPolygonWktGeometry, String intersectorWktGeometry, String polygonFid){
+		// get geometry difference
+		WKTReader wktReader = new WKTReader();
+		GMLWriter gmlWriter = new GMLWriter();
+		Geometry originalPolygon = null;
+		Geometry intersector = null;
+		Geometry difference = null;
+		try{
+			originalPolygon = wktReader.read(originalPolygonWktGeometry);
+			intersector = wktReader.read(intersectorWktGeometry);
+			
+			difference = originalPolygon.difference(intersector);
+			
+			// if we have a change, save it
+			if(!difference.equalsExact(originalPolygon)){
+				updatePolygonGeometry(wmsUrl, gmlWriter.write(difference), polygonFid);
+				return true;
+			}
+			
+			return false;
+			
+		}catch(ParseException e){
+			e.printStackTrace();
+		}
+		
+		return false;
+	}
+	
 	// =============================
 }

@@ -93,6 +93,7 @@ public class MapView implements Display{
 	private KingdomLayer									modifiedLayer			= null;
 	private DrawFeature										currentDrawControl		= null;
 	private boolean											isInEditMode			= false;
+	private boolean											isInAddingHolesMode		= false;
 	private List<KingdomLayer>								layerList				= null;
 	
 	public MapView(){
@@ -161,7 +162,7 @@ public class MapView implements Display{
 		moveVerticesButton.hide();
 		
 		deleteFeaturesButton = new ToggleButton();
-		deleteFeaturesButton.setIcon(Resources.ICONS.lineDelete());
+		deleteFeaturesButton.setIcon(Resources.ICONS.erase());
 		deleteFeaturesButton.setToolTip("Delete features");
 		
 		addHoleButton = new ToggleButton();
@@ -246,7 +247,7 @@ public class MapView implements Display{
 		return deleteFeaturesButton;
 	}
 	
-	@Override 
+	@Override
 	public ToggleButton getAddHoleButton(){
 		return addHoleButton;
 	}
@@ -313,6 +314,16 @@ public class MapView implements Display{
 	@Override
 	public boolean isInEditMode(){
 		return isInEditMode;
+	}
+
+	@Override
+	public boolean isInAddingHolesMode(){
+		return isInAddingHolesMode;
+	}
+	
+	@Override
+	public void setAddingHolesMode(boolean isInAddingHolesMode){
+		this.isInAddingHolesMode = isInAddingHolesMode;
 	}
 	
 	@Override
