@@ -320,8 +320,6 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					for(VectorFeature feature : features){
 						if(feature.getGeometry().getBounds().intersectsBounds(eventObject.getVectorFeature().getGeometry().getBounds())){
 							
-							System.out.println("intersection!");
-							
 							// slice on serverside, if changes were made, update the geometry
 							DataServiceAsync.Util.getInstance().slicePolygonGeometry("http://127.0.0.1:8080/geoserver/wms/", feature.getGeometry().toString(), eventObject.getVectorFeature().getGeometry().toString(), feature.getFID(), new AsyncCallback<Boolean>() {
 
@@ -510,19 +508,23 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			@Override
 			public void onSetLayerVisibility(EventSetLayerVisibility event){
 				// if we were just editing this layer disable edit mode
-				if(event.getLayer().getId() == display.getEditingLayer().getId() && display.isInEditMode()){
-					Bus.get().fireEvent(new EventDisableEditMode());
+				if(display.isInEditMode()){
+					if(event.getLayer().getId() == display.getEditingLayer().getId()){
+						Bus.get().fireEvent(new EventDisableEditMode());
+					}
 				}
 				
 				display.setLayerVisibility(event.getLayer(), event.isVisible());
 				
 				// if this layer is also selected
-				if(event.getLayer().getId() == display.getCurrentLayer().getId()){
-					if(event.isVisible() ){
-						display.getDrawingToolbar().enable();
-					}
-					else{
-						display.getDrawingToolbar().disable();
+				if(display.getCurrentLayer() != null){
+					if(event.getLayer().getId() == display.getCurrentLayer().getId()){
+						if(event.isVisible() ){
+							display.getDrawingToolbar().enable();
+						}
+						else{
+							display.getDrawingToolbar().disable();
+						}
 					}
 				}
 			}
@@ -626,7 +628,9 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			@Override
 			public void onKeyDown(KeyDownEvent event){
 				if(event.getNativeKeyCode() ==  KeyCodes.KEY_ESCAPE){
-					display.getCurrentDrawControl().cancel();
+					if(display.getCurrentDrawControl() != null && display.isInEditMode()){
+						display.getCurrentDrawControl().cancel();
+					}
 				}
 			}
 		}, KeyDownEvent.getType());

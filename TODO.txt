@@ -17,7 +17,7 @@
 	
 [X] update layer data (visibility, Z axis) at key events (on window close, on new map loaded/added
 [X] update user data (last map open) at key events
-[X] cancel drawing with escape (http://demo.gwt-openlayers.org/gwt_ol_showcase/GwtOpenLayersShowcase.html?example=Cancel%20drawing)
+[X] cancel drawing with escape
 
 [.] vector editing
 	[X] moving features
@@ -25,7 +25,6 @@
 	[.] buttons display depending on type of layer selected
 	[X] deleting features
 	[ ] adding description
-	[ ] changing styles
 	
 [X] Remember what map user was editing last
 
@@ -36,15 +35,24 @@
 
 [X] if you're editing and switch to a different layer that doesn't have that function, dont't allow editing that layer but keep the mode on
 	
-[ ] polygons with holes
+[X] polygons with holes
 [ ] user specified styles
+	[X] add style parameters to DB
+	[X] add style parameters to java layer object
+	[X] reconfigure layer data mapper to include style parameters
+	[X] add style parameters as env parameter when adding layer
+	[ ] layer style settings UI
+	
+[ ] adding shapes to polygons
 [ ] snap
 [ ] snap to grid
+[ ] opacity slider
+[ ] opacity saves to DB
 [ ] loading bars
 [ ] info indicators
 [ ] measure
 [ ] changing icons (with layer type)
-[ ] use JST for wkt to gml instead of your own crappy function
+[X] use JST for wkt to gml instead of your own crappy function
 [ ] user (security) integration
 	[ ] validation no special chars
 	[ ] hash and salt strategy
@@ -52,6 +60,8 @@
 [ ] add different grid size choices
 [ ] limit zoom out
 [ ] add icon license
+[ ] line corner and ends styles
+[ ] dash line style
 
 
 ## BUGS ##
@@ -65,4 +75,4 @@
 [X] deleting the last layer in the tree causes an error
 [ ] select layer, turn edit mode on and off, and send layer to top. grid is top again (probably gets assigned a huge z index somewhere in between, maybe if setting it to 0 everytime you resort will fix this)
 [ ] select layer, toggle vertice-moving, drag a vertex, click move to front, switch off edit mode, layer is not in front
-[ ] layer with multiple features, select erase tool, click on a feature, it's gone. Click on empty space, feature is back (only on wfs layer)
+[X] layer with multiple features, select erase tool, click on a feature, it's gone. Click on empty space, feature is back (only on wfs layer)

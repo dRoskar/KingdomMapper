@@ -29,7 +29,7 @@ public class LayerJDBCTemplate{
 		this.jdbcTemplateObject = new JdbcTemplate(dataSource);
 	}
 	
-	public int insert(String name, String style, boolean visibility, GeometryType geometryType, int zIndex, int mapId){
+	public int insert(String name, String style, boolean visibility, GeometryType geometryType, int zIndex, double strokeOpacity, double fillOpacity, int mapId){
 		
 		// escape unicode
 		name = Tools.encodeToNumericCharacterReference(name);
@@ -38,8 +38,8 @@ public class LayerJDBCTemplate{
 		name = name.replace("'", "''");
 		
 		String visibilityString = visibility == true ? "TRUE" : "FALSE";
-		final String SQL = "INSERT INTO public.\"Layer\"(name, style, visibility, geometry_type, z_index, map_id) VALUES ('" + name + "', '" + style + "', " + visibilityString + ", '"
-				+ geometryType.getGeometryName() + "', " + zIndex + ", " + mapId + ")";
+		final String SQL = "INSERT INTO public.\"Layer\"(name, style, visibility, geometry_type, z_index, stroke_opacity, fill_opacity, map_id) VALUES ('" + name + "', '" + style + "', " + visibilityString + ", '"
+				+ geometryType.getGeometryName() + "', " + zIndex + ", " + strokeOpacity + ", " + fillOpacity + ", " + mapId + ")";
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		
 		jdbcTemplateObject.update(new PreparedStatementCreator() {

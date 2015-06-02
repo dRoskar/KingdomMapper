@@ -2,7 +2,7 @@ package si.roskar.diploma.shared;
 
 
 public class KingdomGridLayer extends KingdomLayer{
-	private MapSize size = null;
+	private MapSize mapSize = null;
 	private int dbKey;
 
 	public KingdomGridLayer(){
@@ -11,15 +11,15 @@ public class KingdomGridLayer extends KingdomLayer{
 	
 	public KingdomGridLayer(int id, String name, String style, boolean visibility, String format, String projection, float opacity, MapSize size){
 		super(id, name, style, visibility, format, projection, opacity);
-		setSize(size);
+		setMapSize(size);
 	}
 	
-	public MapSize getSize(){
-		return size;
+	public MapSize getMapSize(){
+		return mapSize;
 	}
 
-	public void setSize(MapSize size){
-		this.size = size;
+	public void setMapSize(MapSize size){
+		this.mapSize = size;
 		
 		switch(size){
 			case TOWN_MAP:

@@ -39,7 +39,7 @@ import org.gwtopenmaps.openlayers.client.protocol.Response;
 import org.gwtopenmaps.openlayers.client.protocol.WFSProtocol;
 import org.gwtopenmaps.openlayers.client.protocol.WFSProtocolCRUDOptions;
 import org.gwtopenmaps.openlayers.client.protocol.WFSProtocolOptions;
-import org.gwtopenmaps.openlayers.client.strategy.FixedStrategy;
+import org.gwtopenmaps.openlayers.client.strategy.BBoxStrategy;
 import org.gwtopenmaps.openlayers.client.strategy.RefreshStrategy;
 import org.gwtopenmaps.openlayers.client.strategy.SaveStrategy;
 import org.gwtopenmaps.openlayers.client.strategy.Strategy;
@@ -400,6 +400,11 @@ public class MapView implements Display{
 			}
 			
 			layerParams.setCQLFilter("layer_id = " + layer.getId());
+			
+			// style
+			if(layer.getEnvValues() != null){
+				layerParams.setParameter("env", layer.getEnvValues());
+			}
 		}
 		
 		WMS wms = new WMS(layer.getName(), "http://127.0.0.1:8080/geoserver/wms/", layerParams, wmsOptions);
@@ -458,7 +463,7 @@ public class MapView implements Display{
 			
 			VectorOptions vectorOptions = new VectorOptions();
 			vectorOptions.setProtocol(wfsProtocol);
-			vectorOptions.setStrategies(new Strategy[] { new FixedStrategy(), refreshStrategy, saveStrategy });
+			vectorOptions.setStrategies(new Strategy[] { new BBoxStrategy(), refreshStrategy, saveStrategy });
 			
 			ComparisonFilter wfsFilter = new ComparisonFilter();
 			wfsFilter.setType(Types.EQUAL_TO);
@@ -499,7 +504,7 @@ public class MapView implements Display{
 						@Override
 						public void computeResponse(Response response){
 							wmsLayerHashMap.get(modifiedLayer).redraw();
-							wfsLayerPackageHashMap.get(modifiedLayer).getWfsLayer().redraw();
+							wfsLayerPackageHashMap.get(modifiedLayer).getRefreshStrategy().refresh();
 						}
 					}));
 				}
@@ -630,15 +635,6 @@ public class MapView implements Display{
 				DrawFeature drawLineFeature = new DrawFeature(vectorLayer, new PathHandler());
 				return drawLineFeature;
 			}else if(editingLayer.getGeometryType().equals(GeometryType.POLYGON)){
-				// DrawFeatureOptions drawOptions = new DrawFeatureOptions();
-				// PathHandlerOptions pathHandlerOptions = new
-				// PathHandlerOptions();
-				// pathHandlerOptions.getJSObject().setProperty("holeModifier",
-				// "ctrlKey");
-				// drawOptions.setHandlerOptions(pathHandlerOptions);
-				
-				// DrawFeature drawPolygonFeature = new DrawFeature(vectorLayer,
-				// new PolygonHandler(), drawOptions);
 				DrawFeature drawPolygonFeature = new DrawFeature(vectorLayer, new PolygonHandler());
 				return drawPolygonFeature;
 			}
