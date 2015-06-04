@@ -441,11 +441,13 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 								newLayer.setMap(display.getCurrentMap());
 								newLayer.setStyle("");
 								
-								// get all z indexes and give this guy the highest one
+								// get all z indexes ( except for the grid layer) and give this guy the highest one
 								int highestZIndex = 0;
 								for(KingdomLayer layer : display.getCurrentMap().getLayers()){
-									if(layer.getZIndex() > highestZIndex){
-										highestZIndex = layer.getZIndex();
+									if(!(layer instanceof KingdomGridLayer)){
+										if(layer.getZIndex() > highestZIndex){
+											highestZIndex = layer.getZIndex();
+										}
 									}
 								}
 								
@@ -666,7 +668,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 				
 				// prepend grid layer
 				KingdomGridLayer gridLayer = new KingdomGridLayer(-2, "Grid", "grid", true, "image/png", "EPSG:4326", 0.5f, MapSize.COUNTRY_MAP);
-				gridLayer.setZIndex(0);
+				gridLayer.setZIndex(10000);
 				
 				List<KingdomLayer> layers = new ArrayList<KingdomLayer>();
 				layers.add(gridLayer);

@@ -73,9 +73,9 @@ public class MapView implements Display{
 	private TextButton										zoomToExtent			= null;
 	private TextButton										navigateBack			= null;
 	private TextButton										navigateForward			= null;
-	private TextButton										bringToFrontButton			= null;
-	private TextButton										sendToBackButton				= null;
-	private TextButton										editLayerStyleButton			= null;
+	private TextButton										bringToFrontButton		= null;
+	private TextButton										sendToBackButton		= null;
+	private TextButton										editLayerStyleButton	= null;
 	private ToggleButton									grid					= null;
 	private ToggleButton									drawButton				= null;
 	private ToggleButton									moveFeaturesButton		= null;
@@ -594,6 +594,15 @@ public class MapView implements Display{
 			
 			isInEditMode = true;
 		}
+		
+		// when removing controls from the OL map the layer z indices get  reset for some reason
+		gridLayer.setZIndex(10000);
+		
+		for(KingdomLayer layer : layerList){
+			if(!(layer instanceof KingdomGridLayer)){
+				wmsLayerHashMap.get(layer).setZIndex(layer.getZIndex());
+			}
+		}
 	}
 	
 	@Override
@@ -629,6 +638,15 @@ public class MapView implements Display{
 			wmsLayer.setIsVisible(true);
 			
 			isInEditMode = false;
+			
+			// when removing controls from the OL map the layer z indices get  reset for some reason
+			gridLayer.setZIndex(10000);
+			
+			for(KingdomLayer layer : layerList){
+				if(!(layer instanceof KingdomGridLayer)){
+					wmsLayerHashMap.get(layer).setZIndex(layer.getZIndex());
+				}
+			}
 		}
 	}
 	
@@ -734,7 +752,7 @@ public class MapView implements Display{
 		
 		resortLayerZIndices(layers);
 		
-		// set OL Z indices
+		// set OL Z indices; get highest z index
 		for(KingdomLayer layer : layers){
 			wmsLayerHashMap.get(layer).setZIndex(layer.getZIndex());
 			wfsLayerPackageHashMap.get(layer).getWfsLayer().setZIndex(layer.getZIndex());

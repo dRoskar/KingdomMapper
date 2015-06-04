@@ -75,7 +75,7 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 			public void onClick(ClickEvent event){
 				colorPickerWindow = new ColorPickerWindow();
 				colorPickerWindow.show();
-				colorPickerWindow.setColor(layer.getColor());
+				colorPickerWindow.setColor(layer.getFillColor());
 				
 				colorPickerWindow.addHideHandler(new HideHandler() {
 					

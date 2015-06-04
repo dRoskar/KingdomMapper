@@ -41,7 +41,7 @@ public class InitialPresenter extends PresenterImpl<InitialPresenter.Display>{
 		
 		// get current user  - temp hardcoded
 		KingdomUser user = new KingdomUser(1, "Boris", "");
-		user.setLastMapId(33);
+		user.setLastMapId(36);
 		
 		// create map presenter
 		new MapPresenter(new MapView()).go(display.getCenterContainer());
