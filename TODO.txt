@@ -36,7 +36,7 @@
 [X] if you're editing and switch to a different layer that doesn't have that function, dont't allow editing that layer but keep the mode on
 	
 [X] polygons with holes
-[ ] user specified styles
+[X] user specified styles
 	[X] add style parameters to DB
 	[X] add style parameters to java layer object
 	[X] reconfigure layer data mapper to include style parameters
@@ -44,7 +44,7 @@
 	[X] layer style settings UI
 	
 [X] clicking layer style editor while in edit mode
-[ ] grid should always be on top -.-
+[X] grid should always be on top -.-
 [ ] fix when layer state data saved
 [ ] make vector lines thicker, for easier deleting
 [ ] adding shapes to polygons
