@@ -18,7 +18,6 @@ public class AddMarkerDialog extends Window implements AddMarkerDisplay{
 	private TextArea	description		= null;
 	private TextButton	addButton		= null;
 	private TextButton	cancelButton	= null;
-	private boolean		isValid			= false;
 	private boolean		isBound			= false;
 	private String		wktGeometry		= null;
 	
@@ -110,11 +109,6 @@ public class AddMarkerDialog extends Window implements AddMarkerDisplay{
 	@Override
 	public boolean isValid(){
 		return label.isValid();
-	}
-	
-	@Override
-	public void setValid(boolean isValid){
-		this.isValid = isValid;
 	}
 	
 	@Override

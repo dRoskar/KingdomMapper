@@ -73,8 +73,9 @@ public class MapView implements Display{
 	private TextButton										zoomToExtent			= null;
 	private TextButton										navigateBack			= null;
 	private TextButton										navigateForward			= null;
-	private TextButton										bringToFront			= null;
-	private TextButton										sendToBack				= null;
+	private TextButton										bringToFrontButton			= null;
+	private TextButton										sendToBackButton				= null;
+	private TextButton										editLayerStyleButton			= null;
 	private ToggleButton									grid					= null;
 	private ToggleButton									drawButton				= null;
 	private ToggleButton									moveFeaturesButton		= null;
@@ -170,13 +171,17 @@ public class MapView implements Display{
 		addHoleButton.setToolTip("Add holes");
 		addHoleButton.hide();
 		
-		bringToFront = new TextButton();
-		bringToFront.setIcon(Resources.ICONS.moveToFront());
-		bringToFront.setToolTip("Bring to front");
+		bringToFrontButton = new TextButton();
+		bringToFrontButton.setIcon(Resources.ICONS.moveToFront());
+		bringToFrontButton.setToolTip("Bring to front");
 		
-		sendToBack = new TextButton();
-		sendToBack.setIcon(Resources.ICONS.sendToBack());
-		sendToBack.setToolTip("Send to back");
+		sendToBackButton = new TextButton();
+		sendToBackButton.setIcon(Resources.ICONS.sendToBack());
+		sendToBackButton.setToolTip("Send to back");
+		
+		editLayerStyleButton = new TextButton();
+		editLayerStyleButton.setIcon(Resources.ICONS.layerStyle());
+		editLayerStyleButton.setToolTip("Edit layer style");
 		
 		editButtonToggleGroup = new ToggleGroup();
 		editButtonToggleGroup.add(drawButton);
@@ -191,8 +196,9 @@ public class MapView implements Display{
 		drawingToolbar.add(moveVerticesButton);
 		drawingToolbar.add(deleteFeaturesButton);
 		drawingToolbar.add(new SeparatorToolItem());
-		drawingToolbar.add(bringToFront);
-		drawingToolbar.add(sendToBack);
+		drawingToolbar.add(bringToFrontButton);
+		drawingToolbar.add(sendToBackButton);
+		drawingToolbar.add(editLayerStyleButton);
 		drawingToolbar.disable();
 		
 		// create map container
@@ -315,7 +321,7 @@ public class MapView implements Display{
 	public boolean isInEditMode(){
 		return isInEditMode;
 	}
-
+	
 	@Override
 	public boolean isInAddingHolesMode(){
 		return isInAddingHolesMode;
@@ -692,12 +698,17 @@ public class MapView implements Display{
 	
 	@Override
 	public TextButton getBringToFrontButton(){
-		return bringToFront;
+		return bringToFrontButton;
 	}
 	
 	@Override
 	public TextButton getSendToBackButton(){
-		return sendToBack;
+		return sendToBackButton;
+	}
+	
+	@Override
+	public TextButton getEditLayerStyleButton(){
+		return editLayerStyleButton;
 	}
 	
 	@Override

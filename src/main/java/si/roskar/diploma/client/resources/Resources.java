@@ -1,3 +1,4 @@
+
 package si.roskar.diploma.client.resources;
 
 import com.google.gwt.core.shared.GWT;
@@ -91,6 +92,9 @@ public class Resources{
 		
 		@Source ("erase.png")
 		ImageResource erase();
+		
+		@Source ("layer_style.png")
+		ImageResource layerStyle();
 	}
 	
 	public static final Icons	ICONS	= GWT.create(Icons.class);

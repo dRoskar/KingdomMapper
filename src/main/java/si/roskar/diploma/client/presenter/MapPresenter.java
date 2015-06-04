@@ -32,8 +32,10 @@ import si.roskar.diploma.client.event.EventSetCurrentLayer.EventSetCurrentLayerH
 import si.roskar.diploma.client.event.EventSetLayerVisibility;
 import si.roskar.diploma.client.event.EventSetLayerVisibility.EventSetLayerVisibilityHandler;
 import si.roskar.diploma.client.event.EventSortLayerTree;
+import si.roskar.diploma.client.util.ColorPickerWindow;
 import si.roskar.diploma.client.util.WFSLayerPackage;
 import si.roskar.diploma.client.view.AddMarkerDialog;
+import si.roskar.diploma.client.view.EditLayerStyleWindow;
 import si.roskar.diploma.client.view.View;
 import si.roskar.diploma.shared.EditingMode;
 import si.roskar.diploma.shared.GeometryType;
@@ -51,10 +53,13 @@ import com.google.gwt.user.client.Window.ClosingHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.sencha.gxt.widget.core.client.ColorPalette;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.button.ToggleButton;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
+import com.sencha.gxt.widget.core.client.form.DoubleSpinnerField;
+import com.sencha.gxt.widget.core.client.form.SimpleComboBox;
 import com.sencha.gxt.widget.core.client.form.TextArea;
 import com.sencha.gxt.widget.core.client.form.TextField;
 import com.sencha.gxt.widget.core.client.toolbar.ToolBar;
@@ -125,6 +130,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		TextButton getSendToBackButton();
 		
+		TextButton getEditLayerStyleButton();
+		
 		void bringLayerToFront(KingdomLayer selectedLayer);
 		
 		void sendLayerToBack(KingdomLayer selectedLayer);
@@ -152,14 +159,49 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		boolean isValid();
 		
-		void setValid(boolean isValid);
-		
 		void setGeometry(String wktGeometry);
 		
 		String getGeometry();
 	}
 	
-	private AddMarkerDisplay addMarkerDisplay = null;
+	public interface EditLayerStyleDisplay extends View{
+		void show();
+		
+		void hide();
+		
+		boolean isBound();
+		
+		void setIsBound(boolean isBound);
+		
+		KingdomLayer getLayer();
+		
+		ColorPalette getColorPalette();
+		
+		ColorPalette getFillColorPalette();
+		
+		void setColorPickerWindow(ColorPickerWindow colorPickerWindow);
+		
+		ColorPickerWindow getColorPickerWindow();
+		
+		SimpleComboBox<String> getShapeComboBox();
+		
+		int getSize();
+		
+		TextButton getApplyButton();
+		
+		TextButton getCancelButton();
+		
+		String getColor();
+		
+		String getFillColor();
+		
+		DoubleSpinnerField getStrokeOpacitySpinner();
+		
+		DoubleSpinnerField getFillOpacitySpinner();
+	}
+	
+	private AddMarkerDisplay		addMarkerDisplay		= null;
+	private EditLayerStyleDisplay	editLayerStyleDisplay	= null;
 	
 	public MapPresenter(Display display){
 		super(display);
@@ -182,7 +224,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			@Override
 			public void onAddNewMap(EventAddNewMap event){
 				if(display.getLayerList() != null){
-				updateLayersDB(display.getLayerList());
+					updateLayersDB(display.getLayerList());
 				}
 				
 				display.addNewMap(event.getNewMap());
@@ -219,21 +261,22 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 								// evaluate fields
 								if(addMarkerDisplay.isValid()){
 									// insert marker
-									DataServiceAsync.Util.getInstance().insertMarker("http://127.0.0.1:8080/geoserver/wms/", addMarkerDisplay.getGeometry(), addMarkerDisplay.getLabelField().getText(), addMarkerDisplay.getDescriptionField().getText(), display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
-
-										@Override
-										public void onFailure(Throwable caught){
-										}
-
-										@Override
-										public void onSuccess(Void result){
-											System.out.println("marker added");
-											
-											// redraw layers
-											display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getRefreshStrategy().refresh();
-											display.getCurrentOLWmsLayer().redraw();
-										}
-									});
+									DataServiceAsync.Util.getInstance().insertMarker("http://127.0.0.1:8080/geoserver/wms/", addMarkerDisplay.getGeometry(),
+											addMarkerDisplay.getLabelField().getText(), addMarkerDisplay.getDescriptionField().getText(), display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
+												
+												@Override
+												public void onFailure(Throwable caught){
+												}
+												
+												@Override
+												public void onSuccess(Void result){
+													System.out.println("marker added");
+													
+													// redraw layers
+													display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getRefreshStrategy().refresh();
+													display.getCurrentOLWmsLayer().redraw();
+												}
+											});
 									
 									addMarkerDisplay.hide();
 								}
@@ -257,11 +300,11 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				// POINT
 				if(geometryType.equals(GeometryType.POINT)){
 					DataServiceAsync.Util.getInstance().insertMarker("http://127.0.0.1:8080/geoserver/wms/", geometry, "", "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
-
+						
 						@Override
 						public void onFailure(Throwable caught){
 						}
-
+						
 						@Override
 						public void onSuccess(Void result){
 							System.out.println("point added");
@@ -276,11 +319,11 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				// LINE
 				if(geometryType.equals(GeometryType.LINE) && eventObject.getVectorFeature().getGeometry().getVertices(true).length > 1){
 					DataServiceAsync.Util.getInstance().insertLine("http://127.0.0.1:8080/geoserver/wms/", geometry, "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
-
+						
 						@Override
 						public void onFailure(Throwable caught){
 						}
-
+						
 						@Override
 						public void onSuccess(Void result){
 							System.out.println("line added");
@@ -295,11 +338,11 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				// POLYGON
 				if(geometryType.equals(GeometryType.POLYGON) && eventObject.getVectorFeature().getGeometry().getVertices(false).length > 2 && !display.isInAddingHolesMode()){
 					DataServiceAsync.Util.getInstance().insertPolygon("http://127.0.0.1:8080/geoserver/wms/", geometry, "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
-
+						
 						@Override
 						public void onFailure(Throwable caught){
 						}
-
+						
 						@Override
 						public void onSuccess(Void result){
 							System.out.println("polygon added");
@@ -316,26 +359,30 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					// get all geometries from the displayed vector layer
 					VectorFeature[] features = display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getWfsLayer().getFeatures();
 					
-					// if new geometry bounds intersect any of the existing geometry bounds
+					// if new geometry bounds intersect any of the existing
+					// geometry bounds
 					for(VectorFeature feature : features){
 						if(feature.getGeometry().getBounds().intersectsBounds(eventObject.getVectorFeature().getGeometry().getBounds())){
 							
-							// slice on serverside, if changes were made, update the geometry
-							DataServiceAsync.Util.getInstance().slicePolygonGeometry("http://127.0.0.1:8080/geoserver/wms/", feature.getGeometry().toString(), eventObject.getVectorFeature().getGeometry().toString(), feature.getFID(), new AsyncCallback<Boolean>() {
-
-								@Override
-								public void onFailure(Throwable caught){
-								}
-
-								@Override
-								public void onSuccess(Boolean result){
-									if(result){
-										// polygon was updated; refresh layers
-										display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getRefreshStrategy().refresh();
-										display.getCurrentOLWmsLayer().redraw();
-									}
-								}
-							});
+							// slice on serverside, if changes were made, update
+							// the geometry
+							DataServiceAsync.Util.getInstance().slicePolygonGeometry("http://127.0.0.1:8080/geoserver/wms/", feature.getGeometry().toString(),
+									eventObject.getVectorFeature().getGeometry().toString(), feature.getFID(), new AsyncCallback<Boolean>() {
+										
+										@Override
+										public void onFailure(Throwable caught){
+										}
+										
+										@Override
+										public void onSuccess(Boolean result){
+											if(result){
+												// polygon was updated; refresh
+												// layers
+												display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getRefreshStrategy().refresh();
+												display.getCurrentOLWmsLayer().redraw();
+											}
+										}
+									});
 						}
 					}
 				}
@@ -365,16 +412,15 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		});
 		
 		// handle set current layer event
-		Bus.get().addHandler(EventSetCurrentLayer.TYPE, new EventSetCurrentLayerHandler(){
-
+		Bus.get().addHandler(EventSetCurrentLayer.TYPE, new EventSetCurrentLayerHandler() {
+			
 			@Override
 			public void onSetCurrentLayer(EventSetCurrentLayer event){
 				display.setCurrentLayer(event.getCurrentLayer());
 				
 				if(!event.getCurrentLayer().isVisible()){
 					display.getDrawingToolbar().disable();
-				}
-				else{
+				}else{
 					display.getDrawingToolbar().enable();
 				}
 				
@@ -424,12 +470,11 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					// if drawing polygons
 					if(display.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON)){
 						display.getAddHoleButton().show();
-						display.getDrawingToolbar().forceLayout();						
-					}
-					else{
+						display.getDrawingToolbar().forceLayout();
+					}else{
 						display.getAddHoleButton().setValue(false);
 						display.getAddHoleButton().hide();
-						display.getDrawingToolbar().forceLayout();	
+						display.getDrawingToolbar().forceLayout();
 					}
 				}else{
 					// disable edit mode
@@ -439,7 +484,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					if(display.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON)){
 						display.getAddHoleButton().setValue(false);
 						display.getAddHoleButton().hide();
-						display.getDrawingToolbar().forceLayout();						
+						display.getDrawingToolbar().forceLayout();
 					}
 				}
 			}
@@ -447,7 +492,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		// handle add holes button click
 		display.getAddHoleButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-
+			
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event){
 				display.setAddingHolesMode(event.getValue());
@@ -456,14 +501,13 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		// handle move features button click
 		display.getMoveFeaturesButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-
+			
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event){
 				if(event.getValue()){
 					// enable edit mode
 					display.enableEditMode(EditingMode.MOVE_FEATURES);
-				}
-				else{
+				}else{
 					// disable edit mode
 					display.disableEditMode();
 				}
@@ -472,14 +516,13 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		// handle move vertices button click
 		display.getMoveVerticesButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-
+			
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event){
 				if(event.getValue()){
 					// enable edit mode
 					display.enableEditMode(EditingMode.MOVE_VERTICES);
-				}
-				else{
+				}else{
 					// disable edit mode
 					display.disableEditMode();
 				}
@@ -488,14 +531,13 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		// handle delete feature button click
 		display.getDeleteFeaturesButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-
+			
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event){
 				if(event.getValue()){
 					// enable edit mode
 					display.enableEditMode(EditingMode.DELETE_FEATURES);
-				}
-				else{
+				}else{
 					// disable edit mode
 					display.disableEditMode();
 				}
@@ -503,8 +545,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		});
 		
 		// handle layer visibility event
-		Bus.get().addHandler(EventSetLayerVisibility.TYPE, new EventSetLayerVisibilityHandler(){
-
+		Bus.get().addHandler(EventSetLayerVisibility.TYPE, new EventSetLayerVisibilityHandler() {
+			
 			@Override
 			public void onSetLayerVisibility(EventSetLayerVisibility event){
 				// if we were just editing this layer disable edit mode
@@ -519,10 +561,9 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				// if this layer is also selected
 				if(display.getCurrentLayer() != null){
 					if(event.getLayer().getId() == display.getCurrentLayer().getId()){
-						if(event.isVisible() ){
+						if(event.isVisible()){
 							display.getDrawingToolbar().enable();
-						}
-						else{
+						}else{
 							display.getDrawingToolbar().disable();
 						}
 					}
@@ -531,8 +572,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		});
 		
 		// handle edit mode toggle events
-		Bus.get().addHandler(EventDisableEditMode.TYPE, new EventDisableEditModeHandler(){
-
+		Bus.get().addHandler(EventDisableEditMode.TYPE, new EventDisableEditModeHandler() {
+			
 			@Override
 			public void onDisableEditMode(EventDisableEditMode event){
 				display.disableEditMode();
@@ -552,15 +593,15 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				
 				if(display.getDeleteFeaturesButton().getValue()){
 					display.getDeleteFeaturesButton().setValue(false, false);
-				};
+				}
 				
-				//TODO: add future edit buttons
+				// TODO: add future edit buttons
 			}
 		});
 		
 		// handle remove layer from view event
-		Bus.get().addHandler(EventRemoveLayerFromMapView.TYPE, new EventRemoveLayerFromMapViewHandler(){
-
+		Bus.get().addHandler(EventRemoveLayerFromMapView.TYPE, new EventRemoveLayerFromMapViewHandler() {
+			
 			@Override
 			public void onRemoveLayerFromMapView(EventRemoveLayerFromMapView event){
 				display.removeLayer(event.getLayer());
@@ -568,8 +609,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		});
 		
 		// handle remove current map event
-		Bus.get().addHandler(EventRemoveCurrentMap.TYPE, new EventRemoveCurrentMapHandler(){
-
+		Bus.get().addHandler(EventRemoveCurrentMap.TYPE, new EventRemoveCurrentMapHandler() {
+			
 			@Override
 			public void onRemoveCurrentMap(EventRemoveCurrentMap event){
 				display.removeMapOverlays();
@@ -600,7 +641,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			
 			@Override
 			public void onSelect(SelectEvent event){
-					Bus.get().fireEvent(new EventGetSelectedLayer() {
+				Bus.get().fireEvent(new EventGetSelectedLayer() {
 					
 					@Override
 					public void setLayer(KingdomLayer selectedLayer){
@@ -613,9 +654,69 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			}
 		});
 		
+		// handle edit layer style button click
+		display.getEditLayerStyleButton().addSelectHandler(new SelectHandler() {
+			
+			@Override
+			public void onSelect(SelectEvent event){
+				// show edit layer style window
+				editLayerStyleDisplay = new EditLayerStyleWindow(display.getCurrentLayer());
+				
+				// bind events
+				if(!editLayerStyleDisplay.isBound()){
+					
+					editLayerStyleDisplay.getApplyButton().addSelectHandler(new SelectHandler() {
+						
+						@Override
+						public void onSelect(SelectEvent event){
+							if(editLayerStyleDisplay.getLayer().getGeometryType().equals(GeometryType.POINT) || editLayerStyleDisplay.getLayer().getGeometryType().equals(GeometryType.MARKER)){
+								editLayerStyleDisplay.getLayer().setColor(editLayerStyleDisplay.getColor());
+								editLayerStyleDisplay.getLayer().setSize(editLayerStyleDisplay.getSize());
+								editLayerStyleDisplay.getLayer().setShape(editLayerStyleDisplay.getShapeComboBox().getValue());
+							}
+							else if(editLayerStyleDisplay.getLayer().getGeometryType().equals(GeometryType.LINE)){
+								editLayerStyleDisplay.getLayer().setColor(editLayerStyleDisplay.getColor());
+								editLayerStyleDisplay.getLayer().setStrokeWidth(editLayerStyleDisplay.getSize());
+							}
+							else if(editLayerStyleDisplay.getLayer().getGeometryType().equals(GeometryType.POLYGON)){
+								editLayerStyleDisplay.getLayer().setColor(editLayerStyleDisplay.getColor());
+								editLayerStyleDisplay.getLayer().setFillColor(editLayerStyleDisplay.getFillColor());
+								editLayerStyleDisplay.getLayer().setStrokeWidth(editLayerStyleDisplay.getSize());
+								editLayerStyleDisplay.getLayer().setStrokeOpacity(editLayerStyleDisplay.getStrokeOpacitySpinner().getValue());
+								editLayerStyleDisplay.getLayer().setFillOpacity(editLayerStyleDisplay.getFillOpacitySpinner().getValue());
+							}
+							
+							editLayerStyleDisplay.hide();
+							
+							// update layer to db
+							updateLayerStyleDB(editLayerStyleDisplay.getLayer());
+							
+							// re-apply layer env parameter
+							display.getCurrentOLWmsLayer().getParams().setParameter("env", display.getCurrentLayer().getEnvValues());
+							
+							// redraw wms layer
+							display.getCurrentOLWmsLayer().redraw();
+						}
+					});
+					
+					editLayerStyleDisplay.getCancelButton().addSelectHandler(new SelectHandler() {
+						
+						@Override
+						public void onSelect(SelectEvent event){
+							editLayerStyleDisplay.hide();
+						}
+					});
+					
+					editLayerStyleDisplay.setIsBound(true);
+				}
+				
+				editLayerStyleDisplay.show();
+			}
+		});
+		
 		// save data when window is closed
-		Window.addWindowClosingHandler(new ClosingHandler(){
-
+		Window.addWindowClosingHandler(new ClosingHandler() {
+			
 			@Override
 			public void onWindowClosing(ClosingEvent event){
 				updateLayersDB(display.getLayerList());
@@ -623,11 +724,11 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		});
 		
 		// handle escape key presses
-		RootPanel.get().addDomHandler(new KeyDownHandler(){
-
+		RootPanel.get().addDomHandler(new KeyDownHandler() {
+			
 			@Override
 			public void onKeyDown(KeyDownEvent event){
-				if(event.getNativeKeyCode() ==  KeyCodes.KEY_ESCAPE){
+				if(event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE){
 					if(display.getCurrentDrawControl() != null && display.isInEditMode()){
 						display.getCurrentDrawControl().cancel();
 					}
@@ -636,15 +737,29 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		}, KeyDownEvent.getType());
 	}
 	
+	// this updates the layers visibility and z indices
 	private void updateLayersDB(List<KingdomLayer> layers){
 		DataServiceAsync.Util.getInstance().updateLayers(layers, new AsyncCallback<Boolean>() {
-
+			
 			@Override
 			public void onFailure(Throwable caught){
 			}
-
+			
 			@Override
 			public void onSuccess(Boolean result){
+			}
+		});
+	}
+	
+	private void updateLayerStyleDB(KingdomLayer layer){
+		DataServiceAsync.Util.getInstance().updateLayerStyle(layer, new AsyncCallback<KingdomLayer>() {
+			
+			@Override
+			public void onFailure(Throwable caught){
+			}
+			
+			@Override
+			public void onSuccess(KingdomLayer layer){
 			}
 		});
 	}

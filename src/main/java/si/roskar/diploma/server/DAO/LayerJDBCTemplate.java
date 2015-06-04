@@ -29,7 +29,7 @@ public class LayerJDBCTemplate{
 		this.jdbcTemplateObject = new JdbcTemplate(dataSource);
 	}
 	
-	public int insert(String name, String style, boolean visibility, GeometryType geometryType, int zIndex, double strokeOpacity, double fillOpacity, int mapId){
+	public int insert(String name, String style, boolean visibility, GeometryType geometryType, int zIndex, String color, int size, String shape, String fillColor, int strokeWidth, double strokeOpacity, double fillOpacity, int mapId){
 		
 		// escape unicode
 		name = Tools.encodeToNumericCharacterReference(name);
@@ -38,8 +38,8 @@ public class LayerJDBCTemplate{
 		name = name.replace("'", "''");
 		
 		String visibilityString = visibility == true ? "TRUE" : "FALSE";
-		final String SQL = "INSERT INTO public.\"Layer\"(name, style, visibility, geometry_type, z_index, stroke_opacity, fill_opacity, map_id) VALUES ('" + name + "', '" + style + "', " + visibilityString + ", '"
-				+ geometryType.getGeometryName() + "', " + zIndex + ", " + strokeOpacity + ", " + fillOpacity + ", " + mapId + ")";
+		final String SQL = "INSERT INTO public.\"Layer\"(name, style, visibility, geometry_type, z_index, color, size, shape, fill_color, stroke_width, stroke_opacity, fill_opacity, map_id) VALUES ('" + name + "', '" + style + "', " + visibilityString + ", '"
+				+ geometryType.getGeometryName() + "', " + zIndex + ", '" + color + "', " + size + ", '" + shape + "', '" + fillColor + "', " + strokeWidth + ", " + strokeOpacity + ", " + fillOpacity + ", " + mapId + ")";
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		
 		jdbcTemplateObject.update(new PreparedStatementCreator() {
@@ -86,9 +86,21 @@ public class LayerJDBCTemplate{
 		return true;
 	}
 	
-	public boolean updateLayer(int layerId, String name, String style, boolean visibility, int zIndex){
+	public boolean updateLayerState(int layerId, boolean visibility, int zIndex){
 		String visibilityString = visibility == true ? "TRUE" : "FALSE";
-		String SQL = "UPDATE public.\"Layer\" SET name = '" + name + "', style = '" + style + "', visibility = " + visibilityString + ", z_index = " + zIndex + "  WHERE id = " + layerId;
+		String SQL = "UPDATE public.\"Layer\" SET visibility = " + visibilityString + ", z_index = " + zIndex + "  WHERE id = " + layerId;
+		jdbcTemplateObject.update(SQL);
+		
+		return true;
+	}
+	
+	public boolean updateLayerStyle(int layerId, String style, String color, int size, String shape, String fillColor, int strokeWidth, double fillOpacity, double strokeOpacity){
+		style = style == null ? "" : style;
+		color = color == null ? "" : color;
+		shape = shape == null ? "" : shape;
+		fillColor = fillColor == null ? "" : fillColor;	
+		
+		String SQL = "UPDATE public.\"Layer\" SET style = '" + style + "', color = '" + color + "', size = " + size + ", shape = '" + shape + "', fill_color = '" + fillColor + "', stroke_width = " + strokeWidth + ", fill_opacity = " + fillOpacity + ", stroke_opacity = " + strokeOpacity + "  WHERE id = " + layerId;
 		jdbcTemplateObject.update(SQL);
 		
 		return true;

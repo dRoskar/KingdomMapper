@@ -1,0 +1,4 @@
+color picker:
+
+http://www.subshell.com/en/subshell/blog/Implementing-a-Color-Picker-Dialog-With-Canvas-and-GWT100.html
+https://github.com/blizzy78/ksp-precisenode/issues/20

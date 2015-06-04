@@ -17,11 +17,9 @@ public class KingdomLayer implements IsSerializable{
 	private String			color			= null;
 	private int				size			= 0;
 	private String			shape			= null;
-	private int				width			= 0;
 	private int				strokeWidth		= 0;
 	private String			fillColor		= null;
 	private double			fillOpacity		= 1.0;
-	private String			strokeColor		= null;
 	private double			strokeOpacity	= 1.0;
 	
 	public KingdomLayer(){
@@ -143,14 +141,6 @@ public class KingdomLayer implements IsSerializable{
 		this.shape = shape;
 	}
 	
-	public int getWidth(){
-		return width;
-	}
-	
-	public void setWidth(int width){
-		this.width = width;
-	}
-	
 	public int getStrokeWidth(){
 		return strokeWidth;
 	}
@@ -173,14 +163,6 @@ public class KingdomLayer implements IsSerializable{
 	
 	public void setFillOpacity(double fillOpacity){
 		this.fillOpacity = fillOpacity;
-	}
-	
-	public String getStrokeColor(){
-		return strokeColor;
-	}
-	
-	public void setStrokeColor(String strokeColor){
-		this.strokeColor = strokeColor;
 	}
 	
 	public double getStrokeOpacity(){
@@ -210,8 +192,8 @@ public class KingdomLayer implements IsSerializable{
 				env = env + "color:" + this.getColor() + ";";
 			}
 			
-			if(this.getWidth() > 0){
-				env = env + "width:" + this.getWidth() + ";";
+			if(this.getStrokeWidth() > 0){
+				env = env + "width:" + this.getStrokeWidth() + ";";
 			}
 		}else if(this.getGeometryType().equals(GeometryType.POLYGON)){
 			if(this.getFillColor() != null){
@@ -220,8 +202,8 @@ public class KingdomLayer implements IsSerializable{
 			
 			env = env + "fill_opacity:" + this.getFillOpacity() + ";";
 			
-			if(this.getStrokeColor() != null){
-				env = env + "stroke_color:" + this.getStrokeColor() + ";";
+			if(this.getColor() != null){
+				env = env + "color:" + this.getColor() + ";";
 			}
 			
 			if(this.getStrokeWidth() > 0){

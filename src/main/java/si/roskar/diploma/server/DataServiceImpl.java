@@ -95,7 +95,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	// ===== ===== LAYER DATA SERVICES ===== =====
 	@Override
 	public Integer addLayer(KingdomLayer layer){
-		return layerJdbcTemplate.insert(layer.getName(), layer.getStyle(), layer.isVisible(), layer.getGeometryType(), layer.getZIndex(), layer.getStrokeOpacity(), layer.getFillOpacity(), layer.getMap().getId());
+		return layerJdbcTemplate.insert(layer.getName(), layer.getStyle(), layer.isVisible(), layer.getGeometryType(), layer.getZIndex(), layer.getColor(), layer.getSize(), layer.getShape(), layer.getFillColor(), layer.getStrokeWidth(), layer.getStrokeOpacity(), layer.getFillOpacity(), layer.getMap().getId());
 	}
 	
 	@Override
@@ -133,12 +133,19 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	public boolean updateLayers(List<KingdomLayer> layers){
 		boolean success = true;
 		for(KingdomLayer layer : layers){
-			if(!layerJdbcTemplate.updateLayer(layer.getId(), layer.getName(), layer.getStyle(), layer.isVisible(), layer.getZIndex())){
+			if(!layerJdbcTemplate.updateLayerState(layer.getId(), layer.isVisible(), layer.getZIndex())){
 				success = false;
 			}
 		}
 		
 		return success;
+	}
+	
+	@Override
+	public KingdomLayer updateLayerStyle(KingdomLayer layer){
+		layerJdbcTemplate.updateLayerStyle(layer.getId(), layer.getStyle(), layer.getColor(), layer.getSize(), layer.getShape(), layer.getFillColor(), layer.getStrokeWidth(), layer.getFillOpacity(), layer.getStrokeOpacity());
+		
+		return layer;
 	}
 	
 	// ===========================================

@@ -439,6 +439,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 								newLayer.setVisible(true);
 								newLayer.setGeometryType(GeometryType.getTypeFromGeometryName(((ToggleButton) addLayerDisplay.getToggleGroup().getValue()).getItemId()));
 								newLayer.setMap(display.getCurrentMap());
+								newLayer.setStyle("");
 								
 								// get all z indexes and give this guy the highest one
 								int highestZIndex = 0;
@@ -449,6 +450,24 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 								}
 								
 								newLayer.setZIndex(highestZIndex + 1);
+								
+								// set default style
+								if(newLayer.getGeometryType().equals(GeometryType.POINT) || newLayer.getGeometryType().equals(GeometryType.MARKER)){
+									newLayer.setColor("0066FF");
+									newLayer.setShape("square");
+									newLayer.setSize(6);
+								}
+								else if(newLayer.getGeometryType().equals(GeometryType.LINE)){
+									newLayer.setColor("FF3300");
+									newLayer.setStrokeWidth(1);
+								}
+								else if(newLayer.getGeometryType().equals(GeometryType.POLYGON)){
+									newLayer.setFillColor("33CC33");
+									newLayer.setFillOpacity(1);
+									newLayer.setStrokeWidth(1);
+									newLayer.setColor("009933");
+									newLayer.setStrokeOpacity(1);
+								}
 								
 								// check if layer already exists for this map
 								DataServiceAsync.Util.getInstance().layerExists(newLayer, new AsyncCallback<Boolean>() {

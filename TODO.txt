@@ -41,17 +41,25 @@
 	[X] add style parameters to java layer object
 	[X] reconfigure layer data mapper to include style parameters
 	[X] add style parameters as env parameter when adding layer
-	[ ] layer style settings UI
+	[X] layer style settings UI
 	
+[ ] clicking layer style editor while in edit mode
+[ ] grid should always be on top -.-
+[ ] make vector lines thicker, for easier deleting
 [ ] adding shapes to polygons
 [ ] snap
 [ ] snap to grid
 [ ] opacity slider
 [ ] opacity saves to DB
+[ ] renaming stuff
 [ ] loading bars
 [ ] info indicators
 [ ] measure
 [ ] changing icons (with layer type)
+[ ] Labels
+[ ] marker icons
+[ ] textures
+[ ] use .equals instead of compareTo (except for the sort class)
 [X] use JST for wkt to gml instead of your own crappy function
 [ ] user (security) integration
 	[ ] validation no special chars
@@ -61,8 +69,12 @@
 [ ] limit zoom out
 [ ] add icon license
 [ ] line corner and ends styles
-[ ] dash line style
 
+
+## LONG-TERM ##
+[ ] dash line style
+[ ] style editor preview (wms service)
+[ ] uploadable textures
 
 ## BUGS ##
 [X] points aren't showing
@@ -76,3 +88,4 @@
 [ ] select layer, turn edit mode on and off, and send layer to top. grid is top again (probably gets assigned a huge z index somewhere in between, maybe if setting it to 0 everytime you resort will fix this)
 [ ] select layer, toggle vertice-moving, drag a vertex, click move to front, switch off edit mode, layer is not in front
 [X] layer with multiple features, select erase tool, click on a feature, it's gone. Click on empty space, feature is back (only on wfs layer)
+[X] click cancel when selecting color
