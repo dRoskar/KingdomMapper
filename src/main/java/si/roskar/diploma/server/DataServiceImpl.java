@@ -1,5 +1,6 @@
 package si.roskar.diploma.server;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.gemma.si.NetIO;
@@ -15,6 +16,7 @@ import si.roskar.diploma.shared.KingdomGridLayer;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
 import si.roskar.diploma.shared.KingdomUser;
+import si.roskar.diploma.shared.KingdomVectorFeature;
 import si.roskar.diploma.shared.Tools;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -96,7 +98,8 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	// ===== ===== LAYER DATA SERVICES ===== =====
 	@Override
 	public Integer addLayer(KingdomLayer layer){
-		return layerJdbcTemplate.insert(layer.getName(), layer.getStyle(), layer.isVisible(), layer.getGeometryType(), layer.getZIndex(), layer.getColor(), layer.getSize(), layer.getShape(), layer.getFillColor(), layer.getStrokeWidth(), layer.getStrokeOpacity(), layer.getFillOpacity(), layer.getMap().getId());
+		return layerJdbcTemplate.insert(layer.getName(), layer.getStyle(), layer.isVisible(), layer.getGeometryType(), layer.getZIndex(), layer.getColor(), layer.getSize(), layer.getShape(),
+				layer.getFillColor(), layer.getStrokeWidth(), layer.getStrokeOpacity(), layer.getFillOpacity(), layer.getMap().getId());
 	}
 	
 	@Override
@@ -146,7 +149,8 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	
 	@Override
 	public KingdomLayer updateLayerStyle(KingdomLayer layer){
-		layerJdbcTemplate.updateLayerStyle(layer.getId(), layer.getStyle(), layer.getColor(), layer.getSize(), layer.getShape(), layer.getFillColor(), layer.getStrokeWidth(), layer.getFillOpacity(), layer.getStrokeOpacity());
+		layerJdbcTemplate.updateLayerStyle(layer.getId(), layer.getStyle(), layer.getColor(), layer.getSize(), layer.getShape(), layer.getFillColor(), layer.getStrokeWidth(), layer.getFillOpacity(),
+				layer.getStrokeOpacity());
 		
 		return layer;
 	}
@@ -351,6 +355,35 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		}
 	}
 	
+	public void deletePolygon(String wmsUrl, String polygonFid){
+		NetIO netIo = new NetIO();
+		
+		// assemble request XML
+		//@formatter:off
+		String xml = "<wfs:Transaction service=\"WFS\" version=\"1.0.0\"\r\n" + 
+				"  xmlns:ogc=\"http://www.opengis.net/ogc\"\r\n" + 
+				"  xmlns:kingdom=\"http://kingdom.si\"\r\n" +
+				"  xmlns:gml=\"http://www.opengis.net/gml\"\r\n" +
+				"  xmlns:wfs=\"http://www.opengis.net/wfs\">\r\n" +
+				"  <wfs:Delete typeName=\"kingdom:polygon\">\r\n" + 
+				"    <ogc:Filter>\r\n" + 
+				"      <ogc:FeatureId fid=\"" + polygonFid + "\"/>\r\n" + 
+				"    </ogc:Filter>\r\n" + 
+				"  </wfs:Delete>\r\n" + 
+				"</wfs:Transaction>";
+		//@formatter:on
+		
+		try{
+			byte[] response = netIo.post(wmsUrl, xml);
+			
+			String responseString = new String(response);
+			
+			System.out.println(responseString);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
 	// =============================
 	
 	// ===== ===== UTIL ===== =====
@@ -374,6 +407,49 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 			}
 			
 			return false;
+			
+		}catch(ParseException e){
+			e.printStackTrace();
+		}
+		
+		return false;
+	}
+	
+	public boolean bindPolygonGeometries(String wmsUrl, List<KingdomVectorFeature> partakigFeatures, String newGeometryWkt){
+		WKTReader wktReader = new WKTReader();
+		GMLWriter gmlWriter = new GMLWriter();
+		Geometry newGeometry = null;
+		
+		// get get all geometry transformations
+		try{
+			newGeometry = wktReader.read(newGeometryWkt);
+			Geometry unionGeometry = newGeometry;
+			List<KingdomVectorFeature> intersectingFeatures = new ArrayList<KingdomVectorFeature>();
+			
+			// get intersecting features
+			for(KingdomVectorFeature feature : partakigFeatures){				
+				Geometry featureGeometry = wktReader.read(feature.getWktGeometry());
+				
+				// bind geometries
+				if(featureGeometry.intersects(newGeometry)){
+					unionGeometry = unionGeometry.union(featureGeometry);
+					intersectingFeatures.add(feature);
+				}
+			}
+			
+			// update new geometry to first of the intersecting features; delete the rest
+			boolean updated = false;
+			for(KingdomVectorFeature feature : intersectingFeatures){
+				if(!updated){
+					updatePolygonGeometry(wmsUrl, gmlWriter.write(unionGeometry), feature.getFID());
+					updated = true;
+				}
+				else{
+					deletePolygon(wmsUrl, feature.getFID());
+				}
+			}
+			
+			return true;
 			
 		}catch(ParseException e){
 			e.printStackTrace();

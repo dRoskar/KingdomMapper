@@ -1,5 +1,6 @@
 package si.roskar.diploma.client.presenter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.gwtopenmaps.openlayers.client.Map;
@@ -41,6 +42,7 @@ import si.roskar.diploma.shared.EditingMode;
 import si.roskar.diploma.shared.GeometryType;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
+import si.roskar.diploma.shared.KingdomVectorFeature;
 
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
@@ -84,6 +86,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		ToggleButton getDeleteFeaturesButton();
 		
+		ToggleButton getAddShapeButton();
+		
 		ToggleButton getAddHoleButton();
 		
 		void setEditButtonGroup(GeometryType geometryType);
@@ -95,6 +99,10 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		KingdomLayer getEditingLayer();
 		
 		boolean isInEditMode();
+		
+		boolean isInAddingShapesMode();
+		
+		void setAddingShapesMode(boolean isInAddingShapesMode);
 		
 		boolean isInAddingHolesMode();
 		
@@ -338,7 +346,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				}
 				
 				// POLYGON
-				if(geometryType.equals(GeometryType.POLYGON) && eventObject.getVectorFeature().getGeometry().getVertices(false).length > 2 && !display.isInAddingHolesMode()){
+				if(geometryType.equals(GeometryType.POLYGON) && eventObject.getVectorFeature().getGeometry().getVertices(false).length > 2 && !display.isInAddingHolesMode()
+						&& !display.isInAddingShapesMode()){
 					DataServiceAsync.Util.getInstance().insertPolygon("http://127.0.0.1:8080/geoserver/wms/", geometry, "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
 						
 						@Override
@@ -356,7 +365,42 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					});
 				}
 				
-				// HOLE
+				// ADD SHAPE
+				if(geometryType.equals(GeometryType.POLYGON) && eventObject.getVectorFeature().getGeometry().getVertices(false).length > 2 && display.isInAddingShapesMode()){
+					// get all geometries from the displayed vector layer
+					VectorFeature[] features = display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getWfsLayer().getFeatures();
+					
+					// if new geometry bounds intersect any of the existing
+					// geometry bounds
+					List<KingdomVectorFeature> partakingFeatures = new ArrayList<KingdomVectorFeature>();
+					for(VectorFeature feature : features){
+						if(feature.getGeometry().getBounds().intersectsBounds(eventObject.getVectorFeature().getGeometry().getBounds())){
+							partakingFeatures.add(new KingdomVectorFeature(feature.getGeometry().toString(), feature.getFID()));
+						}
+					}
+					
+					// update partaking features' geometries
+					if(!partakingFeatures.isEmpty()){
+						DataServiceAsync.Util.getInstance().bindPolygonGeometries("http://127.0.0.1:8080/geoserver/wms/", partakingFeatures, eventObject.getVectorFeature().getGeometry().toString(), new AsyncCallback<Boolean>() {
+
+							@Override
+							public void onFailure(Throwable caught){
+							}
+
+							@Override
+							public void onSuccess(Boolean result){
+								if(result){
+									// polygon was updated; refresh
+									// layers
+									display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getRefreshStrategy().refresh();
+									display.getCurrentOLWmsLayer().redraw();
+								}
+							}
+						});
+					}
+				}
+				
+				// SUBTRACT SHAPE
 				if(geometryType.equals(GeometryType.POLYGON) && eventObject.getVectorFeature().getGeometry().getVertices(false).length > 2 && display.isInAddingHolesMode()){
 					// get all geometries from the displayed vector layer
 					VectorFeature[] features = display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getWfsLayer().getFeatures();
@@ -471,9 +515,12 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					
 					// if drawing polygons
 					if(display.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON)){
+						display.getAddShapeButton().show();
 						display.getAddHoleButton().show();
 						display.getDrawingToolbar().forceLayout();
 					}else{
+						display.getAddShapeButton().setValue(false);
+						display.getAddShapeButton().hide();
 						display.getAddHoleButton().setValue(false);
 						display.getAddHoleButton().hide();
 						display.getDrawingToolbar().forceLayout();
@@ -484,11 +531,22 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					
 					// if drawing polygons
 					if(display.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON)){
+						display.getAddShapeButton().setValue(false);
+						display.getAddShapeButton().hide();
 						display.getAddHoleButton().setValue(false);
 						display.getAddHoleButton().hide();
 						display.getDrawingToolbar().forceLayout();
 					}
 				}
+			}
+		});
+		
+		// handle add shapes button click
+		display.getAddShapeButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+			
+			@Override
+			public void onValueChange(ValueChangeEvent<Boolean> event){
+				display.setAddingShapesMode(event.getValue());
 			}
 		});
 		
@@ -675,12 +733,10 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 								editLayerStyleDisplay.getLayer().setColor(editLayerStyleDisplay.getColor());
 								editLayerStyleDisplay.getLayer().setSize(editLayerStyleDisplay.getSize());
 								editLayerStyleDisplay.getLayer().setShape(editLayerStyleDisplay.getShapeComboBox().getValue());
-							}
-							else if(editLayerStyleDisplay.getLayer().getGeometryType().equals(GeometryType.LINE)){
+							}else if(editLayerStyleDisplay.getLayer().getGeometryType().equals(GeometryType.LINE)){
 								editLayerStyleDisplay.getLayer().setColor(editLayerStyleDisplay.getColor());
 								editLayerStyleDisplay.getLayer().setStrokeWidth(editLayerStyleDisplay.getSize());
-							}
-							else if(editLayerStyleDisplay.getLayer().getGeometryType().equals(GeometryType.POLYGON)){
+							}else if(editLayerStyleDisplay.getLayer().getGeometryType().equals(GeometryType.POLYGON)){
 								editLayerStyleDisplay.getLayer().setColor(editLayerStyleDisplay.getColor());
 								editLayerStyleDisplay.getLayer().setFillColor(editLayerStyleDisplay.getFillColor());
 								editLayerStyleDisplay.getLayer().setStrokeWidth(editLayerStyleDisplay.getSize());

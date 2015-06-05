@@ -84,6 +84,7 @@ public class MapView implements Display{
 	private ToggleButton									moveFeaturesButton		= null;
 	private ToggleButton									moveVerticesButton		= null;
 	private ToggleButton									deleteFeaturesButton	= null;
+	private ToggleButton									addShapeButton			= null;
 	private ToggleButton									addHoleButton			= null;
 	private ToggleGroup										editButtonToggleGroup	= null;
 	private KingdomMap										kingdomMap				= null;
@@ -97,6 +98,7 @@ public class MapView implements Display{
 	private KingdomLayer									modifiedLayer			= null;
 	private DrawFeature										currentDrawControl		= null;
 	private boolean											isInEditMode			= false;
+	private boolean											isInAddingShapesMode	= false;
 	private boolean											isInAddingHolesMode		= false;
 	private List<KingdomLayer>								layerList				= null;
 	
@@ -174,10 +176,19 @@ public class MapView implements Display{
 		deleteFeaturesButton.setIcon(Resources.ICONS.erase());
 		deleteFeaturesButton.setToolTip("Delete features");
 		
+		addShapeButton = new ToggleButton();
+		addShapeButton.setIcon(Resources.ICONS.polygonAdd());
+		addShapeButton.setToolTip("Add shapes");
+		addShapeButton.hide();
+		
 		addHoleButton = new ToggleButton();
-		addHoleButton.setIcon(Resources.ICONS.holeAdd());
-		addHoleButton.setToolTip("Add holes");
+		addHoleButton.setIcon(Resources.ICONS.polygonTake());
+		addHoleButton.setToolTip("Subtract shapes");
 		addHoleButton.hide();
+		
+		ToggleGroup shapeGroup = new ToggleGroup();
+		shapeGroup.add(addHoleButton);
+		shapeGroup.add(addShapeButton);
 		
 		bringToFrontButton = new TextButton();
 		bringToFrontButton.setIcon(Resources.ICONS.moveToFront());
@@ -198,6 +209,7 @@ public class MapView implements Display{
 		editButtonToggleGroup.add(deleteFeaturesButton);
 		
 		drawingToolbar.add(drawButton);
+		drawingToolbar.add(addShapeButton);
 		drawingToolbar.add(addHoleButton);
 		drawingToolbar.add(new SeparatorToolItem());
 		drawingToolbar.add(moveFeaturesButton);
@@ -262,6 +274,11 @@ public class MapView implements Display{
 	}
 	
 	@Override
+	public ToggleButton getAddShapeButton(){
+		return addShapeButton;
+	}
+	
+	@Override
 	public ToggleButton getAddHoleButton(){
 		return addHoleButton;
 	}
@@ -278,6 +295,8 @@ public class MapView implements Display{
 			drawButton.setData("geometryType", geometryType);
 			
 			moveVerticesButton.hide();
+			addShapeButton.setValue(false);
+			addShapeButton.hide();
 			addHoleButton.setValue(false);
 			addHoleButton.hide();
 			drawingToolbar.forceLayout();
@@ -286,6 +305,8 @@ public class MapView implements Display{
 			drawButton.setData("geometryType", geometryType);
 			
 			moveVerticesButton.show();
+			addShapeButton.setValue(false);
+			addShapeButton.hide();
 			addHoleButton.setValue(false);
 			addHoleButton.hide();
 			drawingToolbar.forceLayout();
@@ -295,6 +316,7 @@ public class MapView implements Display{
 			
 			moveVerticesButton.show();
 			if(isInEditMode){
+				addShapeButton.show();
 				addHoleButton.show();
 				drawingToolbar.forceLayout();
 			}
@@ -304,6 +326,8 @@ public class MapView implements Display{
 			drawButton.setData("geometryType", geometryType);
 			
 			moveVerticesButton.hide();
+			addShapeButton.setValue(false);
+			addShapeButton.hide();
 			addHoleButton.setValue(false);
 			addHoleButton.hide();
 			drawingToolbar.forceLayout();
@@ -328,6 +352,16 @@ public class MapView implements Display{
 	@Override
 	public boolean isInEditMode(){
 		return isInEditMode;
+	}
+	
+	@Override
+	public boolean isInAddingShapesMode(){
+		return isInAddingShapesMode;
+	}
+	
+	@Override
+	public void setAddingShapesMode(boolean isInAddingShapesMode){
+		this.isInAddingShapesMode = isInAddingShapesMode;
 	}
 	
 	@Override

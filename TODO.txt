@@ -45,8 +45,8 @@
 	
 [X] clicking layer style editor while in edit mode
 [X] grid should always be on top -.-
-[ ] fix when layer state data saved
-[ ] make vector lines thicker, for easier deleting
+[X] fix when layer state data saved
+[X] make vector lines thicker, for easier deleting
 [ ] adding shapes to polygons
 [ ] snap
 [ ] snap to grid

@@ -27,7 +27,6 @@ public class KingdomLayer implements IsSerializable{
 	}
 	
 	public KingdomLayer(int id, String name, String style, boolean visibility, String format, String projection, float opacity){
-		super();
 		this.id = id;
 		this.name = name;
 		this.style = style;

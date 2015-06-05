@@ -5,6 +5,7 @@ import java.util.List;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
 import si.roskar.diploma.shared.KingdomUser;
+import si.roskar.diploma.shared.KingdomVectorFeature;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
@@ -43,6 +44,8 @@ public interface DataService extends RemoteService{
 	void insertPolygon(String wmsUrl, String wktGeometry, String description, int layerId);
 	
 	boolean slicePolygonGeometry(String wmsUrl, String originalPolygonWktGeometry, String intersectorWktGeometry, String polygonFid);
+	
+	boolean bindPolygonGeometries(String wmsUrl, List<KingdomVectorFeature> partakigFeatures, String newGeometryWkt);
 	
 	void updatePolygonGeometry(String wmsUrl, String wktGeometry, String polygonFid);
 }

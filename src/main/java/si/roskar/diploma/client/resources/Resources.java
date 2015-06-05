@@ -87,14 +87,17 @@ public class Resources{
 		@Source ("line_delete.png")
 		ImageResource lineDelete();
 		
-		@Source ("ring_add.png")
-		ImageResource holeAdd();
-		
 		@Source ("erase.png")
 		ImageResource erase();
 		
 		@Source ("layer_style.png")
 		ImageResource layerStyle();
+		
+		@Source ("polygon_takeaway.png")
+		ImageResource polygonTake();
+		
+		@Source ("polygon_add.png")
+		ImageResource polygonAdd();
 	}
 	
 	public static final Icons	ICONS	= GWT.create(Icons.class);
