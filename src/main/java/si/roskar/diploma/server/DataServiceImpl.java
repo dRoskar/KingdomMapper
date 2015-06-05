@@ -11,6 +11,7 @@ import si.roskar.diploma.server.DAO.UserJDBCTemplate;
 import si.roskar.diploma.server.DAO.VectorJDBCTemplate;
 import si.roskar.diploma.server.DB.DBSource;
 import si.roskar.diploma.shared.GeometryType;
+import si.roskar.diploma.shared.KingdomGridLayer;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
 import si.roskar.diploma.shared.KingdomUser;
@@ -133,8 +134,10 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	public boolean updateLayers(List<KingdomLayer> layers){
 		boolean success = true;
 		for(KingdomLayer layer : layers){
-			if(!layerJdbcTemplate.updateLayerState(layer.getId(), layer.isVisible(), layer.getZIndex())){
-				success = false;
+			if(!(layer instanceof KingdomGridLayer)){
+				if(!layerJdbcTemplate.updateLayerState(layer.getId(), layer.isVisible(), layer.getZIndex())){
+					success = false;
+				}
 			}
 		}
 		

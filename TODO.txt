@@ -55,6 +55,7 @@
 [ ] renaming stuff
 [ ] loading bars
 [ ] info indicators
+[ ] remember what user was looking at last
 [ ] measure
 [ ] changing icons (with layer type)
 [ ] Labels

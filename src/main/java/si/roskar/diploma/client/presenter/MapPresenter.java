@@ -137,6 +137,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		void sendLayerToBack(KingdomLayer selectedLayer);
 		
 		List<KingdomLayer> getLayerList();
+		
+		TextButton getSaveMapStateButton();
 	}
 	
 	public interface AddMarkerDisplay extends View{
@@ -735,6 +737,15 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				}
 			}
 		}, KeyDownEvent.getType());
+		
+		// handle save map state button click
+		display.getSaveMapStateButton().addSelectHandler(new SelectHandler() {
+			
+			@Override
+			public void onSelect(SelectEvent event){
+				updateLayersDB(display.getLayerList());
+			}
+		});
 	}
 	
 	// this updates the layers visibility and z indices

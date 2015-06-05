@@ -79,6 +79,7 @@ public class MapView implements Display{
 	private TextButton										sendToBackButton		= null;
 	private TextButton										editLayerStyleButton	= null;
 	private ToggleButton									grid					= null;
+	private TextButton										saveMapStateButton		= null;
 	private ToggleButton									drawButton				= null;
 	private ToggleButton									moveFeaturesButton		= null;
 	private ToggleButton									moveVerticesButton		= null;
@@ -143,10 +144,15 @@ public class MapView implements Display{
 		grid.setToolTip("Show/hide grid");
 		grid.setValue(true);
 		
+		saveMapStateButton = new TextButton();
+		saveMapStateButton.setIcon(Resources.ICONS.mapSave());
+		saveMapStateButton.setToolTip("Save map state");
+		
 		viewingToolbar.add(zoomToExtent);
 		viewingToolbar.add(navigateBack);
 		viewingToolbar.add(navigateForward);
 		viewingToolbar.add(grid);
+		viewingToolbar.add(saveMapStateButton);
 		
 		// create drawing toolbar
 		drawingToolbar = new ToolBar();
@@ -607,7 +613,8 @@ public class MapView implements Display{
 			isInEditMode = true;
 		}
 		
-		// when removing controls from the OL map the layer z indices get  reset for some reason
+		// when removing controls from the OL map the layer z indices get reset
+		// for some reason
 		gridLayer.setZIndex(325);
 		
 		for(KingdomLayer layer : layerList){
@@ -651,7 +658,8 @@ public class MapView implements Display{
 			
 			isInEditMode = false;
 			
-			// when removing controls from the OL map the layer z indices get  reset for some reason
+			// when removing controls from the OL map the layer z indices get
+			// reset for some reason
 			gridLayer.setZIndex(325);
 			
 			for(KingdomLayer layer : layerList){
@@ -816,5 +824,10 @@ public class MapView implements Display{
 	@Override
 	public List<KingdomLayer> getLayerList(){
 		return layerList;
+	}
+	
+	@Override
+	public TextButton getSaveMapStateButton(){
+		return saveMapStateButton;
 	}
 }
