@@ -35,8 +35,8 @@ public class ColorPickerWindow extends Window{
 		setHeadingText("Color picker");
 		setModal(true);
 		setResizable(false);
-		setWidth(400);
-		setHeight(500);
+		setWidth(245);
+		setHeight(270);
 		setBodyStyle("padding:6px");
 		
 		ContentPanel panel = new ContentPanel();

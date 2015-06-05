@@ -92,8 +92,6 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 		setHeadingText("Layer style - " + layer.getName());
 		setModal(true);
 		setResizable(false);
-		setWidth(300);
-		setHeight(400);
 		setBodyStyle("padding:6px");
 		
 		ContentPanel cp = new ContentPanel();
