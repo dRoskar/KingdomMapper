@@ -598,7 +598,7 @@ public class MapView implements Display{
 		}
 		
 		// when removing controls from the OL map the layer z indices get  reset for some reason
-		gridLayer.setZIndex(10000);
+		gridLayer.setZIndex(325);
 		
 		for(KingdomLayer layer : layerList){
 			if(!(layer instanceof KingdomGridLayer)){
@@ -642,7 +642,7 @@ public class MapView implements Display{
 			isInEditMode = false;
 			
 			// when removing controls from the OL map the layer z indices get  reset for some reason
-			gridLayer.setZIndex(10000);
+			gridLayer.setZIndex(325);
 			
 			for(KingdomLayer layer : layerList){
 				if(!(layer instanceof KingdomGridLayer)){

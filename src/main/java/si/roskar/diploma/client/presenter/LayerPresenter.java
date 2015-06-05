@@ -668,7 +668,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 				
 				// prepend grid layer
 				KingdomGridLayer gridLayer = new KingdomGridLayer(-2, "Grid", "grid", true, "image/png", "EPSG:4326", 0.5f, MapSize.COUNTRY_MAP);
-				gridLayer.setZIndex(10000);
+				gridLayer.setZIndex(325);
 				
 				List<KingdomLayer> layers = new ArrayList<KingdomLayer>();
 				layers.add(gridLayer);
