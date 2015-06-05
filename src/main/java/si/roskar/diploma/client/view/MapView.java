@@ -478,9 +478,19 @@ public class MapView implements Display{
 			wfsFilter.setProperty("layer_id");
 			wfsFilter.setNumberValue(layer.getId());
 			
+			// wfs layer styles
+			Style defaultStyle = new Style();
+			defaultStyle.setStrokeWidth(3);
+			
+			Style selectStyle = new Style();
+			selectStyle.setStrokeColor("#0033CC");
+			selectStyle.setFillColor("#0066FF");
+			selectStyle.setStrokeWidth(3);
+			
 			Vector wfsLayer = new Vector(layer.getName() + "Wfs", vectorOptions);
 			wfsLayer.setFilter(wfsFilter);
 			wfsLayer.setZIndex(layer.getZIndex());
+			wfsLayer.setStyleMap(new StyleMap(defaultStyle, selectStyle, defaultStyle));
 			
 			// modify feature
 			ModifyFeatureOptions modifyFeatureOptions = new ModifyFeatureOptions();
