@@ -138,7 +138,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		boolean success = true;
 		for(KingdomLayer layer : layers){
 			if(!(layer instanceof KingdomGridLayer)){
-				if(!layerJdbcTemplate.updateLayerState(layer.getId(), layer.isVisible(), layer.getZIndex())){
+				if(!layerJdbcTemplate.updateLayerState(layer.getId(), layer.isVisible(), layer.getZIndex(), layer.getOpacity())){
 					success = false;
 				}
 			}

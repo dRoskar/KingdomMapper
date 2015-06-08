@@ -102,6 +102,7 @@ public class LayerView implements Display{
 		
 		opacitySlider = new Slider();
 		opacitySlider.setSize("80px", "auto");
+		opacitySlider.setLayoutData(new VerticalLayoutData(1, 1));
 		opacitySlider.setTitle("opacity");
 		
 		layerContextMenu.add(opacitySlider);
@@ -237,5 +238,10 @@ public class LayerView implements Display{
 	@Override
 	public KingdomLayer getSelectedLayer(){
 		return layerTree.getSelectionModel().getSelectedItem();
+	}
+	
+	@Override
+	public Menu getContextMenu(){
+		return layerContextMenu;
 	}
 }

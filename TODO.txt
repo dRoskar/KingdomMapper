@@ -48,9 +48,10 @@
 [X] fix when layer state data saved
 [X] make vector lines thicker, for easier deleting
 [X] adding shapes to polygons
-[ ] snap
+[X] snap
 [-] snap to grid
 [ ] opacity slider
+[ ] rearrange code
 [ ] opacity saves to DB
 [ ] what happens when you leave some buttons on and load a new map?
 [ ] renaming stuff

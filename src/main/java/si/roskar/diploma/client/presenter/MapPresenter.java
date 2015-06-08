@@ -30,6 +30,8 @@ import si.roskar.diploma.client.event.EventRemoveLayerFromMapView;
 import si.roskar.diploma.client.event.EventRemoveLayerFromMapView.EventRemoveLayerFromMapViewHandler;
 import si.roskar.diploma.client.event.EventSetCurrentLayer;
 import si.roskar.diploma.client.event.EventSetCurrentLayer.EventSetCurrentLayerHandler;
+import si.roskar.diploma.client.event.EventSetLayerOpacity;
+import si.roskar.diploma.client.event.EventSetLayerOpacity.EventSetLayerOpacityHandler;
 import si.roskar.diploma.client.event.EventSetLayerVisibility;
 import si.roskar.diploma.client.event.EventSetLayerVisibility.EventSetLayerVisibilityHandler;
 import si.roskar.diploma.client.event.EventSortLayerTree;
@@ -151,6 +153,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		TextButton getSaveMapStateButton();
 		
 		void setSnapEnabled(boolean enabled);
+		
+		void setLayerOpacity(KingdomLayer layer, float opacity);
 	}
 	
 	public interface AddMarkerDisplay extends View{
@@ -825,6 +829,15 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			@Override
 			public void onSelect(SelectEvent event){
 				updateLayersDB(display.getLayerList());
+			}
+		});
+		
+		// handle layer opacity
+		Bus.get().addHandler(EventSetLayerOpacity.TYPE, new EventSetLayerOpacityHandler(){
+
+			@Override
+			public void onSetCurrentLayer(EventSetLayerOpacity event){
+				display.setLayerOpacity(event.getLayer(), event.getOpacity() / 100);
 			}
 		});
 	}

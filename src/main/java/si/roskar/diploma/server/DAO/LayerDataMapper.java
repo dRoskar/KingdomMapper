@@ -20,6 +20,7 @@ public class LayerDataMapper implements RowMapper<KingdomLayer>{
 		layer.setVisible(rs.getBoolean("visibility"));
 		layer.setGeometryType(GeometryType.getTypeFromGeometryName(rs.getString("geometry_type")));
 		layer.setZIndex(rs.getInt("z_index"));
+		layer.setOpacity((float)rs.getDouble("opacity"));
 		
 		KingdomMap map = new KingdomMap();
 		map.setId(rs.getInt("map_id"));

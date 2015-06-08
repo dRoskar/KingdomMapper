@@ -904,4 +904,14 @@ public class MapView implements Display{
 			}
 		}
 	}
+	
+	@Override
+	public void setLayerOpacity(KingdomLayer layer, float opacity){
+		WMS wmsLayer = wmsLayerHashMap.get(layer);
+		
+		if(wmsLayer != null){
+			wmsLayer.setOpacity(opacity);
+			layer.setOpacity(opacity);
+		}
+	}
 }

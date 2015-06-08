@@ -9,6 +9,7 @@ import si.roskar.diploma.client.event.EventAddNewLayer;
 import si.roskar.diploma.client.event.EventAddNewMap;
 import si.roskar.diploma.client.event.EventChangeEditButtonGroup;
 import si.roskar.diploma.client.event.EventChangeMapNameHeader;
+import si.roskar.diploma.client.event.EventDisableEditMode;
 import si.roskar.diploma.client.event.EventEnableDrawingToolbar;
 import si.roskar.diploma.client.event.EventEnableMapView;
 import si.roskar.diploma.client.event.EventGetSelectedLayer;
@@ -16,10 +17,10 @@ import si.roskar.diploma.client.event.EventGetSelectedLayer.EventGetSelectedLaye
 import si.roskar.diploma.client.event.EventRemoveCurrentMap;
 import si.roskar.diploma.client.event.EventRemoveLayerFromMapView;
 import si.roskar.diploma.client.event.EventSetCurrentLayer;
+import si.roskar.diploma.client.event.EventSetLayerOpacity;
 import si.roskar.diploma.client.event.EventSetLayerVisibility;
 import si.roskar.diploma.client.event.EventSortLayerTree;
 import si.roskar.diploma.client.event.EventSortLayerTree.EventSortLayerTreeHandler;
-import si.roskar.diploma.client.event.EventDisableEditMode;
 import si.roskar.diploma.client.event.EventUILoaded;
 import si.roskar.diploma.client.event.EventUILoaded.EventUILoadedHandler;
 import si.roskar.diploma.client.view.AddLayerDialog;
@@ -50,6 +51,8 @@ import com.sencha.gxt.widget.core.client.ListView;
 import com.sencha.gxt.widget.core.client.Slider;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.button.ToggleButton;
+import com.sencha.gxt.widget.core.client.event.BeforeShowContextMenuEvent;
+import com.sencha.gxt.widget.core.client.event.BeforeShowContextMenuEvent.BeforeShowContextMenuHandler;
 import com.sencha.gxt.widget.core.client.event.CheckChangeEvent;
 import com.sencha.gxt.widget.core.client.event.CheckChangeEvent.CheckChangeHandler;
 import com.sencha.gxt.widget.core.client.event.DialogHideEvent;
@@ -58,6 +61,7 @@ import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
 import com.sencha.gxt.widget.core.client.form.TextField;
 import com.sencha.gxt.widget.core.client.menu.Item;
+import com.sencha.gxt.widget.core.client.menu.Menu;
 import com.sencha.gxt.widget.core.client.selection.SelectionChangedEvent;
 import com.sencha.gxt.widget.core.client.selection.SelectionChangedEvent.SelectionChangedHandler;
 import com.sencha.gxt.widget.core.client.tree.Tree;
@@ -98,6 +102,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 		HasSelectionHandlers<Item> getDeleteLayerItem();
 		
 		KingdomLayer getSelectedLayer();
+		
+		Menu getContextMenu();
 	}
 	
 	public interface AddLayerDisplay extends View{
@@ -523,6 +529,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 			}
 		});
 		
+		// opacity slider
 		display.getOpacitySlider().addValueChangeHandler(new ValueChangeHandler<Integer>() {
 			
 			@Override
@@ -539,9 +546,21 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 					}
 					
 					// opacity stuff
+					Bus.get().fireEvent(new EventSetLayerOpacity(layer, event.getValue()));
 				}
 			}
 		});
+		
+		// before show context menu
+				display.getLayerTree().addBeforeShowContextMenuHandler(new BeforeShowContextMenuHandler() {
+					@Override
+					public void onBeforeShowContextMenu(BeforeShowContextMenuEvent event){
+						KingdomLayer layer = display.getLayerTree().getSelectionModel().getSelectedItem();
+						if(layer != null){
+							display.setLayerOpacitySliderValue(layer.getOpacity());
+						}
+					}
+				});
 		
 		// handle delete layer button click
 		display.getDeleteLayerButton().addSelectHandler(new SelectHandler() {
