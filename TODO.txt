@@ -50,10 +50,21 @@
 [X] adding shapes to polygons
 [X] snap
 [-] snap to grid
-[ ] opacity slider
+[X] opacity slider
 [ ] rearrange code
-[ ] opacity saves to DB
-[ ] what happens when you leave some buttons on and load a new map?
+[X] opacity saves to DB
+[X] what happens when you leave some buttons on and load a new map?
+[X] rotate function
+[ ] scale function
+[ ] drawing rectangles
+[ ] drawing squares
+[ ] drawing circles
+[ ] drawing straight lines
+[ ] drawing line rectangles
+[ ] drawing line circles
+[ ] drawing line squares
+[ ] subtracting everything from a feature should delete the feature (what happens?)
+[ ] if you have rotating (or moving vertices or scaling) on and switch to points, you don't have to do any mumo jumbo. Open layers already switches to drag on it's own, and back to desired control when going back to lines/polygons
 [ ] renaming stuff
 [ ] loading bars
 [ ] info indicators
@@ -66,9 +77,8 @@
 [ ] use .equals instead of compareTo (except for the sort class)
 [X] use JST for wkt to gml instead of your own crappy function
 [ ] user (security) integration
-	[ ] validation no special chars
+	[ ] validation - no special chars
 	[ ] hash and salt strategy
-[ ] print
 [ ] add different grid size choices
 [ ] limit zoom out
 [ ] add icon license
@@ -76,6 +86,7 @@
 
 
 ## LONG-TERM ##
+[ ] print
 [ ] dash line style
 [ ] style editor preview (wms service)
 [ ] uploadable textures
@@ -93,3 +104,4 @@
 [ ] select layer, toggle vertice-moving, drag a vertex, click move to front, switch off edit mode, layer is not in front
 [X] layer with multiple features, select erase tool, click on a feature, it's gone. Click on empty space, feature is back (only on wfs layer)
 [X] click cancel when selecting color
+[ ] subtract sometimes changes into add

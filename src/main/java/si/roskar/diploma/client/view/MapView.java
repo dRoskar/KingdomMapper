@@ -84,6 +84,7 @@ public class MapView implements Display{
 	private ToggleButton									drawButton				= null;
 	private ToggleButton									moveFeaturesButton		= null;
 	private ToggleButton									moveVerticesButton		= null;
+	private ToggleButton									rotateButton					= null;
 	private ToggleButton									deleteFeaturesButton	= null;
 	private ToggleButton									addShapeButton			= null;
 	private ToggleButton									addHoleButton			= null;
@@ -174,7 +175,11 @@ public class MapView implements Display{
 		moveVerticesButton = new ToggleButton();
 		moveVerticesButton.setIcon(Resources.ICONS.vertexMove());
 		moveVerticesButton.setToolTip("Move vertices");
-		moveVerticesButton.hide();
+//		moveVerticesButton.hide();
+		
+		rotateButton = new ToggleButton();
+		rotateButton.setIcon(Resources.ICONS.lineRotate());
+		rotateButton.setToolTip("Rotate features");
 		
 		deleteFeaturesButton = new ToggleButton();
 		deleteFeaturesButton.setIcon(Resources.ICONS.erase());
@@ -215,6 +220,7 @@ public class MapView implements Display{
 		editButtonToggleGroup.add(moveFeaturesButton);
 		editButtonToggleGroup.add(moveVerticesButton);
 		editButtonToggleGroup.add(deleteFeaturesButton);
+		editButtonToggleGroup.add(rotateButton);
 		
 		drawingToolbar.add(drawButton);
 		drawingToolbar.add(addShapeButton);
@@ -222,6 +228,7 @@ public class MapView implements Display{
 		drawingToolbar.add(new SeparatorToolItem());
 		drawingToolbar.add(moveFeaturesButton);
 		drawingToolbar.add(moveVerticesButton);
+		drawingToolbar.add(rotateButton);
 		drawingToolbar.add(deleteFeaturesButton);
 		drawingToolbar.add(new SeparatorToolItem());
 		drawingToolbar.add(snapButton);
@@ -279,6 +286,11 @@ public class MapView implements Display{
 	}
 	
 	@Override
+	public ToggleButton getRotateButton(){
+		return rotateButton;
+	}
+	
+	@Override
 	public ToggleButton getDeleteFeaturesButton(){
 		return deleteFeaturesButton;
 	}
@@ -311,6 +323,7 @@ public class MapView implements Display{
 			
 			moveVerticesButton.hide();
 			addShapeButton.setValue(false);
+			rotateButton.hide();
 			addShapeButton.hide();
 			addHoleButton.setValue(false);
 			addHoleButton.hide();
@@ -321,6 +334,7 @@ public class MapView implements Display{
 			
 			moveVerticesButton.show();
 			addShapeButton.setValue(false);
+			rotateButton.show();
 			addShapeButton.hide();
 			addHoleButton.setValue(false);
 			addHoleButton.hide();
@@ -330,6 +344,7 @@ public class MapView implements Display{
 			drawButton.setData("geometryType", geometryType);
 			
 			moveVerticesButton.show();
+			rotateButton.show();
 			if(isInEditMode){
 				addShapeButton.show();
 				addHoleButton.show();
@@ -341,6 +356,7 @@ public class MapView implements Display{
 			drawButton.setData("geometryType", geometryType);
 			
 			moveVerticesButton.hide();
+			rotateButton.hide();
 			addShapeButton.setValue(false);
 			addShapeButton.hide();
 			addHoleButton.setValue(false);
@@ -658,7 +674,13 @@ public class MapView implements Display{
 				mapWidget.getMap().addControl(modifyFeature);
 				modifyFeature.setMode(ModifyFeature.RESHAPE);
 				modifyFeature.activate();
-			}else if(mode.equals(EditingMode.DELETE_FEATURES)){
+			}else if(mode.equals(EditingMode.ROTATE)){
+				// enable rotating
+				ModifyFeature modifyFeature = wfsLayerPackageHashMap.get(currentLayer).getModifyFeatureControl();
+				mapWidget.getMap().addControl(modifyFeature);
+				modifyFeature.setMode(ModifyFeature.ROTATE);
+				modifyFeature.activate();
+			}else if(mode.equals(EditingMode.DELETE)){
 				// enable deleting
 				SelectFeature deleteFeature = wfsLayerPackageHashMap.get(currentLayer).getDeleteFeatureControl();
 				mapWidget.getMap().addControl(deleteFeature);
@@ -887,7 +909,7 @@ public class MapView implements Display{
 	}
 	
 	@Override
-	public void setSnapEnabled(boolean enabled){		
+	public void setSnapEnabled(boolean enabled){
 		if(enabled){
 			Snapping snapControl = wfsLayerPackageHashMap.get(currentLayer).getSnapControl();
 			if(snapControl != null){

@@ -88,6 +88,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		ToggleButton getDeleteFeaturesButton();
 		
+		ToggleButton getRotateButton();
+		
 		ToggleButton getAddShapeButton();
 		
 		ToggleButton getAddHoleButton();
@@ -508,7 +510,12 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				
 				if(display.getDeleteFeaturesButton().getValue()){
 					display.disableEditMode();
-					display.enableEditMode(EditingMode.DELETE_FEATURES);
+					display.enableEditMode(EditingMode.DELETE);
+				}
+				
+				if(display.getRotateButton().getValue()){
+					display.disableEditMode();
+					display.enableEditMode(EditingMode.ROTATE);
 				}
 				
 				// TODO: add for more edit modes
@@ -609,6 +616,22 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			}
 		});
 		
+		// handle rotate button click
+		display.getRotateButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+
+			@Override
+			public void onValueChange(ValueChangeEvent<Boolean> event){
+				if(event.getValue()){
+					// enable edit mode
+					display.enableEditMode(EditingMode.ROTATE);
+				}
+				else{
+					// disable edit mode
+					display.disableEditMode();
+				}
+			}
+		});
+		
 		// handle snap button click
 		display.getSnapButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
 
@@ -625,7 +648,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			public void onValueChange(ValueChangeEvent<Boolean> event){
 				if(event.getValue()){
 					// enable edit mode
-					display.enableEditMode(EditingMode.DELETE_FEATURES);
+					display.enableEditMode(EditingMode.DELETE);
 				}else{
 					// disable edit mode
 					display.disableEditMode();
@@ -678,6 +701,10 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				
 				if(display.getMoveVerticesButton().getValue()){
 					display.getMoveVerticesButton().setValue(false, false);
+				}
+				
+				if(display.getRotateButton().getValue()){
+					display.getRotateButton().setValue(false, false);
 				}
 				
 				if(display.getDeleteFeaturesButton().getValue()){

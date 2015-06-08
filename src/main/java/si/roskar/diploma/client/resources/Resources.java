@@ -101,6 +101,21 @@ public class Resources{
 		
 		@Source ("line_snap.png")
 		ImageResource lineSnap();
+		
+		@Source ("rectangle.png")
+		ImageResource rectangle();
+		
+		@Source ("polygon_scale.png")
+		ImageResource polygonScale();
+		
+		@Source ("polygon_rotate.png")
+		ImageResource polygonRotate();
+		
+		@Source ("line_scale.png")
+		ImageResource lineScale();
+		
+		@Source ("polygon_rotate.png")
+		ImageResource lineRotate();
 	}
 	
 	public static final Icons	ICONS	= GWT.create(Icons.class);

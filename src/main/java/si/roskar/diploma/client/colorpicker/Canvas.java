@@ -29,8 +29,6 @@ public class Canvas extends Composite implements HasAllMouseHandlers {
 	public void setCanvasSize(int width, int height) {
 		canvas.setPropertyInt("width", width);
 		canvas.setPropertyInt("height", height);
-//		DOM.setElementPropertyInt(canvas, "width", width); //$NON-NLS-1$
-//		DOM.setElementPropertyInt(canvas, "height", height); //$NON-NLS-1$
 	}
 
 	public HandlerRegistration addMouseDownHandler(MouseDownHandler handler) {
