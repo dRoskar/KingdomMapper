@@ -90,6 +90,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		ToggleButton getAddHoleButton();
 		
+		ToggleButton getSnapButton();
+		
 		void setEditButtonGroup(GeometryType geometryType);
 		
 		Map getOLMap();
@@ -147,6 +149,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		List<KingdomLayer> getLayerList();
 		
 		TextButton getSaveMapStateButton();
+		
+		void setSnapEnabled(boolean enabled);
 	}
 	
 	public interface AddMarkerDisplay extends View{
@@ -233,8 +237,14 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			
 			@Override
 			public void onAddNewMap(EventAddNewMap event){
+				// save previous map state
 				if(display.getLayerList() != null){
 					updateLayersDB(display.getLayerList());
+				}
+				
+				// disable snap mode if on
+				if(display.getSnapButton().getValue()){
+					display.getSnapButton().setValue(false, true);
 				}
 				
 				display.addNewMap(event.getNewMap());
@@ -470,6 +480,12 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					display.getDrawingToolbar().enable();
 				}
 				
+				// if snap mode is on, refresh it
+				if(display.getSnapButton().getValue()){
+					display.setSnapEnabled(false);
+					display.setSnapEnabled(true);
+				}
+				
 				// if edit mode is on switch active wfs layers
 				if(display.getDrawButton().getValue()){
 					display.disableEditMode();
@@ -586,6 +602,15 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					// disable edit mode
 					display.disableEditMode();
 				}
+			}
+		});
+		
+		// handle snap button click
+		display.getSnapButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+
+			@Override
+			public void onValueChange(ValueChangeEvent<Boolean> event){
+				display.setSnapEnabled(event.getValue());
 			}
 		});
 		

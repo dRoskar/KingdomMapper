@@ -98,6 +98,9 @@ public class Resources{
 		
 		@Source ("polygon_add.png")
 		ImageResource polygonAdd();
+		
+		@Source ("line_snap.png")
+		ImageResource lineSnap();
 	}
 	
 	public static final Icons	ICONS	= GWT.create(Icons.class);

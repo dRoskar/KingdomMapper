@@ -19,6 +19,7 @@ import org.gwtopenmaps.openlayers.client.control.ModifyFeature;
 import org.gwtopenmaps.openlayers.client.control.ModifyFeatureOptions;
 import org.gwtopenmaps.openlayers.client.control.ScaleLine;
 import org.gwtopenmaps.openlayers.client.control.SelectFeature;
+import org.gwtopenmaps.openlayers.client.control.Snapping;
 import org.gwtopenmaps.openlayers.client.event.EventHandler;
 import org.gwtopenmaps.openlayers.client.event.EventObject;
 import org.gwtopenmaps.openlayers.client.event.FeatureHighlightedListener;
@@ -86,6 +87,7 @@ public class MapView implements Display{
 	private ToggleButton									deleteFeaturesButton	= null;
 	private ToggleButton									addShapeButton			= null;
 	private ToggleButton									addHoleButton			= null;
+	private ToggleButton									snapButton				= null;
 	private ToggleGroup										editButtonToggleGroup	= null;
 	private KingdomMap										kingdomMap				= null;
 	private ToolBar											drawingToolbar			= null;
@@ -101,6 +103,7 @@ public class MapView implements Display{
 	private boolean											isInAddingShapesMode	= false;
 	private boolean											isInAddingHolesMode		= false;
 	private List<KingdomLayer>								layerList				= null;
+	private Snapping										oldSnapControl			= null;
 	
 	public MapView(){
 		
@@ -123,6 +126,7 @@ public class MapView implements Display{
 		
 		// create drawing layer
 		drawingLayer = new Vector("drawingLayer");
+		drawingLayer.setIsVisible(false);
 		
 		map.addControl(new ScaleLine());
 		
@@ -176,6 +180,10 @@ public class MapView implements Display{
 		deleteFeaturesButton.setIcon(Resources.ICONS.erase());
 		deleteFeaturesButton.setToolTip("Delete features");
 		
+		snapButton = new ToggleButton();
+		snapButton.setIcon(Resources.ICONS.lineSnap());
+		snapButton.setToolTip("Enable snapping");
+		
 		addShapeButton = new ToggleButton();
 		addShapeButton.setIcon(Resources.ICONS.polygonAdd());
 		addShapeButton.setToolTip("Add shapes");
@@ -215,6 +223,8 @@ public class MapView implements Display{
 		drawingToolbar.add(moveFeaturesButton);
 		drawingToolbar.add(moveVerticesButton);
 		drawingToolbar.add(deleteFeaturesButton);
+		drawingToolbar.add(new SeparatorToolItem());
+		drawingToolbar.add(snapButton);
 		drawingToolbar.add(new SeparatorToolItem());
 		drawingToolbar.add(bringToFrontButton);
 		drawingToolbar.add(sendToBackButton);
@@ -281,6 +291,11 @@ public class MapView implements Display{
 	@Override
 	public ToggleButton getAddHoleButton(){
 		return addHoleButton;
+	}
+	
+	@Override
+	public ToggleButton getSnapButton(){
+		return snapButton;
 	}
 	
 	@Override
@@ -568,7 +583,13 @@ public class MapView implements Display{
 				}
 			});
 			
-			WFSLayerPackage layerPackage = new WFSLayerPackage(wfsLayer, modifyFeature, refreshStrategy, wfsProtocol, deleteFeature, saveStrategy);
+			// snap feature
+			Snapping snapControl = new Snapping();
+			snapControl.setLayer(drawingLayer);
+			snapControl.setTargetLayer(wfsLayer);
+			// mapWidget.getMap().addControl(snapControl);
+			
+			WFSLayerPackage layerPackage = new WFSLayerPackage(wfsLayer, modifyFeature, refreshStrategy, wfsProtocol, deleteFeature, saveStrategy, snapControl);
 			
 			wfsLayerPackageHashMap.put(layer, layerPackage);
 		}
@@ -863,5 +884,24 @@ public class MapView implements Display{
 	@Override
 	public TextButton getSaveMapStateButton(){
 		return saveMapStateButton;
+	}
+	
+	@Override
+	public void setSnapEnabled(boolean enabled){		
+		if(enabled){
+			Snapping snapControl = wfsLayerPackageHashMap.get(currentLayer).getSnapControl();
+			if(snapControl != null){
+				mapWidget.getMap().addLayer(drawingLayer);
+				mapWidget.getMap().addControl(snapControl);
+				snapControl.activate();
+				oldSnapControl = snapControl;
+			}
+		}else{
+			if(oldSnapControl != null){
+				oldSnapControl.deactivate();
+				mapWidget.getMap().removeControl(oldSnapControl);
+				mapWidget.getMap().removeLayer(drawingLayer);
+			}
+		}
 	}
 }

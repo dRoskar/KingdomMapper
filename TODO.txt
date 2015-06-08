@@ -47,11 +47,12 @@
 [X] grid should always be on top -.-
 [X] fix when layer state data saved
 [X] make vector lines thicker, for easier deleting
-[ ] adding shapes to polygons
+[X] adding shapes to polygons
 [ ] snap
-[ ] snap to grid
+[-] snap to grid
 [ ] opacity slider
 [ ] opacity saves to DB
+[ ] what happens when you leave some buttons on and load a new map?
 [ ] renaming stuff
 [ ] loading bars
 [ ] info indicators
