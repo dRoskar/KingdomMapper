@@ -84,7 +84,8 @@ public class MapView implements Display{
 	private ToggleButton									drawButton				= null;
 	private ToggleButton									moveFeaturesButton		= null;
 	private ToggleButton									moveVerticesButton		= null;
-	private ToggleButton									rotateButton					= null;
+	private ToggleButton									rotateButton			= null;
+	private ToggleButton									scaleButton				= null;
 	private ToggleButton									deleteFeaturesButton	= null;
 	private ToggleButton									addShapeButton			= null;
 	private ToggleButton									addHoleButton			= null;
@@ -175,11 +176,14 @@ public class MapView implements Display{
 		moveVerticesButton = new ToggleButton();
 		moveVerticesButton.setIcon(Resources.ICONS.vertexMove());
 		moveVerticesButton.setToolTip("Move vertices");
-//		moveVerticesButton.hide();
 		
 		rotateButton = new ToggleButton();
 		rotateButton.setIcon(Resources.ICONS.lineRotate());
 		rotateButton.setToolTip("Rotate features");
+		
+		scaleButton = new ToggleButton();
+		scaleButton.setIcon(Resources.ICONS.lineScale());
+		scaleButton.setToolTip("Scale features");
 		
 		deleteFeaturesButton = new ToggleButton();
 		deleteFeaturesButton.setIcon(Resources.ICONS.erase());
@@ -221,6 +225,7 @@ public class MapView implements Display{
 		editButtonToggleGroup.add(moveVerticesButton);
 		editButtonToggleGroup.add(deleteFeaturesButton);
 		editButtonToggleGroup.add(rotateButton);
+		editButtonToggleGroup.add(scaleButton);
 		
 		drawingToolbar.add(drawButton);
 		drawingToolbar.add(addShapeButton);
@@ -229,6 +234,7 @@ public class MapView implements Display{
 		drawingToolbar.add(moveFeaturesButton);
 		drawingToolbar.add(moveVerticesButton);
 		drawingToolbar.add(rotateButton);
+		drawingToolbar.add(scaleButton);
 		drawingToolbar.add(deleteFeaturesButton);
 		drawingToolbar.add(new SeparatorToolItem());
 		drawingToolbar.add(snapButton);
@@ -291,6 +297,11 @@ public class MapView implements Display{
 	}
 	
 	@Override
+	public ToggleButton getScaleButton(){
+		return scaleButton;
+	}
+	
+	@Override
 	public ToggleButton getDeleteFeaturesButton(){
 		return deleteFeaturesButton;
 	}
@@ -324,6 +335,7 @@ public class MapView implements Display{
 			moveVerticesButton.hide();
 			addShapeButton.setValue(false);
 			rotateButton.hide();
+			scaleButton.hide();
 			addShapeButton.hide();
 			addHoleButton.setValue(false);
 			addHoleButton.hide();
@@ -335,6 +347,7 @@ public class MapView implements Display{
 			moveVerticesButton.show();
 			addShapeButton.setValue(false);
 			rotateButton.show();
+			scaleButton.show();
 			addShapeButton.hide();
 			addHoleButton.setValue(false);
 			addHoleButton.hide();
@@ -345,6 +358,7 @@ public class MapView implements Display{
 			
 			moveVerticesButton.show();
 			rotateButton.show();
+			scaleButton.show();
 			if(isInEditMode){
 				addShapeButton.show();
 				addHoleButton.show();
@@ -357,6 +371,7 @@ public class MapView implements Display{
 			
 			moveVerticesButton.hide();
 			rotateButton.hide();
+			scaleButton.hide();
 			addShapeButton.setValue(false);
 			addShapeButton.hide();
 			addHoleButton.setValue(false);
@@ -679,6 +694,12 @@ public class MapView implements Display{
 				ModifyFeature modifyFeature = wfsLayerPackageHashMap.get(currentLayer).getModifyFeatureControl();
 				mapWidget.getMap().addControl(modifyFeature);
 				modifyFeature.setMode(ModifyFeature.ROTATE);
+				modifyFeature.activate();
+			}else if(mode.equals(EditingMode.SCALE)){
+				// enable scaling
+				ModifyFeature modifyFeature = wfsLayerPackageHashMap.get(currentLayer).getModifyFeatureControl();
+				mapWidget.getMap().addControl(modifyFeature);
+				modifyFeature.setMode(ModifyFeature.RESIZE);
 				modifyFeature.activate();
 			}else if(mode.equals(EditingMode.DELETE)){
 				// enable deleting

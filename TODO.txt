@@ -90,6 +90,7 @@
 [ ] dash line style
 [ ] style editor preview (wms service)
 [ ] uploadable textures
+[ ] example: if a wfs feature is selected while rotating, switch to scaling and feature does not get unselected
 
 ## BUGS ##
 [X] points aren't showing

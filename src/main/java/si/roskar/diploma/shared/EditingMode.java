@@ -5,5 +5,6 @@ public enum EditingMode{
 	MOVE_FEATURES,
 	MOVE_VERTICES,
 	ROTATE,
+	SCALE,
 	DELETE;
 }

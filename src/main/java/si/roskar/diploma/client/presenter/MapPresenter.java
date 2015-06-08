@@ -90,6 +90,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		ToggleButton getRotateButton();
 		
+		ToggleButton getScaleButton();
+		
 		ToggleButton getAddShapeButton();
 		
 		ToggleButton getAddHoleButton();
@@ -518,6 +520,11 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					display.enableEditMode(EditingMode.ROTATE);
 				}
 				
+				if(display.getScaleButton().getValue()){
+					display.disableEditMode();
+					display.enableEditMode(EditingMode.SCALE);
+				}
+				
 				// TODO: add for more edit modes
 			}
 		});
@@ -632,6 +639,22 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			}
 		});
 		
+		// handle scale button click
+		display.getScaleButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+
+			@Override
+			public void onValueChange(ValueChangeEvent<Boolean> event){
+				if(event.getValue()){
+					// enable edit mode
+					display.enableEditMode(EditingMode.SCALE);
+				}
+				else{
+					// disable edit mode
+					display.disableEditMode();
+				}
+			}
+		});
+		
 		// handle snap button click
 		display.getSnapButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
 
@@ -705,6 +728,10 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				
 				if(display.getRotateButton().getValue()){
 					display.getRotateButton().setValue(false, false);
+				}
+				
+				if(display.getScaleButton().getValue()){
+					display.getScaleButton().setValue(false, false);
 				}
 				
 				if(display.getDeleteFeaturesButton().getValue()){
