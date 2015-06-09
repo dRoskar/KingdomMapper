@@ -58,22 +58,22 @@ public class AddLayerDialog extends Window implements AddLayerDisplay{
 		toggleGroup = new ToggleGroup();
 		
 		pointType = new ToggleButton();
-		pointType.setIcon(Resources.ICONS.pointBig());
+		pointType.setIcon(Resources.ICONS.point());
 		pointType.setToolTip("Point");
 		pointType.setItemId(GeometryType.POINT.getGeometryName());
 		
 		lineType = new ToggleButton();
-		lineType.setIcon(Resources.ICONS.lineBig());
+		lineType.setIcon(Resources.ICONS.line());
 		lineType.setToolTip("Line");
 		lineType.setItemId(GeometryType.LINE.getGeometryName());
 		
 		polygonType = new ToggleButton();
-		polygonType.setIcon(Resources.ICONS.polygonBig());
+		polygonType.setIcon(Resources.ICONS.polygon());
 		polygonType.setToolTip("Polygon");
 		polygonType.setItemId(GeometryType.POLYGON.getGeometryName());
 		
 		markerType = new ToggleButton();
-		markerType.setIcon(Resources.ICONS.markerBig());
+		markerType.setIcon(Resources.ICONS.marker());
 		markerType.setToolTip("Marker");
 		markerType.setItemId(GeometryType.MARKER.getGeometryName());
 		

@@ -81,6 +81,9 @@ public class Resources{
 		@Source ("vertex_move.png")
 		ImageResource vertexMove();
 		
+		@Source ("line_move.png")
+		ImageResource lineMove();
+		
 		@Source ("polygon_move.png")
 		ImageResource polygonMove();
 		
