@@ -359,26 +359,49 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 													if(messageBox.getValue() != ""){
 														// rename the layer
 														
-														KingdomMap map = existingMapsDisplay.getListView().getSelectionModel().getSelectedItem();
+														final KingdomMap map = existingMapsDisplay.getListView().getSelectionModel().getSelectedItem();
 														map.setName(messageBox.getValue());
 														
-														DataServiceAsync.Util.getInstance().updateMapName(map, new AsyncCallback<KingdomMap>() {
-
+														DataServiceAsync.Util.getInstance().mapExists(map, new AsyncCallback<Boolean>() {
+															
 															@Override
 															public void onFailure(Throwable caught){
 															}
-
+															
 															@Override
-															public void onSuccess(KingdomMap result){
-																// refresh list
-																existingMapsDisplay.getListView().refresh();
-																
-																if(display.getCurrentMap().getId() == result.getId()){
-																	// refresh map name header
-																	Bus.get().fireEvent(new EventChangeMapNameHeader(result.getName()));
+															public void onSuccess(Boolean result){
+																if(!result){
+																	DataServiceAsync.Util.getInstance().updateMapName(map, new AsyncCallback<KingdomMap>() {
+																		
+																		@Override
+																		public void onFailure(Throwable caught){
+																		}
+																		
+																		@Override
+																		public void onSuccess(KingdomMap result){
+																			// refresh
+																			// list
+																			existingMapsDisplay.getListView().refresh();
+																			
+																			if(display.getCurrentMap().getId() == result.getId()){
+																				// refresh
+																				// map
+																				// name
+																				// header
+																				Bus.get().fireEvent(new EventChangeMapNameHeader(result.getName()));
+																			}
+																			
+																			// TODO:
+																			// info
+																			// map
+																			// name
+																			// changed
+																		}
+																	});
+																}else{
+																	//TODO: info name taken
+																	System.out.println("map name taken");
 																}
-																
-																// TODO: info map name changed
 															}
 														});
 													}else{
@@ -646,21 +669,37 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 								// validate
 								if(messageBox.getValue() != ""){
 									// rename the layer
-									KingdomLayer renamedLayer = display.getSelectedLayer();
-									
+									final KingdomLayer renamedLayer = display.getSelectedLayer();
 									renamedLayer.setName(messageBox.getValue());
-									DataServiceAsync.Util.getInstance().updateLayerName(renamedLayer, new AsyncCallback<Boolean>() {
-										
+									
+									DataServiceAsync.Util.getInstance().layerExists(renamedLayer, new AsyncCallback<Boolean>() {
+
 										@Override
 										public void onFailure(Throwable caught){
 										}
-										
+
 										@Override
 										public void onSuccess(Boolean result){
-											// refresh layer tree
-											display.getLayerTree().refresh(display.getLayerTree().getSelectionModel().getSelectedItem());
-											
-											// TODO: info rename
+											if(!result){
+												DataServiceAsync.Util.getInstance().updateLayerName(renamedLayer, new AsyncCallback<Boolean>() {
+													
+													@Override
+													public void onFailure(Throwable caught){
+													}
+													
+													@Override
+													public void onSuccess(Boolean result){
+														// refresh layer tree
+														display.getLayerTree().refresh(display.getLayerTree().getSelectionModel().getSelectedItem());
+														
+														// TODO: info rename
+													}
+												});
+											}
+											else{
+												//TODO: info layer name taken
+												System.out.println("layer name taken");
+											}
 										}
 									});
 								}else{
