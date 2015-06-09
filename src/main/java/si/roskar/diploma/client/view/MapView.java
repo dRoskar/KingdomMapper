@@ -197,7 +197,7 @@ public class MapView implements Display{
 		drawCircleButton.hide();
 		
 		moveFeaturesButton = new ToggleButton();
-		moveFeaturesButton.setIcon(Resources.ICONS.polygonMove());
+		moveFeaturesButton.setIcon(Resources.ICONS.lineMove());
 		moveFeaturesButton.setToolTip("Move features");
 		
 		moveVerticesButton = new ToggleButton();
@@ -385,6 +385,7 @@ public class MapView implements Display{
 	public void setEditButtonGroup(GeometryType geometryType){
 		if(geometryType.equals(GeometryType.POINT)){
 			drawButton.setIcon(Resources.ICONS.point());
+			moveFeaturesButton.setIcon(Resources.ICONS.pointMove());
 			
 			drawRectangleButton.hide();
 			drawEllipseButton.hide();
@@ -400,6 +401,9 @@ public class MapView implements Display{
 			editingToolbar.forceLayout();
 		}else if(geometryType.equals(GeometryType.LINE)){
 			drawButton.setIcon(Resources.ICONS.line());
+			moveFeaturesButton.setIcon(Resources.ICONS.lineMove());
+			scaleButton.setIcon(Resources.ICONS.lineScale());
+			rotateButton.setIcon(Resources.ICONS.lineRotate());
 			
 			drawRectangleButton.hide();
 			drawEllipseButton.hide();
@@ -415,6 +419,9 @@ public class MapView implements Display{
 			editingToolbar.forceLayout();
 		}else if(geometryType.equals(GeometryType.POLYGON)){
 			drawButton.setIcon(Resources.ICONS.polygon());
+			moveFeaturesButton.setIcon(Resources.ICONS.polygonMove());
+			scaleButton.setIcon(Resources.ICONS.polygonScale());
+			rotateButton.setIcon(Resources.ICONS.polygonRotate());
 			
 			drawRectangleButton.show();
 			drawEllipseButton.show();
@@ -431,6 +438,7 @@ public class MapView implements Display{
 			editingToolbar.forceLayout();
 		}else if(geometryType.equals(GeometryType.MARKER)){
 			drawButton.setIcon(Resources.ICONS.marker());
+			moveFeaturesButton.setIcon(Resources.ICONS.markerMove());
 			
 			drawRectangleButton.hide();
 			drawEllipseButton.hide();
@@ -948,6 +956,8 @@ public class MapView implements Display{
 		wfsLayerPackageHashMap.remove(layer);
 		
 		layerList.remove(layer);
+		
+		editingLayer = null;
 	}
 	
 	@Override

@@ -30,15 +30,6 @@ public class Resources{
 		@Source("polygon.png")
 		ImageResource polygon();
 		
-		@Source("point_big.png")
-		ImageResource pointBig();
-		
-		@Source("line_big.png")
-		ImageResource lineBig();
-		
-		@Source("polygon_big.png")
-		ImageResource polygonBig();
-		
 		@Source("map.png")
 		ImageResource map();
 		
@@ -69,9 +60,6 @@ public class Resources{
 		@Source("marker.png")
 		ImageResource marker();
 		
-		@Source("marker_big.png")
-		ImageResource markerBig();
-		
 		@Source("shape_move_front.png")
 		ImageResource moveToFront();
 		
@@ -81,11 +69,17 @@ public class Resources{
 		@Source ("vertex_move.png")
 		ImageResource vertexMove();
 		
+		@Source ("point_move.png")
+		ImageResource pointMove();
+		
 		@Source ("line_move.png")
 		ImageResource lineMove();
 		
 		@Source ("polygon_move.png")
 		ImageResource polygonMove();
+		
+		@Source ("marker_move.png")
+		ImageResource markerMove();
 		
 		@Source ("line_delete.png")
 		ImageResource lineDelete();
