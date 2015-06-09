@@ -125,6 +125,12 @@ public class Resources{
 		
 		@Source ("line_circle.png")
 		ImageResource lineCircle();
+		
+		@Source ("ellipse.png")
+		ImageResource ellipse();
+		
+		@Source ("square.png")
+		ImageResource square();
 	}
 	
 	public static final Icons	ICONS	= GWT.create(Icons.class);

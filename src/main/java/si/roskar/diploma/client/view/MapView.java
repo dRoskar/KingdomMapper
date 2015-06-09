@@ -85,6 +85,8 @@ public class MapView implements Display{
 	private TextButton										saveMapStateButton		= null;
 	private ToggleButton									drawButton				= null;
 	private ToggleButton									drawRectangleButton		= null;
+	private ToggleButton									drawEllipseButton		= null;
+	private ToggleButton									drawSquareButton		= null;
 	private ToggleButton									drawCircleButton		= null;
 	private ToggleButton									moveFeaturesButton		= null;
 	private ToggleButton									moveVerticesButton		= null;
@@ -96,7 +98,7 @@ public class MapView implements Display{
 	private ToggleButton									snapButton				= null;
 	private ToggleGroup										editButtonToggleGroup	= null;
 	private KingdomMap										kingdomMap				= null;
-	private ToolBar											drawingToolbar			= null;
+	private ToolBar											editingToolbar			= null;
 	private KingdomLayer									currentLayer			= null;
 	private java.util.Map<KingdomLayer, WMS>				wmsLayerHashMap			= null;
 	private java.util.Map<KingdomLayer, WFSLayerPackage>	wfsLayerPackageHashMap	= null;
@@ -137,8 +139,8 @@ public class MapView implements Display{
 		
 		map.addControl(new ScaleLine());
 		
-		// create viewing toolbar
-		ToolBar viewingToolbar = new ToolBar();
+		// create navigation toolbar
+		ToolBar navigationToolbar = new ToolBar();
 		
 		zoomToExtent = new TextButton();
 		zoomToExtent.setIcon(Resources.ICONS.world());
@@ -161,14 +163,14 @@ public class MapView implements Display{
 		saveMapStateButton.setIcon(Resources.ICONS.mapSave());
 		saveMapStateButton.setToolTip("Save map state");
 		
-		viewingToolbar.add(zoomToExtent);
-		viewingToolbar.add(navigateBack);
-		viewingToolbar.add(navigateForward);
-		viewingToolbar.add(grid);
-		viewingToolbar.add(saveMapStateButton);
+		navigationToolbar.add(zoomToExtent);
+		navigationToolbar.add(navigateBack);
+		navigationToolbar.add(navigateForward);
+		navigationToolbar.add(grid);
+		navigationToolbar.add(saveMapStateButton);
 		
 		// create drawing toolbar
-		drawingToolbar = new ToolBar();
+		editingToolbar = new ToolBar();
 		
 		drawButton = new ToggleButton();
 		drawButton.setIcon(Resources.ICONS.line());
@@ -177,10 +179,22 @@ public class MapView implements Display{
 		drawRectangleButton = new ToggleButton();
 		drawRectangleButton.setIcon(Resources.ICONS.rectangle());
 		drawRectangleButton.setToolTip("Draw rectangle");
+		drawRectangleButton.hide();
+		
+		drawEllipseButton = new ToggleButton();
+		drawEllipseButton.setIcon(Resources.ICONS.ellipse());
+		drawEllipseButton.setToolTip("Draw ellipse");
+		drawEllipseButton.hide();
+		
+		drawSquareButton = new ToggleButton();
+		drawSquareButton.setIcon(Resources.ICONS.square());
+		drawSquareButton.setToolTip("Draw square");
+		drawSquareButton.hide();
 		
 		drawCircleButton = new ToggleButton();
 		drawCircleButton.setIcon(Resources.ICONS.circle());
 		drawCircleButton.setToolTip("Draw circle");
+		drawCircleButton.hide();
 		
 		moveFeaturesButton = new ToggleButton();
 		moveFeaturesButton.setIcon(Resources.ICONS.polygonMove());
@@ -235,6 +249,8 @@ public class MapView implements Display{
 		editButtonToggleGroup = new ToggleGroup();
 		editButtonToggleGroup.add(drawButton);
 		editButtonToggleGroup.add(drawRectangleButton);
+		editButtonToggleGroup.add(drawEllipseButton);
+		editButtonToggleGroup.add(drawSquareButton);
 		editButtonToggleGroup.add(drawCircleButton);
 		editButtonToggleGroup.add(moveFeaturesButton);
 		editButtonToggleGroup.add(moveVerticesButton);
@@ -242,32 +258,34 @@ public class MapView implements Display{
 		editButtonToggleGroup.add(rotateButton);
 		editButtonToggleGroup.add(scaleButton);
 		
-		drawingToolbar.add(drawButton);
-		drawingToolbar.add(drawRectangleButton);
-		drawingToolbar.add(drawCircleButton);
-		drawingToolbar.add(addShapeButton);
-		drawingToolbar.add(addHoleButton);
-		drawingToolbar.add(new SeparatorToolItem());
-		drawingToolbar.add(moveFeaturesButton);
-		drawingToolbar.add(moveVerticesButton);
-		drawingToolbar.add(rotateButton);
-		drawingToolbar.add(scaleButton);
-		drawingToolbar.add(deleteFeaturesButton);
-		drawingToolbar.add(new SeparatorToolItem());
-		drawingToolbar.add(snapButton);
-		drawingToolbar.add(new SeparatorToolItem());
-		drawingToolbar.add(bringToFrontButton);
-		drawingToolbar.add(sendToBackButton);
-		drawingToolbar.add(editLayerStyleButton);
-		drawingToolbar.disable();
+		editingToolbar.add(drawButton);
+		editingToolbar.add(drawRectangleButton);
+		editingToolbar.add(drawEllipseButton);
+		editingToolbar.add(drawSquareButton);
+		editingToolbar.add(drawCircleButton);
+		editingToolbar.add(addShapeButton);
+		editingToolbar.add(addHoleButton);
+		editingToolbar.add(new SeparatorToolItem());
+		editingToolbar.add(moveFeaturesButton);
+		editingToolbar.add(moveVerticesButton);
+		editingToolbar.add(rotateButton);
+		editingToolbar.add(scaleButton);
+		editingToolbar.add(deleteFeaturesButton);
+		editingToolbar.add(new SeparatorToolItem());
+		editingToolbar.add(snapButton);
+		editingToolbar.add(new SeparatorToolItem());
+		editingToolbar.add(bringToFrontButton);
+		editingToolbar.add(sendToBackButton);
+		editingToolbar.add(editLayerStyleButton);
+		editingToolbar.disable();
 		
 		// create map container
 		container = new VerticalLayoutContainer();
 		
 		container.setBorders(false);
 		
-		container.add(viewingToolbar);
-		container.add(drawingToolbar);
+		container.add(navigationToolbar);
+		container.add(editingToolbar);
 		container.add(mapWidget, new VerticalLayoutData(1, 1));
 	}
 	
@@ -289,8 +307,8 @@ public class MapView implements Display{
 	}
 	
 	@Override
-	public ToolBar getDrawingToolbar(){
-		return drawingToolbar;
+	public ToolBar getEditingToolbar(){
+		return editingToolbar;
 	}
 	
 	@Override
@@ -301,6 +319,16 @@ public class MapView implements Display{
 	@Override
 	public ToggleButton getDrawRectangleButton(){
 		return drawRectangleButton;
+	}
+	
+	@Override
+	public ToggleButton getDrawEllipseButton(){
+		return drawEllipseButton;
+	}
+	
+	@Override
+	public ToggleButton getDrawSquareButton(){
+		return drawSquareButton;
 	}
 	
 	@Override
@@ -357,37 +385,40 @@ public class MapView implements Display{
 	public void setEditButtonGroup(GeometryType geometryType){
 		if(geometryType.equals(GeometryType.POINT)){
 			drawButton.setIcon(Resources.ICONS.point());
-			// drawButton.setData("geometryType", geometryType);
 			
 			drawRectangleButton.hide();
+			drawEllipseButton.hide();
+			drawSquareButton.hide();
 			drawCircleButton.hide();
 			moveVerticesButton.hide();
-			addShapeButton.setValue(false);
 			rotateButton.hide();
 			scaleButton.hide();
+			addShapeButton.setValue(false);
 			addShapeButton.hide();
 			addHoleButton.setValue(false);
 			addHoleButton.hide();
-			drawingToolbar.forceLayout();
+			editingToolbar.forceLayout();
 		}else if(geometryType.equals(GeometryType.LINE)){
 			drawButton.setIcon(Resources.ICONS.line());
-			// drawButton.setData("geometryType", geometryType);
 			
 			drawRectangleButton.hide();
+			drawEllipseButton.hide();
+			drawSquareButton.hide();
 			drawCircleButton.hide();
 			moveVerticesButton.show();
-			addShapeButton.setValue(false);
 			rotateButton.show();
 			scaleButton.show();
+			addShapeButton.setValue(false);
 			addShapeButton.hide();
 			addHoleButton.setValue(false);
 			addHoleButton.hide();
-			drawingToolbar.forceLayout();
+			editingToolbar.forceLayout();
 		}else if(geometryType.equals(GeometryType.POLYGON)){
 			drawButton.setIcon(Resources.ICONS.polygon());
-			// drawButton.setData("geometryType", geometryType);
 			
 			drawRectangleButton.show();
+			drawEllipseButton.show();
+			drawSquareButton.show();
 			drawCircleButton.show();
 			moveVerticesButton.show();
 			rotateButton.show();
@@ -395,14 +426,15 @@ public class MapView implements Display{
 			if(isInEditMode){
 				addShapeButton.show();
 				addHoleButton.show();
-				drawingToolbar.forceLayout();
+				editingToolbar.forceLayout();
 			}
-			drawingToolbar.forceLayout();
+			editingToolbar.forceLayout();
 		}else if(geometryType.equals(GeometryType.MARKER)){
 			drawButton.setIcon(Resources.ICONS.marker());
-			// drawButton.setData("geometryType", geometryType);
 			
 			drawRectangleButton.hide();
+			drawEllipseButton.hide();
+			drawSquareButton.hide();
 			drawCircleButton.hide();
 			moveVerticesButton.hide();
 			rotateButton.hide();
@@ -411,7 +443,7 @@ public class MapView implements Display{
 			addShapeButton.hide();
 			addHoleButton.setValue(false);
 			addHoleButton.hide();
-			drawingToolbar.forceLayout();
+			editingToolbar.forceLayout();
 		}
 	}
 	
@@ -707,22 +739,38 @@ public class MapView implements Display{
 				currentDrawControl.destroy();
 			}
 			
-			if(mode.equals(EditingMode.DRAW)){
+			if(mode.equals(EditingMode.DRAW) || mode.equals(EditingMode.DRAW_RECTANGLE) || mode.equals(EditingMode.DRAW_ELLIPSE) || mode.equals(EditingMode.DRAW_SQUARE) || mode.equals(EditingMode.DRAW_CIRCLE)){
 				// enable drawing
 				currentDrawControl = createDrawFeatureControl(drawingLayer, mode);
 				mapWidget.getMap().addControl(currentDrawControl);
 				currentDrawControl.activate();
-			}else if(mode.equals(EditingMode.DRAW_RECTANGLE)){
-				// enable drawing rects
-				currentDrawControl = createDrawFeatureControl(drawingLayer, mode);
-				mapWidget.getMap().addControl(currentDrawControl);
-				currentDrawControl.activate();
-			}else if(mode.equals(EditingMode.DRAW_CIRCLE)){
-				// enable drawing circles
-				currentDrawControl = createDrawFeatureControl(drawingLayer, mode);
-				mapWidget.getMap().addControl(currentDrawControl);
-				currentDrawControl.activate();
-			}else if(mode.equals(EditingMode.MOVE_FEATURES)){
+			}
+//			if(mode.equals(EditingMode.DRAW)){
+//				// enable drawing
+//				currentDrawControl = createDrawFeatureControl(drawingLayer, mode);
+//				mapWidget.getMap().addControl(currentDrawControl);
+//				currentDrawControl.activate();
+//			}else if(mode.equals(EditingMode.DRAW_RECTANGLE)){
+//				// enable drawing rects
+//				currentDrawControl = createDrawFeatureControl(drawingLayer, mode);
+//				mapWidget.getMap().addControl(currentDrawControl);
+//				currentDrawControl.activate();
+//			}else if(mode.equals(EditingMode.DRAW_ELLIPSE)){
+//				// enable drawing ellipses
+//				currentDrawControl = createDrawFeatureControl(drawingLayer, mode);
+//				mapWidget.getMap().addControl(currentDrawControl);
+//				currentDrawControl.activate();
+//			}else if(mode.equals(EditingMode.DRAW_SQUARE)){
+//				// enable drawing squares
+//				currentDrawControl = createDrawFeatureControl(drawingLayer, mode);
+//				mapWidget.getMap().addControl(currentDrawControl);
+//				currentDrawControl.activate();
+//			}else if(mode.equals(EditingMode.DRAW_CIRCLE)){
+//				// enable drawing circles
+//				currentDrawControl = createDrawFeatureControl(drawingLayer, mode);
+//				mapWidget.getMap().addControl(currentDrawControl);
+//				currentDrawControl.activate();
+			else if(mode.equals(EditingMode.MOVE_FEATURES)){
 				// enable draging
 				ModifyFeature modifyFeature = wfsLayerPackageHashMap.get(currentLayer).getModifyFeatureControl();
 				mapWidget.getMap().addControl(modifyFeature);
@@ -842,11 +890,37 @@ public class MapView implements Display{
 			}
 		}
 		
-		if(editingMode.equals(EditingMode.DRAW_CIRCLE)){
+		if(editingMode.equals(EditingMode.DRAW_ELLIPSE)){
 			if(editingLayer != null){
 				if(editingLayer.getGeometryType().equals(GeometryType.POLYGON)){
 					boxHandlerOptions = new RegularPolygonHandlerOptions();
 					boxHandlerOptions.setIrregular(true);
+					boxHandlerOptions.setSides(80);
+					DrawFeature drawPolygonFeature = new DrawFeature(vectorLayer, new RegularPolygonHandler());
+					((RegularPolygonHandler) drawPolygonFeature.getHandler()).setOptions(boxHandlerOptions);
+					return drawPolygonFeature;
+				}
+			}
+		}
+		
+		if(editingMode.equals(EditingMode.DRAW_SQUARE)){
+			if(editingLayer != null){
+				if(editingLayer.getGeometryType().equals(GeometryType.POLYGON)){
+					boxHandlerOptions = new RegularPolygonHandlerOptions();
+					boxHandlerOptions.setIrregular(false);
+					boxHandlerOptions.setSides(4);
+					DrawFeature drawPolygonFeature = new DrawFeature(vectorLayer, new RegularPolygonHandler());
+					((RegularPolygonHandler) drawPolygonFeature.getHandler()).setOptions(boxHandlerOptions);
+					return drawPolygonFeature;
+				}
+			}
+		}
+		
+		if(editingMode.equals(EditingMode.DRAW_CIRCLE)){
+			if(editingLayer != null){
+				if(editingLayer.getGeometryType().equals(GeometryType.POLYGON)){
+					boxHandlerOptions = new RegularPolygonHandlerOptions();
+					boxHandlerOptions.setIrregular(false);
 					boxHandlerOptions.setSides(80);
 					DrawFeature drawPolygonFeature = new DrawFeature(vectorLayer, new RegularPolygonHandler());
 					((RegularPolygonHandler) drawPolygonFeature.getHandler()).setOptions(boxHandlerOptions);
