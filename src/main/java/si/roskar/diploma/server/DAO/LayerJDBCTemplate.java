@@ -95,6 +95,12 @@ public class LayerJDBCTemplate{
 	}
 	
 	public boolean updateLayerName(int layerId, String name){
+		// escape unicode
+		name = Tools.encodeToNumericCharacterReference(name);
+				
+		// escape apostrophes
+		name = name.replace("'", "''");
+				
 		String SQL = "UPDATE public.\"Layer\" SET name = '" + name + "' WHERE id = " + layerId;
 		jdbcTemplateObject.update(SQL);
 		

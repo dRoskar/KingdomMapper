@@ -94,4 +94,17 @@ public class MapJDBCTemplate{
 		
 		return true;
 	}
+	
+	public boolean updateMapName(int mapId, String name){
+		// escape unicode
+		name = Tools.encodeToNumericCharacterReference(name);
+				
+		// escape apostrophes
+		name = name.replace("'", "''");
+		
+		String SQL = "UPDATE public.\"Map\" SET name = '" + name + "' WHERE id = " + mapId;
+		jdbcTemplateObject.update(SQL);
+		
+		return true;
+	}
 }

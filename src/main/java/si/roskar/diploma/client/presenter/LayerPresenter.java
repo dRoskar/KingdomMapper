@@ -44,7 +44,6 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.Label;
-import com.sencha.gxt.core.client.Style.HideMode;
 import com.sencha.gxt.core.client.util.ToggleGroup;
 import com.sencha.gxt.widget.core.client.Dialog;
 import com.sencha.gxt.widget.core.client.Dialog.PredefinedButton;
@@ -59,8 +58,6 @@ import com.sencha.gxt.widget.core.client.event.CheckChangeEvent;
 import com.sencha.gxt.widget.core.client.event.CheckChangeEvent.CheckChangeHandler;
 import com.sencha.gxt.widget.core.client.event.DialogHideEvent;
 import com.sencha.gxt.widget.core.client.event.DialogHideEvent.DialogHideHandler;
-import com.sencha.gxt.widget.core.client.event.HideEvent;
-import com.sencha.gxt.widget.core.client.event.HideEvent.HideHandler;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
 import com.sencha.gxt.widget.core.client.form.TextField;
@@ -162,6 +159,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 		boolean isBound();
 		
 		TextButton getLoadButton();
+		
+		TextButton getRenameButton();
 		
 		TextButton getDeleteButton();
 		
@@ -340,6 +339,60 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 								}
 								
 							}, DoubleClickEvent.getType());
+							
+							// rename map
+							existingMapsDisplay.getRenameButton().addSelectHandler(new SelectHandler() {
+								
+								@Override
+								public void onSelect(SelectEvent event){
+									KingdomMap renamedMap = existingMapsDisplay.getListView().getSelectionModel().getSelectedItem();
+									
+									if(renamedMap != null){
+										final PromptMessageBox messageBox = new PromptMessageBox("Rename map", "Enter a new name for this map");
+										messageBox.setModal(true);
+										messageBox.addDialogHideHandler(new DialogHideHandler() {
+											
+											@Override
+											public void onDialogHide(DialogHideEvent event){
+												if(event.getHideButton().equals(PredefinedButton.OK)){
+													// validate
+													if(messageBox.getValue() != ""){
+														// rename the layer
+														
+														KingdomMap map = existingMapsDisplay.getListView().getSelectionModel().getSelectedItem();
+														map.setName(messageBox.getValue());
+														
+														DataServiceAsync.Util.getInstance().updateMapName(map, new AsyncCallback<KingdomMap>() {
+
+															@Override
+															public void onFailure(Throwable caught){
+															}
+
+															@Override
+															public void onSuccess(KingdomMap result){
+																// refresh list
+																existingMapsDisplay.getListView().refresh();
+																
+																if(display.getCurrentMap().getId() == result.getId()){
+																	// refresh map name header
+																	Bus.get().fireEvent(new EventChangeMapNameHeader(result.getName()));
+																}
+																
+																// TODO: info map name changed
+															}
+														});
+													}else{
+														// TODO: invalid entry
+														// info popup
+													}
+												}
+											}
+										});
+										
+										messageBox.show();
+									}
+								}
+							});
 							
 							existingMapsDisplay.getDeleteButton().addSelectHandler(new SelectHandler() {
 								

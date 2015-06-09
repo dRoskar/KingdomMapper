@@ -93,6 +93,12 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		return mapJdbcTemplate.getMap(id);
 	}
 	
+	@Override
+	public KingdomMap updateMapName(KingdomMap map){
+		mapJdbcTemplate.updateMapName(map.getId(), map.getName());
+		
+		return map;
+	}
 	// =========================================
 	
 	// ===== ===== LAYER DATA SERVICES ===== =====

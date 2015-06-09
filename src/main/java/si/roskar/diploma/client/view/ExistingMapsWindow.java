@@ -33,6 +33,7 @@ public class ExistingMapsWindow extends Window implements ExistingMapsDisplay{
 	ListStore<KingdomMap>			listStore	= null;
 	ListView<KingdomMap, String>	listView	= null;
 	TextButton						load		= null;
+	TextButton						rename		= null;
 	TextButton						delete		= null;
 	TextButton						close		= null;
 	private boolean					isBound		= false;
@@ -48,7 +49,7 @@ public class ExistingMapsWindow extends Window implements ExistingMapsDisplay{
 		setHeadingText("Map list");
 		setModal(true);
 		setResizable(false);
-		setWidth(300);
+		setWidth(420);
 		setHeight(400);
 		setBodyStyle("padding:6px");
 		
@@ -70,10 +71,12 @@ public class ExistingMapsWindow extends Window implements ExistingMapsDisplay{
 		cp.add(layoutContainer);
 		
 		load = new TextButton("Load");
+		rename = new TextButton("Rename");
 		delete = new TextButton("Delete");
 		close = new TextButton("Close");
 		
 		cp.addButton(load);
+		cp.addButton(rename);
 		cp.addButton(delete);
 		cp.addButton(close);
 		
@@ -114,6 +117,11 @@ public class ExistingMapsWindow extends Window implements ExistingMapsDisplay{
 	@Override
 	public TextButton getLoadButton(){
 		return load;
+	}
+	
+	@Override
+	public TextButton getRenameButton(){
+		return rename;
 	}
 	
 	@Override

@@ -68,7 +68,7 @@ public class LayerView implements Display{
 		// create map toolbar
 		ToolBar mapToolbar = new ToolBar();
 		newMap = new TextButton("New map", Resources.ICONS.mapAdd());
-		existingMaps = new TextButton("Existing maps", Resources.ICONS.mapLoad());
+		existingMaps = new TextButton("Map list", Resources.ICONS.mapLoad());
 		mapToolbar.add(newMap);
 		mapToolbar.add(existingMaps);
 		
