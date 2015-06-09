@@ -29,7 +29,7 @@ public class LayerJDBCTemplate{
 		this.jdbcTemplateObject = new JdbcTemplate(dataSource);
 	}
 	
-	public int insert(String name, String style, boolean visibility, GeometryType geometryType, int zIndex, String color, int size, String shape, String fillColor, int strokeWidth, double strokeOpacity, double fillOpacity, int mapId){
+	public int insert(String name, String style, float opacity, boolean visibility, GeometryType geometryType, int zIndex, String color, int size, String shape, String fillColor, int strokeWidth, double strokeOpacity, double fillOpacity, int mapId){
 		
 		// escape unicode
 		name = Tools.encodeToNumericCharacterReference(name);
@@ -38,7 +38,7 @@ public class LayerJDBCTemplate{
 		name = name.replace("'", "''");
 		
 		String visibilityString = visibility == true ? "TRUE" : "FALSE";
-		final String SQL = "INSERT INTO public.\"Layer\"(name, style, visibility, geometry_type, z_index, color, size, shape, fill_color, stroke_width, stroke_opacity, fill_opacity, map_id) VALUES ('" + name + "', '" + style + "', " + visibilityString + ", '"
+		final String SQL = "INSERT INTO public.\"Layer\"(name, style, opacity, visibility, geometry_type, z_index, color, size, shape, fill_color, stroke_width, stroke_opacity, fill_opacity, map_id) VALUES ('" + name + "', '" + style + "', " + opacity +  ", " + visibilityString + ", '"
 				+ geometryType.getGeometryName() + "', " + zIndex + ", '" + color + "', " + size + ", '" + shape + "', '" + fillColor + "', " + strokeWidth + ", " + strokeOpacity + ", " + fillOpacity + ", " + mapId + ")";
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		

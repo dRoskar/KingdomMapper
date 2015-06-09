@@ -98,7 +98,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	// ===== ===== LAYER DATA SERVICES ===== =====
 	@Override
 	public Integer addLayer(KingdomLayer layer){
-		return layerJdbcTemplate.insert(layer.getName(), layer.getStyle(), layer.isVisible(), layer.getGeometryType(), layer.getZIndex(), layer.getColor(), layer.getSize(), layer.getShape(),
+		return layerJdbcTemplate.insert(layer.getName(), layer.getStyle(), layer.getOpacity(), layer.isVisible(), layer.getGeometryType(), layer.getZIndex(), layer.getColor(), layer.getSize(), layer.getShape(),
 				layer.getFillColor(), layer.getStrokeWidth(), layer.getStrokeOpacity(), layer.getFillOpacity(), layer.getMap().getId());
 	}
 	
@@ -400,8 +400,11 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 			
 			difference = originalPolygon.difference(intersector);
 			
-			// if we have a change, save it
-			if(!difference.equalsExact(originalPolygon)){
+			// if intersector completely erases the original polygon, remove the original polygon
+			if(difference.isEmpty()){
+				deletePolygon(wmsUrl, polygonFid);
+				return true;
+			}else if(!difference.equalsExact(originalPolygon)){
 				updatePolygonGeometry(wmsUrl, gmlWriter.write(difference), polygonFid);
 				return true;
 			}

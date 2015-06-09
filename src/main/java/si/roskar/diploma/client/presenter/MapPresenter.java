@@ -396,50 +396,20 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					// get all geometries from the displayed vector layer
 					VectorFeature[] features = display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getWfsLayer().getFeatures();
 					
-					// if new geometry bounds intersect any of the existing
-					// geometry bounds
-					List<KingdomVectorFeature> partakingFeatures = new ArrayList<KingdomVectorFeature>();
-					for(VectorFeature feature : features){
-						if(feature.getGeometry().getBounds().intersectsBounds(eventObject.getVectorFeature().getGeometry().getBounds())){
-							partakingFeatures.add(new KingdomVectorFeature(feature.getGeometry().toString(), feature.getFID()));
+					if(features != null){
+						// if new geometry bounds intersect any of the existing
+						// geometry bounds
+						List<KingdomVectorFeature> partakingFeatures = new ArrayList<KingdomVectorFeature>();
+						for(VectorFeature feature : features){
+							if(feature.getGeometry().getBounds().intersectsBounds(eventObject.getVectorFeature().getGeometry().getBounds())){
+								partakingFeatures.add(new KingdomVectorFeature(feature.getGeometry().toString(), feature.getFID()));
+							}
 						}
-					}
-					
-					// update partaking features' geometries
-					if(!partakingFeatures.isEmpty()){
-						DataServiceAsync.Util.getInstance().bindPolygonGeometries("http://127.0.0.1:8080/geoserver/wms/", partakingFeatures, eventObject.getVectorFeature().getGeometry().toString(), new AsyncCallback<Boolean>() {
-
-							@Override
-							public void onFailure(Throwable caught){
-							}
-
-							@Override
-							public void onSuccess(Boolean result){
-								if(result){
-									// polygon was updated; refresh
-									// layers
-									display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getRefreshStrategy().refresh();
-									display.getCurrentOLWmsLayer().redraw();
-								}
-							}
-						});
-					}
-				}
-				
-				// SUBTRACT SHAPE
-				if(geometryType.equals(GeometryType.POLYGON) && eventObject.getVectorFeature().getGeometry().getVertices(false).length > 2 && display.isInAddingHolesMode()){
-					// get all geometries from the displayed vector layer
-					VectorFeature[] features = display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getWfsLayer().getFeatures();
-					
-					// if new geometry bounds intersect any of the existing
-					// geometry bounds
-					for(VectorFeature feature : features){
-						if(feature.getGeometry().getBounds().intersectsBounds(eventObject.getVectorFeature().getGeometry().getBounds())){
-							
-							// slice on serverside, if changes were made, update
-							// the geometry
-							DataServiceAsync.Util.getInstance().slicePolygonGeometry("http://127.0.0.1:8080/geoserver/wms/", feature.getGeometry().toString(),
-									eventObject.getVectorFeature().getGeometry().toString(), feature.getFID(), new AsyncCallback<Boolean>() {
+						
+						// update partaking features' geometries
+						if(!partakingFeatures.isEmpty()){
+							DataServiceAsync.Util.getInstance().bindPolygonGeometries("http://127.0.0.1:8080/geoserver/wms/", partakingFeatures,
+									eventObject.getVectorFeature().getGeometry().toString(), new AsyncCallback<Boolean>() {
 										
 										@Override
 										public void onFailure(Throwable caught){
@@ -455,6 +425,43 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 											}
 										}
 									});
+						}
+					}
+				}
+				
+				// SUBTRACT SHAPE
+				if(geometryType.equals(GeometryType.POLYGON) && eventObject.getVectorFeature().getGeometry().getVertices(false).length > 2 && display.isInAddingHolesMode()){
+					// get all geometries from the displayed vector layer
+					VectorFeature[] features = display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getWfsLayer().getFeatures();
+					
+					if(features != null){
+						// if new geometry bounds intersect any of the existing
+						// geometry bounds
+						for(VectorFeature feature : features){
+							if(feature.getGeometry().getBounds().intersectsBounds(eventObject.getVectorFeature().getGeometry().getBounds())){
+								
+								// slice on serverside, if changes were made,
+								// update
+								// the geometry
+								DataServiceAsync.Util.getInstance().slicePolygonGeometry("http://127.0.0.1:8080/geoserver/wms/", feature.getGeometry().toString(),
+										eventObject.getVectorFeature().getGeometry().toString(), feature.getFID(), new AsyncCallback<Boolean>() {
+											
+											@Override
+											public void onFailure(Throwable caught){
+											}
+											
+											@Override
+											public void onSuccess(Boolean result){
+												if(result){
+													// polygon was updated;
+													// refresh
+													// layers
+													display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getRefreshStrategy().refresh();
+													display.getCurrentOLWmsLayer().redraw();
+												}
+											}
+										});
+							}
 						}
 					}
 				}
@@ -512,8 +519,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					if(event.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON)){
 						display.disableEditMode();
 						display.enableEditMode(EditingMode.DRAW_RECTANGLE);
-					}
-					else{
+					}else{
 						display.getDrawButton().setValue(true, true);
 					}
 				}
@@ -522,8 +528,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					if(event.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON)){
 						display.disableEditMode();
 						display.enableEditMode(EditingMode.DRAW_ELLIPSE);
-					}
-					else{
+					}else{
 						display.getDrawButton().setValue(true, true);
 					}
 				}
@@ -532,8 +537,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					if(event.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON)){
 						display.disableEditMode();
 						display.enableEditMode(EditingMode.DRAW_SQUARE);
-					}
-					else{
+					}else{
 						display.getDrawButton().setValue(true, true);
 					}
 				}
@@ -542,8 +546,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					if(event.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON)){
 						display.disableEditMode();
 						display.enableEditMode(EditingMode.DRAW_CIRCLE);
-					}
-					else{
+					}else{
 						display.getDrawButton().setValue(true, true);
 					}
 				}
@@ -611,8 +614,10 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					// disable edit mode
 					display.disableEditMode();
 					
-					// if drawing polygons and a polygon drawing button isn't active
-					if(display.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON) && !display.getDrawRectangleButton().getValue() && !display.getDrawCircleButton().getValue() && !display.getDrawEllipseButton().getValue() && !display.getDrawSquareButton().getValue()){
+					// if drawing polygons and a polygon drawing button isn't
+					// active
+					if(display.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON) && !display.getDrawRectangleButton().getValue() && !display.getDrawCircleButton().getValue()
+							&& !display.getDrawEllipseButton().getValue() && !display.getDrawSquareButton().getValue()){
 						display.getAddShapeButton().setValue(false);
 						display.getAddShapeButton().hide();
 						display.getAddHoleButton().setValue(false);
@@ -625,7 +630,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		// click draw rectangle button
 		display.getDrawRectangleButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-
+			
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event){
 				if(event.getValue()){
@@ -649,7 +654,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					display.disableEditMode();
 					
 					// if drawing polygons
-					if(display.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON) && !display.getDrawButton().getValue() && !display.getDrawCircleButton().getValue() && !display.getDrawEllipseButton().getValue() && !display.getDrawSquareButton().getValue()){
+					if(display.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON) && !display.getDrawButton().getValue() && !display.getDrawCircleButton().getValue()
+							&& !display.getDrawEllipseButton().getValue() && !display.getDrawSquareButton().getValue()){
 						display.getAddShapeButton().setValue(false);
 						display.getAddShapeButton().hide();
 						display.getAddHoleButton().setValue(false);
@@ -662,7 +668,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		// handle draw ellipse button click
 		display.getDrawEllipseButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-
+			
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event){
 				if(event.getValue()){
@@ -686,7 +692,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					display.disableEditMode();
 					
 					// if drawing polygons
-					if(display.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON) && !display.getDrawButton().getValue() && display.getDrawRectangleButton().getValue() && !display.getDrawCircleButton().getValue() && !display.getDrawSquareButton().getValue()){
+					if(display.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON) && !display.getDrawButton().getValue() && display.getDrawRectangleButton().getValue()
+							&& !display.getDrawCircleButton().getValue() && !display.getDrawSquareButton().getValue()){
 						display.getAddShapeButton().setValue(false);
 						display.getAddShapeButton().hide();
 						display.getAddHoleButton().setValue(false);
@@ -699,7 +706,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		// handle draw square button click
 		display.getDrawSquareButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-
+			
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event){
 				if(event.getValue()){
@@ -723,7 +730,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					display.disableEditMode();
 					
 					// if drawing polygons
-					if(display.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON) && !display.getDrawButton().getValue() && display.getDrawRectangleButton().getValue() && !display.getDrawCircleButton().getValue() && !display.getDrawEllipseButton().getValue()){
+					if(display.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON) && !display.getDrawButton().getValue() && display.getDrawRectangleButton().getValue()
+							&& !display.getDrawCircleButton().getValue() && !display.getDrawEllipseButton().getValue()){
 						display.getAddShapeButton().setValue(false);
 						display.getAddShapeButton().hide();
 						display.getAddHoleButton().setValue(false);
@@ -736,7 +744,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		// handle draw circle button click
 		display.getDrawCircleButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-
+			
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event){
 				if(event.getValue()){
@@ -760,7 +768,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					display.disableEditMode();
 					
 					// if drawing polygons
-					if(display.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON) && !display.getDrawRectangleButton().getValue() && !display.getDrawButton().getValue() && !display.getDrawEllipseButton().getValue() && !display.getDrawSquareButton().getValue()){
+					if(display.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON) && !display.getDrawRectangleButton().getValue() && !display.getDrawButton().getValue()
+							&& !display.getDrawEllipseButton().getValue() && !display.getDrawSquareButton().getValue()){
 						display.getAddShapeButton().setValue(false);
 						display.getAddShapeButton().hide();
 						display.getAddHoleButton().setValue(false);
@@ -821,14 +830,13 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		// handle rotate button click
 		display.getRotateButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-
+			
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event){
 				if(event.getValue()){
 					// enable edit mode
 					display.enableEditMode(EditingMode.ROTATE);
-				}
-				else{
+				}else{
 					// disable edit mode
 					display.disableEditMode();
 				}
@@ -837,14 +845,13 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		// handle scale button click
 		display.getScaleButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-
+			
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event){
 				if(event.getValue()){
 					// enable edit mode
 					display.enableEditMode(EditingMode.SCALE);
-				}
-				else{
+				}else{
 					// disable edit mode
 					display.disableEditMode();
 				}
@@ -853,7 +860,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		// handle snap button click
 		display.getSnapButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-
+			
 			@Override
 			public void onValueChange(ValueChangeEvent<Boolean> event){
 				display.setSnapEnabled(event.getValue());
@@ -1091,8 +1098,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		});
 		
 		// handle layer opacity
-		Bus.get().addHandler(EventSetLayerOpacity.TYPE, new EventSetLayerOpacityHandler(){
-
+		Bus.get().addHandler(EventSetLayerOpacity.TYPE, new EventSetLayerOpacityHandler() {
+			
 			@Override
 			public void onSetCurrentLayer(EventSetLayerOpacity event){
 				display.setLayerOpacity(event.getLayer(), event.getOpacity() / 100);

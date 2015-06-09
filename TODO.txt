@@ -60,7 +60,7 @@
 [X] drawing ellipses
 [X] drawing squares
 [X] drawing circles
-[ ] changing icons (with layer type)
+[X] changing icons (with layer type)
 [ ] subtracting everything from a feature should delete the feature (what happens?)
 [ ] if you have rotating (or moving vertices or scaling) on and switch to points, you don't have to do any mumo jumbo. Open layers already switches to drag on it's own, and back to desired control when going back to lines/polygons
 [ ] renaming stuff

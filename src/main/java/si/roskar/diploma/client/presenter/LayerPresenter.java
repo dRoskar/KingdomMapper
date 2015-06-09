@@ -446,6 +446,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 								newLayer.setGeometryType(GeometryType.getTypeFromGeometryName(((ToggleButton) addLayerDisplay.getToggleGroup().getValue()).getItemId()));
 								newLayer.setMap(display.getCurrentMap());
 								newLayer.setStyle("");
+								newLayer.setOpacity(1);
 								
 								// get all z indexes ( except for the grid layer) and give this guy the highest one
 								int highestZIndex = 0;
