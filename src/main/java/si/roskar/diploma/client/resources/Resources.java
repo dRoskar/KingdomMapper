@@ -114,8 +114,17 @@ public class Resources{
 		@Source ("line_scale.png")
 		ImageResource lineScale();
 		
-		@Source ("polygon_rotate.png")
+		@Source ("line_rotate.png")
 		ImageResource lineRotate();
+		
+		@Source ("circle.png")
+		ImageResource circle();
+		
+		@Source ("line_rectangle.png")
+		ImageResource lineRectangle();
+		
+		@Source ("line_circle.png")
+		ImageResource lineCircle();
 	}
 	
 	public static final Icons	ICONS	= GWT.create(Icons.class);

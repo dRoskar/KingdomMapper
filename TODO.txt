@@ -55,14 +55,12 @@
 [X] opacity saves to DB
 [X] what happens when you leave some buttons on and load a new map?
 [X] rotate function
-[ ] scale function
+[X] scale function
 [ ] drawing rectangles
-[ ] drawing squares
 [ ] drawing circles
-[ ] drawing straight lines
 [ ] drawing line rectangles
 [ ] drawing line circles
-[ ] drawing line squares
+[ ] changing icons (with layer type)
 [ ] subtracting everything from a feature should delete the feature (what happens?)
 [ ] if you have rotating (or moving vertices or scaling) on and switch to points, you don't have to do any mumo jumbo. Open layers already switches to drag on it's own, and back to desired control when going back to lines/polygons
 [ ] renaming stuff
@@ -70,7 +68,6 @@
 [ ] info indicators
 [ ] remember what user was looking at last
 [ ] measure
-[ ] changing icons (with layer type)
 [ ] Labels
 [ ] marker icons
 [ ] textures
@@ -86,6 +83,9 @@
 
 
 ## LONG-TERM ##
+[ ] drawing sqares
+[ ] drawing straight lines
+[ ] select (and edit) multiple features
 [ ] print
 [ ] dash line style
 [ ] style editor preview (wms service)

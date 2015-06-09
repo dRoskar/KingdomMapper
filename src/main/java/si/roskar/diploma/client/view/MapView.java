@@ -31,6 +31,8 @@ import org.gwtopenmaps.openlayers.client.filter.ComparisonFilter.Types;
 import org.gwtopenmaps.openlayers.client.handler.PathHandler;
 import org.gwtopenmaps.openlayers.client.handler.PointHandler;
 import org.gwtopenmaps.openlayers.client.handler.PolygonHandler;
+import org.gwtopenmaps.openlayers.client.handler.RegularPolygonHandler;
+import org.gwtopenmaps.openlayers.client.handler.RegularPolygonHandlerOptions;
 import org.gwtopenmaps.openlayers.client.layer.TransitionEffect;
 import org.gwtopenmaps.openlayers.client.layer.Vector;
 import org.gwtopenmaps.openlayers.client.layer.VectorOptions;
@@ -82,6 +84,8 @@ public class MapView implements Display{
 	private ToggleButton									grid					= null;
 	private TextButton										saveMapStateButton		= null;
 	private ToggleButton									drawButton				= null;
+	private ToggleButton									drawRectangleButton		= null;
+	private ToggleButton									drawCircleButton		= null;
 	private ToggleButton									moveFeaturesButton		= null;
 	private ToggleButton									moveVerticesButton		= null;
 	private ToggleButton									rotateButton			= null;
@@ -106,6 +110,7 @@ public class MapView implements Display{
 	private boolean											isInAddingHolesMode		= false;
 	private List<KingdomLayer>								layerList				= null;
 	private Snapping										oldSnapControl			= null;
+	private RegularPolygonHandlerOptions					boxHandlerOptions		= null;
 	
 	public MapView(){
 		
@@ -169,6 +174,14 @@ public class MapView implements Display{
 		drawButton.setIcon(Resources.ICONS.line());
 		drawButton.setToolTip("Draw");
 		
+		drawRectangleButton = new ToggleButton();
+		drawRectangleButton.setIcon(Resources.ICONS.rectangle());
+		drawRectangleButton.setToolTip("Draw rectangle");
+		
+		drawCircleButton = new ToggleButton();
+		drawCircleButton.setIcon(Resources.ICONS.circle());
+		drawCircleButton.setToolTip("Draw circle");
+		
 		moveFeaturesButton = new ToggleButton();
 		moveFeaturesButton.setIcon(Resources.ICONS.polygonMove());
 		moveFeaturesButton.setToolTip("Move features");
@@ -221,6 +234,8 @@ public class MapView implements Display{
 		
 		editButtonToggleGroup = new ToggleGroup();
 		editButtonToggleGroup.add(drawButton);
+		editButtonToggleGroup.add(drawRectangleButton);
+		editButtonToggleGroup.add(drawCircleButton);
 		editButtonToggleGroup.add(moveFeaturesButton);
 		editButtonToggleGroup.add(moveVerticesButton);
 		editButtonToggleGroup.add(deleteFeaturesButton);
@@ -228,6 +243,8 @@ public class MapView implements Display{
 		editButtonToggleGroup.add(scaleButton);
 		
 		drawingToolbar.add(drawButton);
+		drawingToolbar.add(drawRectangleButton);
+		drawingToolbar.add(drawCircleButton);
 		drawingToolbar.add(addShapeButton);
 		drawingToolbar.add(addHoleButton);
 		drawingToolbar.add(new SeparatorToolItem());
@@ -282,6 +299,16 @@ public class MapView implements Display{
 	}
 	
 	@Override
+	public ToggleButton getDrawRectangleButton(){
+		return drawRectangleButton;
+	}
+	
+	@Override
+	public ToggleButton getDrawCircleButton(){
+		return drawCircleButton;
+	}
+	
+	@Override
 	public ToggleButton getMoveFeaturesButton(){
 		return moveFeaturesButton;
 	}
@@ -330,8 +357,10 @@ public class MapView implements Display{
 	public void setEditButtonGroup(GeometryType geometryType){
 		if(geometryType.equals(GeometryType.POINT)){
 			drawButton.setIcon(Resources.ICONS.point());
-			drawButton.setData("geometryType", geometryType);
+			// drawButton.setData("geometryType", geometryType);
 			
+			drawRectangleButton.hide();
+			drawCircleButton.hide();
 			moveVerticesButton.hide();
 			addShapeButton.setValue(false);
 			rotateButton.hide();
@@ -342,8 +371,10 @@ public class MapView implements Display{
 			drawingToolbar.forceLayout();
 		}else if(geometryType.equals(GeometryType.LINE)){
 			drawButton.setIcon(Resources.ICONS.line());
-			drawButton.setData("geometryType", geometryType);
+			// drawButton.setData("geometryType", geometryType);
 			
+			drawRectangleButton.hide();
+			drawCircleButton.hide();
 			moveVerticesButton.show();
 			addShapeButton.setValue(false);
 			rotateButton.show();
@@ -354,8 +385,10 @@ public class MapView implements Display{
 			drawingToolbar.forceLayout();
 		}else if(geometryType.equals(GeometryType.POLYGON)){
 			drawButton.setIcon(Resources.ICONS.polygon());
-			drawButton.setData("geometryType", geometryType);
+			// drawButton.setData("geometryType", geometryType);
 			
+			drawRectangleButton.show();
+			drawCircleButton.show();
 			moveVerticesButton.show();
 			rotateButton.show();
 			scaleButton.show();
@@ -367,8 +400,10 @@ public class MapView implements Display{
 			drawingToolbar.forceLayout();
 		}else if(geometryType.equals(GeometryType.MARKER)){
 			drawButton.setIcon(Resources.ICONS.marker());
-			drawButton.setData("geometryType", geometryType);
+			// drawButton.setData("geometryType", geometryType);
 			
+			drawRectangleButton.hide();
+			drawCircleButton.hide();
 			moveVerticesButton.hide();
 			rotateButton.hide();
 			scaleButton.hide();
@@ -674,7 +709,17 @@ public class MapView implements Display{
 			
 			if(mode.equals(EditingMode.DRAW)){
 				// enable drawing
-				currentDrawControl = createDrawFeatureControl(drawingLayer);
+				currentDrawControl = createDrawFeatureControl(drawingLayer, mode);
+				mapWidget.getMap().addControl(currentDrawControl);
+				currentDrawControl.activate();
+			}else if(mode.equals(EditingMode.DRAW_RECTANGLE)){
+				// enable drawing rects
+				currentDrawControl = createDrawFeatureControl(drawingLayer, mode);
+				mapWidget.getMap().addControl(currentDrawControl);
+				currentDrawControl.activate();
+			}else if(mode.equals(EditingMode.DRAW_CIRCLE)){
+				// enable drawing circles
+				currentDrawControl = createDrawFeatureControl(drawingLayer, mode);
 				mapWidget.getMap().addControl(currentDrawControl);
 				currentDrawControl.activate();
 			}else if(mode.equals(EditingMode.MOVE_FEATURES)){
@@ -768,17 +813,45 @@ public class MapView implements Display{
 		}
 	}
 	
-	private DrawFeature createDrawFeatureControl(Vector vectorLayer){
-		if(editingLayer != null){
-			if(editingLayer.getGeometryType().equals(GeometryType.POINT) || editingLayer.getGeometryType().equals(GeometryType.MARKER)){
-				DrawFeature drawPointFeature = new DrawFeature(vectorLayer, new PointHandler());
-				return drawPointFeature;
-			}else if(editingLayer.getGeometryType().equals(GeometryType.LINE)){
-				DrawFeature drawLineFeature = new DrawFeature(vectorLayer, new PathHandler());
-				return drawLineFeature;
-			}else if(editingLayer.getGeometryType().equals(GeometryType.POLYGON)){
-				DrawFeature drawPolygonFeature = new DrawFeature(vectorLayer, new PolygonHandler());
-				return drawPolygonFeature;
+	private DrawFeature createDrawFeatureControl(Vector vectorLayer, EditingMode editingMode){
+		if(editingMode.equals(EditingMode.DRAW)){
+			if(editingLayer != null){
+				if(editingLayer.getGeometryType().equals(GeometryType.POINT) || editingLayer.getGeometryType().equals(GeometryType.MARKER)){
+					DrawFeature drawPointFeature = new DrawFeature(vectorLayer, new PointHandler());
+					return drawPointFeature;
+				}else if(editingLayer.getGeometryType().equals(GeometryType.LINE)){
+					DrawFeature drawLineFeature = new DrawFeature(vectorLayer, new PathHandler());
+					return drawLineFeature;
+				}else if(editingLayer.getGeometryType().equals(GeometryType.POLYGON)){
+					DrawFeature drawPolygonFeature = new DrawFeature(vectorLayer, new PolygonHandler());
+					return drawPolygonFeature;
+				}
+			}
+		}
+		
+		if(editingMode.equals(EditingMode.DRAW_RECTANGLE)){
+			if(editingLayer != null){
+				if(editingLayer.getGeometryType().equals(GeometryType.POLYGON)){
+					boxHandlerOptions = new RegularPolygonHandlerOptions();
+					boxHandlerOptions.setIrregular(true);
+					boxHandlerOptions.setSides(4);
+					DrawFeature drawPolygonFeature = new DrawFeature(vectorLayer, new RegularPolygonHandler());
+					((RegularPolygonHandler) drawPolygonFeature.getHandler()).setOptions(boxHandlerOptions);
+					return drawPolygonFeature;
+				}
+			}
+		}
+		
+		if(editingMode.equals(EditingMode.DRAW_CIRCLE)){
+			if(editingLayer != null){
+				if(editingLayer.getGeometryType().equals(GeometryType.POLYGON)){
+					boxHandlerOptions = new RegularPolygonHandlerOptions();
+					boxHandlerOptions.setIrregular(true);
+					boxHandlerOptions.setSides(80);
+					DrawFeature drawPolygonFeature = new DrawFeature(vectorLayer, new RegularPolygonHandler());
+					((RegularPolygonHandler) drawPolygonFeature.getHandler()).setOptions(boxHandlerOptions);
+					return drawPolygonFeature;
+				}
 			}
 		}
 		

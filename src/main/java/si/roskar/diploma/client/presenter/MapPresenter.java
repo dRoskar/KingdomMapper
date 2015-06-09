@@ -82,6 +82,10 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		ToggleButton getDrawButton();
 		
+		ToggleButton getDrawRectangleButton();
+		
+		ToggleButton getDrawCircleButton();
+		
 		ToggleButton getMoveFeaturesButton();
 		
 		ToggleButton getMoveVerticesButton();
@@ -466,7 +470,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			}
 		});
 		
-		// handle draw button type change event
+		// handle edit button group change
 		Bus.get().addHandler(EventChangeEditButtonGroup.TYPE, new EventChangeEditButtonGroupHandler() {
 			
 			@Override
@@ -498,6 +502,28 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				if(display.getDrawButton().getValue()){
 					display.disableEditMode();
 					display.enableEditMode(EditingMode.DRAW);
+				}
+				
+				if(display.getDrawRectangleButton().getValue()){
+					if(event.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON)){
+						display.disableEditMode();
+						display.enableEditMode(EditingMode.DRAW_RECTANGLE);
+					}
+					else{
+						display.getDrawRectangleButton().setValue(false, true);
+						display.getDrawButton().setValue(true, true);
+					}
+				} 
+				
+				if(display.getDrawCircleButton().getValue()){
+					if(event.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON)){
+						display.disableEditMode();
+						display.enableEditMode(EditingMode.DRAW_CIRCLE);
+					}
+					else{
+						display.getDrawRectangleButton().setValue(false, true);
+						display.getDrawButton().setValue(true, true);
+					}
 				}
 				
 				if(display.getMoveVerticesButton().getValue()){
@@ -563,8 +589,82 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					// disable edit mode
 					display.disableEditMode();
 					
+					// if drawing polygons and a polygon drawing button isn't active
+					if(display.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON) && !display.getDrawRectangleButton().getValue() && !display.getDrawCircleButton().getValue()){
+						display.getAddShapeButton().setValue(false);
+						display.getAddShapeButton().hide();
+						display.getAddHoleButton().setValue(false);
+						display.getAddHoleButton().hide();
+						display.getDrawingToolbar().forceLayout();
+					}
+				}
+			}
+		});
+		
+		// click draw rectangle button
+		display.getDrawRectangleButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+
+			@Override
+			public void onValueChange(ValueChangeEvent<Boolean> event){
+				if(event.getValue()){
+					// enable edit mode
+					display.enableEditMode(EditingMode.DRAW_RECTANGLE);
+					
 					// if drawing polygons
 					if(display.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON)){
+						display.getAddShapeButton().show();
+						display.getAddHoleButton().show();
+						display.getDrawingToolbar().forceLayout();
+					}else{
+						display.getAddShapeButton().setValue(false);
+						display.getAddShapeButton().hide();
+						display.getAddHoleButton().setValue(false);
+						display.getAddHoleButton().hide();
+						display.getDrawingToolbar().forceLayout();
+					}
+				}else{
+					// disable edit mode
+					display.disableEditMode();
+					
+					// if drawing polygons
+					if(display.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON) && !display.getDrawButton().getValue() && !display.getDrawCircleButton().getValue()){
+						display.getAddShapeButton().setValue(false);
+						display.getAddShapeButton().hide();
+						display.getAddHoleButton().setValue(false);
+						display.getAddHoleButton().hide();
+						display.getDrawingToolbar().forceLayout();
+					}
+				}
+			}
+		});
+		
+		// handle draw circle button click
+		display.getDrawCircleButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+
+			@Override
+			public void onValueChange(ValueChangeEvent<Boolean> event){
+				if(event.getValue()){
+					// enable edit mode
+					display.enableEditMode(EditingMode.DRAW_CIRCLE);
+					
+					// if drawing polygons
+					if(display.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON)){
+						display.getAddShapeButton().show();
+						display.getAddHoleButton().show();
+						display.getDrawingToolbar().forceLayout();
+					}else{
+						display.getAddShapeButton().setValue(false);
+						display.getAddShapeButton().hide();
+						display.getAddHoleButton().setValue(false);
+						display.getAddHoleButton().hide();
+						display.getDrawingToolbar().forceLayout();
+					}
+				}else{
+					// disable edit mode
+					display.disableEditMode();
+					
+					// if drawing polygons
+					if(display.getCurrentLayer().getGeometryType().equals(GeometryType.POLYGON) && !display.getDrawRectangleButton().getValue() && !display.getDrawButton().getValue()){
 						display.getAddShapeButton().setValue(false);
 						display.getAddShapeButton().hide();
 						display.getAddHoleButton().setValue(false);
@@ -716,6 +816,14 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				// toggle any edit buttons
 				if(display.getDrawButton().getValue()){
 					display.getDrawButton().setValue(false, false);
+				}
+				
+				if(display.getDrawRectangleButton().getValue()){
+					display.getDrawRectangleButton().setValue(false, false);
+				}
+				
+				if(display.getDrawCircleButton().getValue()){
+					display.getDrawCircleButton().setValue(false, false);
 				}
 				
 				if(display.getMoveFeaturesButton().getValue()){
