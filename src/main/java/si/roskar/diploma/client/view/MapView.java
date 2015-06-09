@@ -576,7 +576,7 @@ public class MapView implements Display{
 		
 		mapWidget.getMap().addLayer(wms);
 		
-		wms.setZIndex(layer.getZIndex());
+		wms.setZIndex(layer.getZIndex());	
 		
 		wmsLayerHashMap.put(layer, wms);
 		
@@ -744,33 +744,7 @@ public class MapView implements Display{
 				currentDrawControl = createDrawFeatureControl(drawingLayer, mode);
 				mapWidget.getMap().addControl(currentDrawControl);
 				currentDrawControl.activate();
-			}
-//			if(mode.equals(EditingMode.DRAW)){
-//				// enable drawing
-//				currentDrawControl = createDrawFeatureControl(drawingLayer, mode);
-//				mapWidget.getMap().addControl(currentDrawControl);
-//				currentDrawControl.activate();
-//			}else if(mode.equals(EditingMode.DRAW_RECTANGLE)){
-//				// enable drawing rects
-//				currentDrawControl = createDrawFeatureControl(drawingLayer, mode);
-//				mapWidget.getMap().addControl(currentDrawControl);
-//				currentDrawControl.activate();
-//			}else if(mode.equals(EditingMode.DRAW_ELLIPSE)){
-//				// enable drawing ellipses
-//				currentDrawControl = createDrawFeatureControl(drawingLayer, mode);
-//				mapWidget.getMap().addControl(currentDrawControl);
-//				currentDrawControl.activate();
-//			}else if(mode.equals(EditingMode.DRAW_SQUARE)){
-//				// enable drawing squares
-//				currentDrawControl = createDrawFeatureControl(drawingLayer, mode);
-//				mapWidget.getMap().addControl(currentDrawControl);
-//				currentDrawControl.activate();
-//			}else if(mode.equals(EditingMode.DRAW_CIRCLE)){
-//				// enable drawing circles
-//				currentDrawControl = createDrawFeatureControl(drawingLayer, mode);
-//				mapWidget.getMap().addControl(currentDrawControl);
-//				currentDrawControl.activate();
-			else if(mode.equals(EditingMode.MOVE_FEATURES)){
+			}else if(mode.equals(EditingMode.MOVE_FEATURES)){
 				// enable draging
 				ModifyFeature modifyFeature = wfsLayerPackageHashMap.get(currentLayer).getModifyFeatureControl();
 				mapWidget.getMap().addControl(modifyFeature);
@@ -972,6 +946,8 @@ public class MapView implements Display{
 		wmsLayerHashMap.remove(layer);
 		
 		wfsLayerPackageHashMap.remove(layer);
+		
+		layerList.remove(layer);
 	}
 	
 	@Override

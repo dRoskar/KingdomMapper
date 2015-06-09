@@ -739,6 +739,9 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 								// remove layer from mapview
 								Bus.get().fireEvent(new EventRemoveLayerFromMapView(display.getLayerTree().getSelectionModel().getSelectedItem()));
 								
+								// remove layer from current map
+								display.getCurrentMap().getLayers().remove(display.getLayerTree().getSelectionModel().getSelectedItem());
+								
 								// remove layer from tree
 								display.getLayerTree().getStore().remove(display.getLayerTree().getSelectionModel().getSelectedItem());
 								
