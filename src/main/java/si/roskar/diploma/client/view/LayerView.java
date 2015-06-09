@@ -43,19 +43,19 @@ public class LayerView implements Display{
 		ValueProvider<KingdomLayer, String> nameProp();
 	}
 	
-	private VerticalLayoutContainer			container			= null;
-	private TextButton						newMap				= null;
-	private TextButton						existingMaps		= null;
-	private TextButton						addLayer			= null;
-	private TextButton						deleteLayer			= null;
-	private TreeStore<KingdomLayer>			layerStore			= null;
-	private Tree<KingdomLayer, String>		layerTree			= null;
-	private ContentPanel					layerTreePanel		= null;
-	private KingdomUser						currentUser			= null;
-	private KingdomMap						currentMap			= null;
+	private VerticalLayoutContainer		container			= null;
+	private TextButton					newMap				= null;
+	private TextButton					existingMaps		= null;
+	private TextButton					addLayer			= null;
+	private TextButton					deleteLayer			= null;
+	private TreeStore<KingdomLayer>		layerStore			= null;
+	private Tree<KingdomLayer, String>	layerTree			= null;
+	private ContentPanel				layerTreePanel		= null;
+	private KingdomUser					currentUser			= null;
+	private KingdomMap					currentMap			= null;
 	
-	private Menu							layerContextMenu	= null;
-	private Slider							opacitySlider		= null;
+	private Menu						layerContextMenu	= null;
+	private Slider						opacitySlider		= null;
 	
 	public LayerView(KingdomUser user){
 		LayerProperties properties = GWT.create(LayerProperties.class);
@@ -107,10 +107,17 @@ public class LayerView implements Display{
 		
 		layerContextMenu.add(opacitySlider);
 		
+		MenuItem renameLayer = new MenuItem();
+		renameLayer.setText("Rename layer");
+		renameLayer.setIcon(Resources.ICONS.rename());
+		renameLayer.setId("renameLayer");
+		
 		MenuItem deleteLayer = new MenuItem();
 		deleteLayer.setText("Delete layer");
+		deleteLayer.setIcon(Resources.ICONS.delete());
 		deleteLayer.setId("deleteLayer");
 		
+		layerContextMenu.add(renameLayer);
 		layerContextMenu.add(deleteLayer);
 		
 		layerTree.setContextMenu(layerContextMenu);
@@ -228,6 +235,11 @@ public class LayerView implements Display{
 	@Override
 	public Tree<KingdomLayer, String> getLayerTree(){
 		return layerTree;
+	}
+	
+	@Override
+	public HasSelectionHandlers<Item> getRenameLayerItem(){
+		return (MenuItem) layerContextMenu.getItemByItemId("renameLayer");
 	}
 	
 	@Override

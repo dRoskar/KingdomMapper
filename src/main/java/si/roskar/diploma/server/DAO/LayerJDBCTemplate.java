@@ -94,6 +94,13 @@ public class LayerJDBCTemplate{
 		return true;
 	}
 	
+	public boolean updateLayerName(int layerId, String name){
+		String SQL = "UPDATE public.\"Layer\" SET name = '" + name + "' WHERE id = " + layerId;
+		jdbcTemplateObject.update(SQL);
+		
+		return true;
+	}
+	
 	public boolean updateLayerStyle(int layerId, String style, String color, int size, String shape, String fillColor, int strokeWidth, double fillOpacity, double strokeOpacity){
 		style = style == null ? "" : style;
 		color = color == null ? "" : color;

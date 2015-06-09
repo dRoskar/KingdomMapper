@@ -128,6 +128,9 @@ public class Resources{
 		
 		@Source ("square.png")
 		ImageResource square();
+		
+		@Source ("rename.png")
+		ImageResource rename();
 	}
 	
 	public static final Icons	ICONS	= GWT.create(Icons.class);

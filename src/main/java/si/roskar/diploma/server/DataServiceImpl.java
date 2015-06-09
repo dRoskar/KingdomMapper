@@ -155,6 +155,11 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		return layer;
 	}
 	
+	@Override
+	public boolean updateLayerName(KingdomLayer layer){
+		return layerJdbcTemplate.updateLayerName(layer.getId(), layer.getName());
+	}
+	
 	// ===========================================
 	
 	// ===== ===== WFS-T ===== =====

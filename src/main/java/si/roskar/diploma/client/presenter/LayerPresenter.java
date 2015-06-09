@@ -49,6 +49,7 @@ import com.sencha.gxt.widget.core.client.Dialog;
 import com.sencha.gxt.widget.core.client.Dialog.PredefinedButton;
 import com.sencha.gxt.widget.core.client.ListView;
 import com.sencha.gxt.widget.core.client.Slider;
+import com.sencha.gxt.widget.core.client.box.PromptMessageBox;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.button.ToggleButton;
 import com.sencha.gxt.widget.core.client.event.BeforeShowContextMenuEvent;
@@ -57,6 +58,8 @@ import com.sencha.gxt.widget.core.client.event.CheckChangeEvent;
 import com.sencha.gxt.widget.core.client.event.CheckChangeEvent.CheckChangeHandler;
 import com.sencha.gxt.widget.core.client.event.DialogHideEvent;
 import com.sencha.gxt.widget.core.client.event.DialogHideEvent.DialogHideHandler;
+import com.sencha.gxt.widget.core.client.event.HideEvent;
+import com.sencha.gxt.widget.core.client.event.HideEvent.HideHandler;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
 import com.sencha.gxt.widget.core.client.form.TextField;
@@ -98,6 +101,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 		void setLayerOpacitySliderValue(final float value);
 		
 		Tree<KingdomLayer, String> getLayerTree();
+		
+		HasSelectionHandlers<Item> getRenameLayerItem();
 		
 		HasSelectionHandlers<Item> getDeleteLayerItem();
 		
@@ -186,19 +191,19 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 	protected void bind(){
 		
 		// handle UI loaded event
-		Bus.get().addHandler(EventUILoaded.TYPE, new EventUILoadedHandler(){
-
+		Bus.get().addHandler(EventUILoaded.TYPE, new EventUILoadedHandler() {
+			
 			@Override
 			public void onUILoaded(EventUILoaded event){
 				// check if user was already working on a map on his last visit
 				if(display.getCurrentUser().getLastMapId() > 0){
 					// get the map
 					DataServiceAsync.Util.getInstance().getMap(display.getCurrentUser().getLastMapId(), new AsyncCallback<KingdomMap>() {
-
+						
 						@Override
 						public void onFailure(Throwable caught){
 						}
-
+						
 						@Override
 						public void onSuccess(KingdomMap result){
 							if(result != null){
@@ -448,7 +453,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 								newLayer.setStyle("");
 								newLayer.setOpacity(1);
 								
-								// get all z indexes ( except for the grid layer) and give this guy the highest one
+								// get all z indexes ( except for the grid
+								// layer) and give this guy the highest one
 								int highestZIndex = 0;
 								for(KingdomLayer layer : display.getCurrentMap().getLayers()){
 									if(!(layer instanceof KingdomGridLayer)){
@@ -465,12 +471,10 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 									newLayer.setColor("0066FF");
 									newLayer.setShape("square");
 									newLayer.setSize(6);
-								}
-								else if(newLayer.getGeometryType().equals(GeometryType.LINE)){
+								}else if(newLayer.getGeometryType().equals(GeometryType.LINE)){
 									newLayer.setColor("FF3300");
 									newLayer.setStrokeWidth(1);
-								}
-								else if(newLayer.getGeometryType().equals(GeometryType.POLYGON)){
+								}else if(newLayer.getGeometryType().equals(GeometryType.POLYGON)){
 									newLayer.setFillColor("33CC33");
 									newLayer.setFillOpacity(1);
 									newLayer.setStrokeWidth(1);
@@ -553,15 +557,15 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 		});
 		
 		// before show context menu
-				display.getLayerTree().addBeforeShowContextMenuHandler(new BeforeShowContextMenuHandler() {
-					@Override
-					public void onBeforeShowContextMenu(BeforeShowContextMenuEvent event){
-						KingdomLayer layer = display.getLayerTree().getSelectionModel().getSelectedItem();
-						if(layer != null){
-							display.setLayerOpacitySliderValue(layer.getOpacity());
-						}
-					}
-				});
+		display.getLayerTree().addBeforeShowContextMenuHandler(new BeforeShowContextMenuHandler() {
+			@Override
+			public void onBeforeShowContextMenu(BeforeShowContextMenuEvent event){
+				KingdomLayer layer = display.getLayerTree().getSelectionModel().getSelectedItem();
+				if(layer != null){
+					display.setLayerOpacitySliderValue(layer.getOpacity());
+				}
+			}
+		});
 		
 		// handle delete layer button click
 		display.getDeleteLayerButton().addSelectHandler(new SelectHandler() {
@@ -569,6 +573,49 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 			@Override
 			public void onSelect(SelectEvent event){
 				deleteLayer();
+			}
+		});
+		
+		// handle rename layer from menu click
+		display.getRenameLayerItem().addSelectionHandler(new SelectionHandler<Item>() {
+			
+			@Override
+			public void onSelection(SelectionEvent<Item> event){
+				if(display.getLayerTree().getSelectionModel().getSelectedItem() != null){
+					final PromptMessageBox messageBox = new PromptMessageBox("Rename layer", "Eneter a new name for this layer");
+					messageBox.setModal(true);
+					messageBox.addHideHandler(new HideHandler() {
+						
+						@Override
+						public void onHide(HideEvent event){
+							// validate
+							if(messageBox.getValue() != ""){
+								// rename the layer
+								KingdomLayer renamedLayer = display.getSelectedLayer();
+								
+								renamedLayer.setName(messageBox.getValue());
+								DataServiceAsync.Util.getInstance().updateLayerName(renamedLayer, new AsyncCallback<Boolean>() {
+									
+									@Override
+									public void onFailure(Throwable caught){
+									}
+									
+									@Override
+									public void onSuccess(Boolean result){
+										// refresh layer tree
+										display.getLayerTree().refresh(display.getLayerTree().getSelectionModel().getSelectedItem());
+										
+										// TODO: info rename
+									}
+								});
+							}else{
+								// TODO: invalid entry info popup
+							}
+						}
+					});
+					
+					messageBox.show();
+				}
 			}
 		});
 		
@@ -630,8 +677,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 		});
 		
 		// handle sort layer tree handler
-		Bus.get().addHandler(EventSortLayerTree.TYPE, new EventSortLayerTreeHandler(){
-
+		Bus.get().addHandler(EventSortLayerTree.TYPE, new EventSortLayerTreeHandler() {
+			
 			@Override
 			public void onSortLayerTree(EventSortLayerTree event){
 				// save selected layer
@@ -639,7 +686,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 				
 				display.getLayerTree().disableEvents();
 				
-				// sort tree (bug in library causes items to get unchecked and (visibly) unselected)
+				// sort tree (bug in library causes items to get unchecked and
+				// (visibly) unselected)
 				display.getLayerTree().getStore().applySort(false);
 				
 				// reselect unselected items
