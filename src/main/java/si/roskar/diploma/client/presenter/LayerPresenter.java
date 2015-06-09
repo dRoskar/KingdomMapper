@@ -44,6 +44,7 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.Label;
+import com.sencha.gxt.core.client.Style.HideMode;
 import com.sencha.gxt.core.client.util.ToggleGroup;
 import com.sencha.gxt.widget.core.client.Dialog;
 import com.sencha.gxt.widget.core.client.Dialog.PredefinedButton;
@@ -582,34 +583,36 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 			@Override
 			public void onSelection(SelectionEvent<Item> event){
 				if(display.getLayerTree().getSelectionModel().getSelectedItem() != null){
-					final PromptMessageBox messageBox = new PromptMessageBox("Rename layer", "Eneter a new name for this layer");
+					final PromptMessageBox messageBox = new PromptMessageBox("Rename layer", "Enter a new name for this layer");
 					messageBox.setModal(true);
-					messageBox.addHideHandler(new HideHandler() {
+					messageBox.addDialogHideHandler(new DialogHideHandler() {
 						
 						@Override
-						public void onHide(HideEvent event){
-							// validate
-							if(messageBox.getValue() != ""){
-								// rename the layer
-								KingdomLayer renamedLayer = display.getSelectedLayer();
-								
-								renamedLayer.setName(messageBox.getValue());
-								DataServiceAsync.Util.getInstance().updateLayerName(renamedLayer, new AsyncCallback<Boolean>() {
+						public void onDialogHide(DialogHideEvent event){
+							if(event.getHideButton().equals(PredefinedButton.OK)){
+								// validate
+								if(messageBox.getValue() != ""){
+									// rename the layer
+									KingdomLayer renamedLayer = display.getSelectedLayer();
 									
-									@Override
-									public void onFailure(Throwable caught){
-									}
-									
-									@Override
-									public void onSuccess(Boolean result){
-										// refresh layer tree
-										display.getLayerTree().refresh(display.getLayerTree().getSelectionModel().getSelectedItem());
+									renamedLayer.setName(messageBox.getValue());
+									DataServiceAsync.Util.getInstance().updateLayerName(renamedLayer, new AsyncCallback<Boolean>() {
 										
-										// TODO: info rename
-									}
-								});
-							}else{
-								// TODO: invalid entry info popup
+										@Override
+										public void onFailure(Throwable caught){
+										}
+										
+										@Override
+										public void onSuccess(Boolean result){
+											// refresh layer tree
+											display.getLayerTree().refresh(display.getLayerTree().getSelectionModel().getSelectedItem());
+											
+											// TODO: info rename
+										}
+									});
+								}else{
+									// TODO: invalid entry info popup
+								}
 							}
 						}
 					});
