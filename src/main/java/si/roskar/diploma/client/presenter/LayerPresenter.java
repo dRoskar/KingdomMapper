@@ -23,6 +23,7 @@ import si.roskar.diploma.client.event.EventSortLayerTree;
 import si.roskar.diploma.client.event.EventSortLayerTree.EventSortLayerTreeHandler;
 import si.roskar.diploma.client.event.EventUILoaded;
 import si.roskar.diploma.client.event.EventUILoaded.EventUILoadedHandler;
+import si.roskar.diploma.client.util.KingdomInfo;
 import si.roskar.diploma.client.view.AddLayerDialog;
 import si.roskar.diploma.client.view.ExistingMapsWindow;
 import si.roskar.diploma.client.view.NewMapDialog;
@@ -197,6 +198,9 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 			public void onUILoaded(EventUILoaded event){
 				// check if user was already working on a map on his last visit
 				if(display.getCurrentUser().getLastMapId() > 0){
+					
+					KingdomInfo.showLoadingBar("Loading", "Loading your last work", "Loading...");
+					
 					// get the map
 					DataServiceAsync.Util.getInstance().getMap(display.getCurrentUser().getLastMapId(), new AsyncCallback<KingdomMap>() {
 						
@@ -209,6 +213,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 							if(result != null){
 								setMap(result);
 								display.getDeleteLayerButton().disable();
+								KingdomInfo.hideLoadingBar();
 							}
 						}
 					});
@@ -294,6 +299,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 			
 			@Override
 			public void onSelect(SelectEvent event){
+				KingdomInfo.showLoadingBar("Loading", "Loading map list", "Loading...");
+				
 				// disable edit mode
 				Bus.get().fireEvent(new EventDisableEditMode());
 				
@@ -396,6 +403,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 																			// map
 																			// name
 																			// changed
+																			KingdomInfo.showInfoPopUp("Info",  "Map renamed successfully");
+																			System.out.println("map renamed");
 																		}
 																	});
 																}else{
@@ -503,6 +512,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 							
 							existingMapsDisplay.setIsBound(true);
 						}
+						
+						KingdomInfo.hideLoadingBar();
 					}
 				});
 			}
