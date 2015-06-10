@@ -67,7 +67,7 @@
 [X] check if name already exists when renaming stuff
 [X] loading bars
 [X] info indicators
-[ ] populate with loading bars and info indicators
+[X] populate with loading bars and info indicators
 [ ] remember what user was looking at last
 [ ] measure
 [ ] Labels

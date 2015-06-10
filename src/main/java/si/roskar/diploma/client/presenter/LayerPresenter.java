@@ -462,7 +462,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 											
 											@Override
 											public void onDialogHide(DialogHideEvent event){
-												if(event.getHideButton().compareTo(PredefinedButton.YES) == 0){
+												if(event.getHideButton().equals(PredefinedButton.YES)){
 													KingdomInfo.showLoadingBar("Deleting", "Deleting map data", "deleting...");
 													
 													// load map layers
@@ -923,7 +923,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 				
 				@Override
 				public void onDialogHide(DialogHideEvent event){
-					if(event.getHideButton().compareTo(PredefinedButton.YES) == 0){
+					if(event.getHideButton().equals(PredefinedButton.YES)){
 						KingdomInfo.showLoadingBar("Deleting", "Deleteing layer", "deleting...");
 						
 						// remove layer from db
