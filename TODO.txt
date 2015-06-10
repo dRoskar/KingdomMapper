@@ -65,8 +65,9 @@
 [ ] if you have rotating (or moving vertices or scaling) on and switch to points, you don't have to do any mumo jumbo. Open layers already switches to drag on it's own, and back to desired control when going back to lines/polygons
 [X] renaming stuff
 [X] check if name already exists when renaming stuff
-[ ] loading bars
-[ ] info indicators
+[X] loading bars
+[X] info indicators
+[ ] populate with loading bars and info indicators
 [ ] remember what user was looking at last
 [ ] measure
 [ ] Labels

@@ -36,6 +36,7 @@ import si.roskar.diploma.client.event.EventSetLayerVisibility;
 import si.roskar.diploma.client.event.EventSetLayerVisibility.EventSetLayerVisibilityHandler;
 import si.roskar.diploma.client.event.EventSortLayerTree;
 import si.roskar.diploma.client.util.ColorPickerWindow;
+import si.roskar.diploma.client.util.KingdomInfo;
 import si.roskar.diploma.client.util.WFSLayerPackage;
 import si.roskar.diploma.client.view.AddMarkerDialog;
 import si.roskar.diploma.client.view.EditLayerStyleWindow;
@@ -255,7 +256,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			public void onAddNewMap(EventAddNewMap event){
 				// save previous map state
 				if(display.getLayerList() != null){
-					updateLayersDB(display.getLayerList());
+					updateLayersDB(display.getLayerList(), false);
 				}
 				
 				// disable snap mode if on
@@ -302,6 +303,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 												
 												@Override
 												public void onFailure(Throwable caught){
+													KingdomInfo.showInfoPopUp("Error", "Error adding marker to DB");
 												}
 												
 												@Override
@@ -339,6 +341,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 						
 						@Override
 						public void onFailure(Throwable caught){
+							KingdomInfo.showInfoPopUp("Error", "Error adding point to DB");
 						}
 						
 						@Override
@@ -358,6 +361,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 						
 						@Override
 						public void onFailure(Throwable caught){
+							KingdomInfo.showInfoPopUp("Error", "Error adding line to DB");
 						}
 						
 						@Override
@@ -378,6 +382,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 						
 						@Override
 						public void onFailure(Throwable caught){
+							KingdomInfo.showInfoPopUp("Error", "Error adding polygon to DB");
 						}
 						
 						@Override
@@ -413,6 +418,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 										
 										@Override
 										public void onFailure(Throwable caught){
+											KingdomInfo.showInfoPopUp("Error", "Error binding polygon geometries");
 										}
 										
 										@Override
@@ -448,6 +454,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 											
 											@Override
 											public void onFailure(Throwable caught){
+												KingdomInfo.showInfoPopUp("Error", "Error slicing polygon geometries");
 											}
 											
 											@Override
@@ -1071,7 +1078,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			
 			@Override
 			public void onWindowClosing(ClosingEvent event){
-				updateLayersDB(display.getLayerList());
+				updateLayersDB(display.getLayerList(), false);
 			}
 		});
 		
@@ -1093,7 +1100,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			
 			@Override
 			public void onSelect(SelectEvent event){
-				updateLayersDB(display.getLayerList());
+				updateLayersDB(display.getLayerList(), true);
 			}
 		});
 		
@@ -1108,15 +1115,30 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 	}
 	
 	// this updates the layers visibility and z indices
-	private void updateLayersDB(List<KingdomLayer> layers){
+	private void updateLayersDB(List<KingdomLayer> layers, final boolean sourceIsButton){
+		if(sourceIsButton){
+			KingdomInfo.showLoadingBar("Saving", "Saving map state", "saving...");
+		}
+		
 		DataServiceAsync.Util.getInstance().updateLayers(layers, new AsyncCallback<Boolean>() {
 			
 			@Override
 			public void onFailure(Throwable caught){
+				if(sourceIsButton){
+					KingdomInfo.hideLoadingBar();
+				}
+				KingdomInfo.showInfoPopUp("Error", "Error saving map state");
 			}
 			
 			@Override
 			public void onSuccess(Boolean result){
+				if(sourceIsButton){
+					KingdomInfo.hideLoadingBar();
+					KingdomInfo.showInfoPopUp("Success", "Map state was saved successfully");
+				}
+				else{
+					KingdomInfo.showInfoPopUp("Autosave", "Map state was saved");
+				}
 			}
 		});
 	}
@@ -1126,6 +1148,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			
 			@Override
 			public void onFailure(Throwable caught){
+				KingdomInfo.showInfoPopUp("Error", "Error saving layer style");
 			}
 			
 			@Override

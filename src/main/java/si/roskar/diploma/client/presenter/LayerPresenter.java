@@ -199,13 +199,15 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 				// check if user was already working on a map on his last visit
 				if(display.getCurrentUser().getLastMapId() > 0){
 					
-					KingdomInfo.showLoadingBar("Loading", "Loading your last work", "Loading...");
+					KingdomInfo.showLoadingBar("Loading", "Loading your last work", "loading...");
 					
 					// get the map
 					DataServiceAsync.Util.getInstance().getMap(display.getCurrentUser().getLastMapId(), new AsyncCallback<KingdomMap>() {
 						
 						@Override
 						public void onFailure(Throwable caught){
+							KingdomInfo.hideLoadingBar();
+							KingdomInfo.showInfoPopUp("Error", "Error loading your last work");
 						}
 						
 						@Override
@@ -214,6 +216,10 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 								setMap(result);
 								display.getDeleteLayerButton().disable();
 								KingdomInfo.hideLoadingBar();
+							}
+							else{
+								KingdomInfo.hideLoadingBar();
+								KingdomInfo.showInfoPopUp("Error", "Error2 loading your last work");
 							}
 						}
 					});
@@ -238,6 +244,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 						@Override
 						public void onSelect(SelectEvent event){
 							if(newMapDisplay.isValid()){
+								KingdomInfo.showLoadingBar("Creating", "Creating new map", "creating...");
+								
 								// create new map
 								final KingdomMap newMap = new KingdomMap();
 								newMap.setName(newMapDisplay.getNameField().getText());
@@ -255,6 +263,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 												
 												@Override
 												public void onFailure(Throwable caught){
+													KingdomInfo.hideLoadingBar();
+													KingdomInfo.showInfoPopUp("Error", "Error adding map to DB");
 												}
 												
 												@Override
@@ -270,11 +280,15 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 										}else{
 											// map name already exists
 											newMapDisplay.getNameField().forceInvalid("Map name already exists");
+											
+											KingdomInfo.hideLoadingBar();
 										}
 									}
 									
 									@Override
 									public void onFailure(Throwable caught){
+										KingdomInfo.hideLoadingBar();
+										KingdomInfo.showInfoPopUp("Error", "Error checking if map name exists");
 									}
 								});
 							}
@@ -299,7 +313,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 			
 			@Override
 			public void onSelect(SelectEvent event){
-				KingdomInfo.showLoadingBar("Loading", "Loading map list", "Loading...");
+				KingdomInfo.showLoadingBar("Loading", "Loading map list", "loading...");
 				
 				// disable edit mode
 				Bus.get().fireEvent(new EventDisableEditMode());
@@ -309,6 +323,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 					
 					@Override
 					public void onFailure(Throwable caught){
+						KingdomInfo.hideLoadingBar();
+						KingdomInfo.showInfoPopUp("Error", "Error loading map list");
 					}
 					
 					@Override
@@ -325,6 +341,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 								public void onSelect(SelectEvent event){
 									KingdomMap selectedMap = existingMapsDisplay.getListView().getSelectionModel().getSelectedItem();
 									if(selectedMap != null){
+										KingdomInfo.showLoadingBar("Loading", "Loading map data", "loading...");
+										
 										setMap(selectedMap);
 										display.getDeleteLayerButton().disable();
 										existingMapsDisplay.hide();
@@ -339,6 +357,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 									KingdomMap selectedMap = existingMapsDisplay.getListView().getSelectionModel().getSelectedItem();
 									
 									if(selectedMap != null){
+										KingdomInfo.showLoadingBar("Loading", "Loading map data", "loading...");
 										setMap(selectedMap);
 										display.getDeleteLayerButton().disable();
 										existingMapsDisplay.hide();
@@ -365,6 +384,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 													// validate
 													if(messageBox.getValue() != ""){
 														// rename the layer
+														KingdomInfo.showLoadingBar("Renaming", "Renaming map", "renaming...");
 														
 														final KingdomMap map = existingMapsDisplay.getListView().getSelectionModel().getSelectedItem();
 														map.setName(messageBox.getValue());
@@ -373,6 +393,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 															
 															@Override
 															public void onFailure(Throwable caught){
+																KingdomInfo.hideLoadingBar();
+																KingdomInfo.showInfoPopUp("Error", "Error checking if map name exists");
 															}
 															
 															@Override
@@ -382,6 +404,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 																		
 																		@Override
 																		public void onFailure(Throwable caught){
+																			KingdomInfo.hideLoadingBar();
+																			KingdomInfo.showInfoPopUp("Error", "Error updating map name");
 																		}
 																		
 																		@Override
@@ -397,25 +421,18 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 																				// header
 																				Bus.get().fireEvent(new EventChangeMapNameHeader(result.getName()));
 																			}
-																			
-																			// TODO:
-																			// info
-																			// map
-																			// name
-																			// changed
-																			KingdomInfo.showInfoPopUp("Info",  "Map renamed successfully");
-																			System.out.println("map renamed");
+																			KingdomInfo.hideLoadingBar();
+																			KingdomInfo.showInfoPopUp("Success",  "Map renamed successfully");
 																		}
 																	});
 																}else{
-																	//TODO: info name taken
-																	System.out.println("map name taken");
+																	KingdomInfo.hideLoadingBar();
+																	KingdomInfo.showInfoPopUp("Info",  "Map name already taken");
 																}
 															}
 														});
 													}else{
-														// TODO: invalid entry
-														// info popup
+														KingdomInfo.showInfoPopUp("Info",  "Invalid name");
 													}
 												}
 											}
@@ -446,11 +463,15 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 											@Override
 											public void onDialogHide(DialogHideEvent event){
 												if(event.getHideButton().compareTo(PredefinedButton.YES) == 0){
+													KingdomInfo.showLoadingBar("Deleting", "Deleting map data", "deleting...");
+													
 													// load map layers
 													DataServiceAsync.Util.getInstance().getLayerList(selectedMap, new AsyncCallback<List<KingdomLayer>>() {
 														
 														@Override
 														public void onFailure(Throwable caught){
+															KingdomInfo.hideLoadingBar();
+															KingdomInfo.showInfoPopUp("Error", "Error getting layer list");
 														}
 														
 														@Override
@@ -464,7 +485,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 																
 																@Override
 																public void onFailure(Throwable caught){
-																	
+																	KingdomInfo.hideLoadingBar();
+																	KingdomInfo.showInfoPopUp("Error", "Error deleting map");
 																}
 																
 																@Override
@@ -486,9 +508,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 																		Bus.get().fireEvent(new EventRemoveCurrentMap());
 																	}
 																	
-																	// TODO:
-																	// deletion
-																	// notification
+																	KingdomInfo.hideLoadingBar();
+																	KingdomInfo.showInfoPopUp("Success", "Map deleted successfully");
 																}
 															});
 														}
@@ -532,6 +553,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 						@Override
 						public void onSelect(SelectEvent event){
 							if(addLayerDisplay.isValid()){
+								KingdomInfo.showLoadingBar("Adding", "Adding new layer", "adding...");
+								
 								// create new layer
 								final KingdomLayer newLayer = new KingdomLayer();
 								newLayer.setName(addLayerDisplay.getNameField().getText());
@@ -541,7 +564,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 								newLayer.setStyle("");
 								newLayer.setOpacity(1);
 								
-								// get all z indexes ( except for the grid
+								// get all z indexes (except for the grid
 								// layer) and give this guy the highest one
 								int highestZIndex = 0;
 								for(KingdomLayer layer : display.getCurrentMap().getLayers()){
@@ -575,6 +598,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 									
 									@Override
 									public void onFailure(Throwable caught){
+										KingdomInfo.hideLoadingBar();
+										KingdomInfo.showInfoPopUp("Error", "Error checking if layer name exists");
 									}
 									
 									@Override
@@ -585,6 +610,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 												
 												@Override
 												public void onFailure(Throwable caught){
+													KingdomInfo.hideLoadingBar();
+													KingdomInfo.showInfoPopUp("Error", "Error adding layer to DB");
 												}
 												
 												@Override
@@ -596,11 +623,14 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 													
 													// add layer to OL map
 													Bus.get().fireEvent(new EventAddNewLayer(newLayer));
+													
+													KingdomInfo.hideLoadingBar();
 												}
 											});
 											
 											addLayerDisplay.hide();
 										}else{
+											KingdomInfo.hideLoadingBar();
 											// layer name already exists
 											addLayerDisplay.getNameField().forceInvalid("Layer name already exists");
 										}
@@ -679,6 +709,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 							if(event.getHideButton().equals(PredefinedButton.OK)){
 								// validate
 								if(messageBox.getValue() != ""){
+									KingdomInfo.showLoadingBar("Renaming", "Renaming layer", "renaming...");
+									
 									// rename the layer
 									final KingdomLayer renamedLayer = display.getSelectedLayer();
 									renamedLayer.setName(messageBox.getValue());
@@ -687,6 +719,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 
 										@Override
 										public void onFailure(Throwable caught){
+											KingdomInfo.hideLoadingBar();
+											KingdomInfo.showInfoPopUp("Error", "Error checking if layer name exists");
 										}
 
 										@Override
@@ -696,6 +730,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 													
 													@Override
 													public void onFailure(Throwable caught){
+														KingdomInfo.hideLoadingBar();
+														KingdomInfo.showInfoPopUp("Error", "Error updating layer name");
 													}
 													
 													@Override
@@ -703,18 +739,20 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 														// refresh layer tree
 														display.getLayerTree().refresh(display.getLayerTree().getSelectionModel().getSelectedItem());
 														
-														// TODO: info rename
+														KingdomInfo.hideLoadingBar();
+														KingdomInfo.showInfoPopUp("Success", "Layer renamed successfully");
 													}
 												});
 											}
 											else{
-												//TODO: info layer name taken
-												System.out.println("layer name taken");
+												KingdomInfo.hideLoadingBar();
+												
+												KingdomInfo.showInfoPopUp("Info", "Layer name already taken");
 											}
 										}
 									});
 								}else{
-									// TODO: invalid entry info popup
+									KingdomInfo.showInfoPopUp("Info", "Invalid layer name");
 								}
 							}
 						}
@@ -833,6 +871,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 			
 			@Override
 			public void onFailure(Throwable caught){
+				KingdomInfo.hideLoadingBar();
+				KingdomInfo.showInfoPopUp("Error", "Error getting map's layers");
 			}
 			
 			@Override
@@ -861,6 +901,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 				
 				// enable map view
 				Bus.get().fireEvent(new EventEnableMapView(true));
+				
+				KingdomInfo.hideLoadingBar();
 			}
 		});
 	}
@@ -882,11 +924,15 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 				@Override
 				public void onDialogHide(DialogHideEvent event){
 					if(event.getHideButton().compareTo(PredefinedButton.YES) == 0){
+						KingdomInfo.showLoadingBar("Deleting", "Deleteing layer", "deleting...");
+						
 						// remove layer from db
 						DataServiceAsync.Util.getInstance().deleteLayer(display.getLayerTree().getSelectionModel().getSelectedItem(), new AsyncCallback<Boolean>() {
 							
 							@Override
 							public void onFailure(Throwable caught){
+								KingdomInfo.hideLoadingBar();
+								KingdomInfo.showInfoPopUp("Info", "Error deleting layer");
 							}
 							
 							@Override
@@ -903,7 +949,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 								// disable drawing bar
 								Bus.get().fireEvent(new EventEnableDrawingToolbar(false));
 								
-								// TODO: deletion notification
+								KingdomInfo.hideLoadingBar();
+								KingdomInfo.showInfoPopUp("Success", "Layer deleted succesfully");
 							}
 						});
 					}
