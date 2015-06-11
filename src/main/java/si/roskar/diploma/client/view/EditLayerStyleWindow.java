@@ -415,7 +415,7 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 	
 	@Override
 	public double getLowerSliderScale(){
-		return scales[upperLimitSlider.getValue() - 1];
+		return scales[lowerLimitSlider.getValue() - 1];
 	}
 	
 	private int getScaleIndex(double scale, boolean upper){

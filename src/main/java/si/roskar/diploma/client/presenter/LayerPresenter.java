@@ -111,7 +111,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 		
 		Menu getContextMenu();
 		
-		void updateLayersInScaleStyle(double scale);
+		void refreshLayerTree(double scale);
 	}
 	
 	public interface AddLayerDisplay extends View{
@@ -917,7 +917,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 
 			@Override
 			public void onMapScaleChanged(EventMapScaleChanged event){
-				display.updateLayersInScaleStyle(event.getScale());
+				display.refreshLayerTree(event.getScale());
 			}
 		});
 	}

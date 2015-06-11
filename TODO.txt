@@ -77,7 +77,7 @@
 	[X] client - DB communication
 	[X] layer visibility integration
 	[X] layer tree dsiplay
-	[ ] layer editing gui controls
+	[X] layer editing gui controls
 	[ ] quicksetting button
 	
 [ ] remember what user was looking at last - save to map object; if it exists use it instead of zoomToStartingBounds() when loading map layers (adding map)
@@ -123,3 +123,4 @@
 [X] layer with multiple features, select erase tool, click on a feature, it's gone. Click on empty space, feature is back (only on wfs layer)
 [X] click cancel when selecting color
 [ ] subtract sometimes changes into add
+[ ] if subtract is on when adding new layer, subtract stay on, but button is off (what about when adding new map?)

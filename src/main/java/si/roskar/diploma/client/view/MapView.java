@@ -119,7 +119,7 @@ public class MapView implements Display{
 		
 		OpenLayers.setProxyHost("olproxy?targetURL=");
 		
-		scales = new double[]{ 2500000.0, 1000000.0, 500000.0, 250000.0, 100000.0, 50000.0, 25000.0, 10000.0, 5000.0, 2500.0, 1000.0, 500.0, 250.0, 100.0, 50.0, 25.0, 10.0 };
+		scales = new double[] { 2500000.0, 1000000.0, 500000.0, 250000.0, 100000.0, 50000.0, 25000.0, 10000.0, 5000.0, 2500.0, 1000.0, 500.0, 250.0, 100.0, 50.0, 25.0, 10.0 };
 		
 		double[] resolutions = scalesToResolutions(scales);
 		
@@ -566,8 +566,8 @@ public class MapView implements Display{
 			layerParams.setLayers("kingdom:line");
 			layerParams.setCQLFilter("IN ('line." + ((KingdomGridLayer) layer).getDBKey() + "')");
 		}else{
-			wmsOptions.setMaxScale((float)layer.getMaxScale());
-			wmsOptions.setMinScale((float)layer.getMinScale());
+			wmsOptions.setMaxScale((float) layer.getMaxScale());
+			wmsOptions.setMinScale((float) layer.getMinScale());
 			
 			if(layer.getGeometryType().equals(GeometryType.POINT)){
 				layerParams.setLayers("kingdom:point");
@@ -1046,6 +1046,11 @@ public class MapView implements Display{
 		resortLayerZIndices(layers);
 		
 		// set OL Z indices
+		applyLayerZIndices(layers);
+	}
+	
+	private void applyLayerZIndices(List<KingdomLayer> layers){
+		// set OL Z indices
 		for(KingdomLayer layer : layers){
 			wmsLayerHashMap.get(layer).setZIndex(layer.getZIndex());
 			wfsLayerPackageHashMap.get(layer).getWfsLayer().setZIndex(layer.getZIndex());
@@ -1111,5 +1116,23 @@ public class MapView implements Display{
 		}
 		
 		return resolutions;
+	}
+	
+	@Override
+	public void reApplyLayerZIndices(){
+		// get a list of current layers without the grids
+		List<KingdomLayer> layers = new ArrayList<KingdomLayer>();
+		
+		for(KingdomLayer current : layerList){
+			if(!(current instanceof KingdomGridLayer)){
+				layers.add(current);
+			}
+		}
+		
+		// re-sort
+		resortLayerZIndices(layers);
+		
+		// apply Z-Indices
+		applyLayerZIndices(layers);
 	}
 }

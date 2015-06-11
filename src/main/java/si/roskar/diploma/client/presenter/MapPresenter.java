@@ -172,6 +172,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		void setSnapEnabled(boolean enabled);
 		
 		void setLayerOpacity(KingdomLayer layer, float opacity);
+		
+		void reApplyLayerZIndices();
 	}
 	
 	public interface AddMarkerDisplay extends View{
@@ -1043,34 +1045,46 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 						@Override
 						public void onSelect(SelectEvent event){
 							// apply new values to layer object
-							if(editLayerStyleDisplay.getLayer().getGeometryType().equals(GeometryType.POINT) || editLayerStyleDisplay.getLayer().getGeometryType().equals(GeometryType.MARKER)){
-								editLayerStyleDisplay.getLayer().setColor(editLayerStyleDisplay.getColor());
-								editLayerStyleDisplay.getLayer().setSize(editLayerStyleDisplay.getSize());
-								editLayerStyleDisplay.getLayer().setShape(editLayerStyleDisplay.getShapeComboBox().getValue());
-							}else if(editLayerStyleDisplay.getLayer().getGeometryType().equals(GeometryType.LINE)){
-								editLayerStyleDisplay.getLayer().setColor(editLayerStyleDisplay.getColor());
-								editLayerStyleDisplay.getLayer().setStrokeWidth(editLayerStyleDisplay.getSize());
-							}else if(editLayerStyleDisplay.getLayer().getGeometryType().equals(GeometryType.POLYGON)){
-								editLayerStyleDisplay.getLayer().setColor(editLayerStyleDisplay.getColor());
-								editLayerStyleDisplay.getLayer().setFillColor(editLayerStyleDisplay.getFillColor());
-								editLayerStyleDisplay.getLayer().setStrokeWidth(editLayerStyleDisplay.getSize());
-								editLayerStyleDisplay.getLayer().setStrokeOpacity(editLayerStyleDisplay.getStrokeOpacitySpinner().getValue());
-								editLayerStyleDisplay.getLayer().setFillOpacity(editLayerStyleDisplay.getFillOpacitySpinner().getValue());
+							KingdomLayer layer = editLayerStyleDisplay.getLayer();
+							
+							if(layer.getGeometryType().equals(GeometryType.POINT) || layer.getGeometryType().equals(GeometryType.MARKER)){
+								layer.setColor(editLayerStyleDisplay.getColor());
+								layer.setSize(editLayerStyleDisplay.getSize());
+								layer.setShape(editLayerStyleDisplay.getShapeComboBox().getValue());
+							}else if(layer.getGeometryType().equals(GeometryType.LINE)){
+								layer.setColor(editLayerStyleDisplay.getColor());
+								layer.setStrokeWidth(editLayerStyleDisplay.getSize());
+							}else if(layer.getGeometryType().equals(GeometryType.POLYGON)){
+								layer.setColor(editLayerStyleDisplay.getColor());
+								layer.setFillColor(editLayerStyleDisplay.getFillColor());
+								layer.setStrokeWidth(editLayerStyleDisplay.getSize());
+								layer.setStrokeOpacity(editLayerStyleDisplay.getStrokeOpacitySpinner().getValue());
+								layer.setFillOpacity(editLayerStyleDisplay.getFillOpacitySpinner().getValue());
 							}
 							
-							editLayerStyleDisplay.getLayer().setMaxScale(editLayerStyleDisplay.getLowerSliderScale());
-							editLayerStyleDisplay.getLayer().setMinScale(editLayerStyleDisplay.getUpperSliderScale());
+							layer.setMaxScale(editLayerStyleDisplay.getLowerSliderScale());
+							layer.setMinScale(editLayerStyleDisplay.getUpperSliderScale());
 							
 							editLayerStyleDisplay.hide();
 							
 							// update layer to db
-							updateLayerStyleDB(editLayerStyleDisplay.getLayer());
+							updateLayerStyleDB(layer);
 							
 							// re-apply layer env parameter
-							display.getCurrentOLWmsLayer().getParams().setParameter("env", display.getCurrentLayer().getEnvValues());
+							display.getCurrentOLWmsLayer().getParams().setParameter("env", layer.getEnvValues());
+							
+							// refresh layer maxscale and minscale
+							display.getOLMap().removeLayer(display.getCurrentOLWmsLayer());							
+							display.getCurrentOLWmsLayer().getOptions().setMaxScale((float)layer.getMaxScale());
+							display.getCurrentOLWmsLayer().getOptions().setMinScale((float)layer.getMinScale());
+							display.getOLMap().addLayer(display.getCurrentOLWmsLayer());
+							display.reApplyLayerZIndices();
 							
 							// redraw wms layer
 							display.getCurrentOLWmsLayer().redraw();
+							
+							// redraw layer tree
+							Bus.get().fireEvent(new EventMapScaleChanged(display.getOLMap().getScale()));
 						}
 					});
 					

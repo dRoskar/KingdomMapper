@@ -279,7 +279,7 @@ public class LayerView implements Display{
 	}
 	
 	@Override
-	public void updateLayersInScaleStyle(double scale){
+	public void refreshLayerTree(double scale){
 		this.currentScale = scale;
 		
 		// refresh tree items
