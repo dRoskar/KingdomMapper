@@ -68,20 +68,22 @@
 [X] loading bars
 [X] info indicators
 [X] populate with loading bars and info indicators
+[ ] user (security) integration
+	[ ] validation - no special chars
+	[ ] hash and salt strategy
+
 [ ] remember what user was looking at last
 [ ] measure
 [ ] Labels
 [ ] marker icons
 [ ] textures
-[ ] use .equals instead of compareTo (except for the sort class)
+[X] use .equals instead of compareTo (except for the sort class)
 [X] use JST for wkt to gml instead of your own crappy function
-[ ] user (security) integration
-	[ ] validation - no special chars
-	[ ] hash and salt strategy
-[ ] add different grid size choices
+	
 [ ] limit zoom out
+[ ] add different grid size choices
+
 [ ] add icon license
-[ ] line corner and ends styles
 
 
 ## LONG-TERM ##
@@ -92,6 +94,7 @@
 [ ] subtract shapes from lines and points
 [ ] print
 [ ] dash line style
+[ ] line corner and ends styles
 [ ] style editor preview (wms service)
 [ ] uploadable textures
 [ ] example: if a wfs feature is selected while rotating, switch to scaling and feature does not get unselected

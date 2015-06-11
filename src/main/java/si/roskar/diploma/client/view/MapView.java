@@ -118,10 +118,17 @@ public class MapView implements Display{
 		
 		OpenLayers.setProxyHost("olproxy?targetURL=");
 		
+		double[] scales = {2500000.0, 1000000.0, 500000.0, 250000.0, 100000.0, 50000.0, 25000.0, 10000.0, 5000.0, 2500.0, 1000.0, 500.0, 250.0, 100.0, 50.0, 25.0, 10.0};
+		
+		double[] resolutions = scalesToResolutions(scales);
+		
 		// define map options
 		MapOptions mapOptions = new MapOptions();
 		mapOptions.setMaxExtent(new Bounds(-109.545, 36.699, -101.545, 44.1));
-		mapOptions.setNumZoomLevels(21);
+//		mapOptions.setNumZoomLevels(21);
+		mapOptions.setResolutions(resolutions);
+		mapOptions.setMaxResolution((float) resolutions[0]);
+		mapOptions.setMinResolution((float) resolutions[resolutions.length - 1]);
 		mapOptions.setProjection("EPSG:4326");
 		mapOptions.setDisplayProjection(new Projection("EPSG:4326"));
 		mapOptions.setUnits(MapUnits.DEGREES);
@@ -1089,5 +1096,15 @@ public class MapView implements Display{
 			wmsLayer.setOpacity(opacity);
 			layer.setOpacity(opacity);
 		}
+	}
+	
+	private double[] scalesToResolutions(double [] scales){
+		double[] resolutions = new double[scales.length];
+		
+		for(int i = 0; i < scales.length; i++){
+			resolutions[i] = OpenLayers.Util.getResolutionFromScale(scales[i], MapUnits.DEGREES);
+		}
+		
+		return resolutions;
 	}
 }
