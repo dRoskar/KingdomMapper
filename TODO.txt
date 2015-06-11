@@ -72,26 +72,35 @@
 	[ ] validation - no special chars
 	[ ] hash and salt strategy
 
-[ ] remember what user was looking at last
+[.] Layer max and min scales
+	[X] DB integration
+	[X] client - DB communication
+	[X] layer visibility integration
+	[ ] layer tree dsiplay
+	[ ] layer editing gui controls
+	[ ] quicksetting button
+	
+[ ] remember what user was looking at last - save to map object; if it exists use it instead of zoomToStartingBounds() when loading map layers (adding map)
 [ ] measure
 [ ] Labels
 [ ] marker icons
 [ ] textures
+[ ] identify 
 [X] use .equals instead of compareTo (except for the sort class)
 [X] use JST for wkt to gml instead of your own crappy function
 	
-[ ] limit zoom out
-[ ] add different grid size choices
-
+[X] limit zoom out
 [ ] add icon license
 
 
 ## LONG-TERM ##
+[ ] all kinds of shapes on the same layer?
 [ ] drawing straight lines
 [ ] drawing line rectangles
 [ ] drawing line circles
 [ ] select (and edit) multiple features
 [ ] subtract shapes from lines and points
+[ ] add different grid size choices
 [ ] print
 [ ] dash line style
 [ ] line corner and ends styles

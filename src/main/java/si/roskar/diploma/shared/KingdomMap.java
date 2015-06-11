@@ -12,6 +12,7 @@ public class KingdomMap implements IsSerializable{
 	private MapSize				mapSize	= null;
 	private List<KingdomLayer>	layers	= null;
 	private KingdomUser			user	= null;
+	private double[] scales = null;
 	
 	public KingdomMap(){
 		layers = new ArrayList<KingdomLayer>();
@@ -65,5 +66,13 @@ public class KingdomMap implements IsSerializable{
 	
 	public void setUser(KingdomUser user){
 		this.user = user;
+	}
+
+	public double[] getScales(){
+		return scales;
+	}
+
+	public void setScales(double[] scales){
+		this.scales = scales;
 	}
 }

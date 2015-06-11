@@ -21,6 +21,8 @@ public class KingdomLayer implements IsSerializable{
 	private String			fillColor		= null;
 	private double			fillOpacity		= 1.0;
 	private double			strokeOpacity	= 1.0;
+	private double			maxScale		= 0.0;
+	private double			minScale		= 0.0;
 	
 	public KingdomLayer(){
 		
@@ -167,9 +169,29 @@ public class KingdomLayer implements IsSerializable{
 	public double getStrokeOpacity(){
 		return strokeOpacity;
 	}
-
+	
 	public void setStrokeOpacity(double strokeOpacity){
 		this.strokeOpacity = strokeOpacity;
+	}
+	
+	public double getMaxScale(){
+		return maxScale;
+	}
+
+	public void setMaxScale(double maxScale){
+		this.maxScale = maxScale;
+	}
+
+	public double getMinScale(){
+		return minScale;
+	}
+
+	public void setMinScale(double minScale){
+		this.minScale = minScale;
+	}
+	
+	public KingdomLayer getLayer(){
+		return this;
 	}
 
 	public String getEnvValues(){
@@ -217,5 +239,9 @@ public class KingdomLayer implements IsSerializable{
 		}else{
 			return null;
 		}
+	}
+	
+	public boolean isInScale(double scale){
+		return (scale >= maxScale && scale <= minScale);
 	}
 }

@@ -14,7 +14,12 @@ import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.editor.client.Editor.Path;
 import com.google.gwt.event.logical.shared.HasSelectionHandlers;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.text.shared.SafeHtmlRenderer;
 import com.google.gwt.user.client.ui.Widget;
+import com.sencha.gxt.cell.core.client.SimpleSafeHtmlCell;
 import com.sencha.gxt.core.client.Style.SelectionMode;
 import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.data.shared.ModelKeyProvider;
@@ -39,23 +44,24 @@ public class LayerView implements Display{
 		@Path("id")
 		ModelKeyProvider<KingdomLayer> key();
 		
-		@Path("name")
-		ValueProvider<KingdomLayer, String> nameProp();
+		@Path("layer")
+		ValueProvider<KingdomLayer, KingdomLayer> layer();
 	}
 	
-	private VerticalLayoutContainer		container			= null;
-	private TextButton					newMap				= null;
-	private TextButton					existingMaps		= null;
-	private TextButton					addLayer			= null;
-	private TextButton					deleteLayer			= null;
-	private TreeStore<KingdomLayer>		layerStore			= null;
-	private Tree<KingdomLayer, String>	layerTree			= null;
-	private ContentPanel				layerTreePanel		= null;
-	private KingdomUser					currentUser			= null;
-	private KingdomMap					currentMap			= null;
+	private VerticalLayoutContainer				container			= null;
+	private TextButton							newMap				= null;
+	private TextButton							existingMaps		= null;
+	private TextButton							addLayer			= null;
+	private TextButton							deleteLayer			= null;
+	private TreeStore<KingdomLayer>				layerStore			= null;
+	private Tree<KingdomLayer, KingdomLayer>	layerTree			= null;
+	private ContentPanel						layerTreePanel		= null;
+	private KingdomUser							currentUser			= null;
+	private KingdomMap							currentMap			= null;
+	private double								currentScale		= 0.0;
 	
-	private Menu						layerContextMenu	= null;
-	private Slider						opacitySlider		= null;
+	private Menu								layerContextMenu	= null;
+	private Slider								opacitySlider		= null;
 	
 	public LayerView(KingdomUser user){
 		LayerProperties properties = GWT.create(LayerProperties.class);
@@ -93,9 +99,22 @@ public class LayerView implements Display{
 		layerStore = new TreeStore<KingdomLayer>(properties.key());
 		layerStore.addSortInfo(sortInfo);
 		
-		layerTree = new Tree<KingdomLayer, String>(layerStore, properties.nameProp());
+		layerTree = new Tree<KingdomLayer, KingdomLayer>(layerStore, properties.layer());
 		layerTree.setCheckable(true);
 		layerTree.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+		layerTree.setCell(new SimpleSafeHtmlCell<KingdomLayer>(new SafeHtmlRenderer<KingdomLayer>() {
+			
+			@Override
+			public SafeHtml render(KingdomLayer object){
+				String color = (object.isInScale(currentScale) ? "black" : "gray");
+				
+				return SafeHtmlUtils.fromTrustedString("<div style=\"color:" + color + "\">" + object.getName() + "</div>");
+			}
+			
+			@Override
+			public void render(KingdomLayer object, SafeHtmlBuilder builder){
+			}
+		}));
 		
 		// layer tree context menu
 		layerContextMenu = new Menu();
@@ -233,7 +252,7 @@ public class LayerView implements Display{
 	}
 	
 	@Override
-	public Tree<KingdomLayer, String> getLayerTree(){
+	public Tree<KingdomLayer, KingdomLayer> getLayerTree(){
 		return layerTree;
 	}
 	
@@ -255,5 +274,15 @@ public class LayerView implements Display{
 	@Override
 	public Menu getContextMenu(){
 		return layerContextMenu;
+	}
+	
+	@Override
+	public void updateLayersInScaleStyle(double scale){
+		this.currentScale = scale;
+		
+		// refresh tree items
+		for(KingdomLayer layer : layerStore.getAll()){
+			layerTree.refresh(layer);
+		}
 	}
 }

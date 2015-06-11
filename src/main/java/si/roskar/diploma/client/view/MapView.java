@@ -97,7 +97,7 @@ public class MapView implements Display{
 	private ToggleButton									addHoleButton			= null;
 	private ToggleButton									snapButton				= null;
 	private ToggleGroup										editButtonToggleGroup	= null;
-	private KingdomMap										kingdomMap				= null;
+	private KingdomMap										currentMap				= null;
 	private ToolBar											editingToolbar			= null;
 	private KingdomLayer									currentLayer			= null;
 	private java.util.Map<KingdomLayer, WMS>				wmsLayerHashMap			= null;
@@ -113,19 +113,19 @@ public class MapView implements Display{
 	private List<KingdomLayer>								layerList				= null;
 	private Snapping										oldSnapControl			= null;
 	private RegularPolygonHandlerOptions					boxHandlerOptions		= null;
+	private double[]										scales					= null;
 	
 	public MapView(){
 		
 		OpenLayers.setProxyHost("olproxy?targetURL=");
 		
-		double[] scales = {2500000.0, 1000000.0, 500000.0, 250000.0, 100000.0, 50000.0, 25000.0, 10000.0, 5000.0, 2500.0, 1000.0, 500.0, 250.0, 100.0, 50.0, 25.0, 10.0};
+		scales = new double[]{ 2500000.0, 1000000.0, 500000.0, 250000.0, 100000.0, 50000.0, 25000.0, 10000.0, 5000.0, 2500.0, 1000.0, 500.0, 250.0, 100.0, 50.0, 25.0, 10.0 };
 		
 		double[] resolutions = scalesToResolutions(scales);
 		
 		// define map options
 		MapOptions mapOptions = new MapOptions();
 		mapOptions.setMaxExtent(new Bounds(-109.545, 36.699, -101.545, 44.1));
-//		mapOptions.setNumZoomLevels(21);
 		mapOptions.setResolutions(resolutions);
 		mapOptions.setMaxResolution((float) resolutions[0]);
 		mapOptions.setMinResolution((float) resolutions[resolutions.length - 1]);
@@ -303,14 +303,15 @@ public class MapView implements Display{
 	
 	@Override
 	public void addNewMap(KingdomMap newMap){
-		kingdomMap = newMap;
+		currentMap = newMap;
+		currentMap.setScales(scales);
 		
 		setUpLayers(newMap);
 	}
 	
 	@Override
-	public KingdomMap getMapObject(){
-		return kingdomMap;
+	public KingdomMap getCurrentMap(){
+		return currentMap;
 	}
 	
 	@Override
@@ -565,6 +566,9 @@ public class MapView implements Display{
 			layerParams.setLayers("kingdom:line");
 			layerParams.setCQLFilter("IN ('line." + ((KingdomGridLayer) layer).getDBKey() + "')");
 		}else{
+			wmsOptions.setMaxScale((float)layer.getMaxScale());
+			wmsOptions.setMinScale((float)layer.getMinScale());
+			
 			if(layer.getGeometryType().equals(GeometryType.POINT)){
 				layerParams.setLayers("kingdom:point");
 			}else if(layer.getGeometryType().equals(GeometryType.LINE)){
@@ -591,7 +595,7 @@ public class MapView implements Display{
 		
 		mapWidget.getMap().addLayer(wms);
 		
-		wms.setZIndex(layer.getZIndex());	
+		wms.setZIndex(layer.getZIndex());
 		
 		wmsLayerHashMap.put(layer, wms);
 		
@@ -754,7 +758,8 @@ public class MapView implements Display{
 				currentDrawControl.destroy();
 			}
 			
-			if(mode.equals(EditingMode.DRAW) || mode.equals(EditingMode.DRAW_RECTANGLE) || mode.equals(EditingMode.DRAW_ELLIPSE) || mode.equals(EditingMode.DRAW_SQUARE) || mode.equals(EditingMode.DRAW_CIRCLE)){
+			if(mode.equals(EditingMode.DRAW) || mode.equals(EditingMode.DRAW_RECTANGLE) || mode.equals(EditingMode.DRAW_ELLIPSE) || mode.equals(EditingMode.DRAW_SQUARE)
+					|| mode.equals(EditingMode.DRAW_CIRCLE)){
 				// enable drawing
 				currentDrawControl = createDrawFeatureControl(drawingLayer, mode);
 				mapWidget.getMap().addControl(currentDrawControl);
@@ -1098,7 +1103,7 @@ public class MapView implements Display{
 		}
 	}
 	
-	private double[] scalesToResolutions(double [] scales){
+	private double[] scalesToResolutions(double[] scales){
 		double[] resolutions = new double[scales.length];
 		
 		for(int i = 0; i < scales.length; i++){

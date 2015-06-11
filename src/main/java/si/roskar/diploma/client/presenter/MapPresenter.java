@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.gwtopenmaps.openlayers.client.Map;
 import org.gwtopenmaps.openlayers.client.control.DrawFeature;
+import org.gwtopenmaps.openlayers.client.event.EventHandler;
+import org.gwtopenmaps.openlayers.client.event.EventObject;
 import org.gwtopenmaps.openlayers.client.event.VectorFeatureAddedListener;
 import org.gwtopenmaps.openlayers.client.feature.VectorFeature;
 import org.gwtopenmaps.openlayers.client.layer.Vector;
@@ -24,6 +26,7 @@ import si.roskar.diploma.client.event.EventEnableDrawingToolbar;
 import si.roskar.diploma.client.event.EventEnableDrawingToolbar.EventEnableDrawingToolbarHandler;
 import si.roskar.diploma.client.event.EventEnableMapView;
 import si.roskar.diploma.client.event.EventGetSelectedLayer;
+import si.roskar.diploma.client.event.EventMapScaleChanged;
 import si.roskar.diploma.client.event.EventRemoveCurrentMap;
 import si.roskar.diploma.client.event.EventRemoveCurrentMap.EventRemoveCurrentMapHandler;
 import si.roskar.diploma.client.event.EventRemoveLayerFromMapView;
@@ -73,7 +76,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 	
 	public interface Display extends View{
 		
-		KingdomMap getMapObject();
+		KingdomMap getCurrentMap();
 		
 		void addNewMap(KingdomMap newMap);
 		
@@ -1110,6 +1113,15 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			@Override
 			public void onSetCurrentLayer(EventSetLayerOpacity event){
 				display.setLayerOpacity(event.getLayer(), event.getOpacity() / 100);
+			}
+		});
+		
+		// map zoomend
+		display.getOLMap().getEvents().register("zoomend", display.getOLMap(), new EventHandler(){
+
+			@Override
+			public void onHandle(EventObject eventObject){
+				Bus.get().fireEvent(new EventMapScaleChanged(Math.round(display.getOLMap().getScale())));
 			}
 		});
 	}

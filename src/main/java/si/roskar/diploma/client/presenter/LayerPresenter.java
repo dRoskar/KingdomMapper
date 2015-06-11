@@ -14,6 +14,8 @@ import si.roskar.diploma.client.event.EventEnableDrawingToolbar;
 import si.roskar.diploma.client.event.EventEnableMapView;
 import si.roskar.diploma.client.event.EventGetSelectedLayer;
 import si.roskar.diploma.client.event.EventGetSelectedLayer.EventGetSelectedLayerHandler;
+import si.roskar.diploma.client.event.EventMapScaleChanged;
+import si.roskar.diploma.client.event.EventMapScaleChanged.EventMapScaleChangedHandler;
 import si.roskar.diploma.client.event.EventRemoveCurrentMap;
 import si.roskar.diploma.client.event.EventRemoveLayerFromMapView;
 import si.roskar.diploma.client.event.EventSetCurrentLayer;
@@ -99,7 +101,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 		
 		void setLayerOpacitySliderValue(final float value);
 		
-		Tree<KingdomLayer, String> getLayerTree();
+		Tree<KingdomLayer, KingdomLayer> getLayerTree();
 		
 		HasSelectionHandlers<Item> getRenameLayerItem();
 		
@@ -108,6 +110,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 		KingdomLayer getSelectedLayer();
 		
 		Menu getContextMenu();
+		
+		void updateLayersInScaleStyle(double scale);
 	}
 	
 	public interface AddLayerDisplay extends View{
@@ -563,6 +567,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 								newLayer.setMap(display.getCurrentMap());
 								newLayer.setStyle("");
 								newLayer.setOpacity(1);
+								newLayer.setMaxScale(display.getCurrentMap().getScales()[display.getCurrentMap().getScales().length - 1]);
+								newLayer.setMinScale(display.getCurrentMap().getScales()[0]);
 								
 								// get all z indexes (except for the grid
 								// layer) and give this guy the highest one
@@ -903,6 +909,15 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 				Bus.get().fireEvent(new EventEnableMapView(true));
 				
 				KingdomInfo.hideLoadingBar();
+			}
+		});
+		
+		// handle map scale schanged
+		Bus.get().addHandler(EventMapScaleChanged.TYPE, new EventMapScaleChangedHandler(){
+
+			@Override
+			public void onMapScaleChanged(EventMapScaleChanged event){
+				display.updateLayersInScaleStyle(event.getScale());
 			}
 		});
 	}

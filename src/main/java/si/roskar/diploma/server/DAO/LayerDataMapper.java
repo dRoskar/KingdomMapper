@@ -34,6 +34,8 @@ public class LayerDataMapper implements RowMapper<KingdomLayer>{
 		layer.setFillColor(rs.getString("fill_color"));
 		layer.setFillOpacity(rs.getDouble("fill_opacity"));
 		layer.setStrokeOpacity(rs.getDouble("stroke_opacity"));
+		layer.setMaxScale(rs.getDouble("maxscale"));
+		layer.setMinScale(rs.getDouble("minscale"));
 		
 		return layer;
 	}
