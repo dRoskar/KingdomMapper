@@ -62,6 +62,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.sencha.gxt.widget.core.client.ColorPalette;
+import com.sencha.gxt.widget.core.client.Slider;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.button.ToggleButton;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
@@ -232,6 +233,14 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		DoubleSpinnerField getStrokeOpacitySpinner();
 		
 		DoubleSpinnerField getFillOpacitySpinner();
+		
+		Slider getUpperLimitSlider();
+		
+		Slider getLowerLimitSlider();
+		
+		double getUpperSliderScale();
+		
+		double getLowerSliderScale();
 	}
 	
 	private AddMarkerDisplay		addMarkerDisplay		= null;
@@ -1024,7 +1033,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			@Override
 			public void onSelect(SelectEvent event){
 				// show edit layer style window
-				editLayerStyleDisplay = new EditLayerStyleWindow(display.getCurrentLayer());
+				editLayerStyleDisplay = new EditLayerStyleWindow(display.getCurrentLayer(), display.getCurrentMap().getScales());
 				
 				// bind events
 				if(!editLayerStyleDisplay.isBound()){
@@ -1033,6 +1042,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 						
 						@Override
 						public void onSelect(SelectEvent event){
+							// apply new values to layer object
 							if(editLayerStyleDisplay.getLayer().getGeometryType().equals(GeometryType.POINT) || editLayerStyleDisplay.getLayer().getGeometryType().equals(GeometryType.MARKER)){
 								editLayerStyleDisplay.getLayer().setColor(editLayerStyleDisplay.getColor());
 								editLayerStyleDisplay.getLayer().setSize(editLayerStyleDisplay.getSize());
@@ -1047,6 +1057,9 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 								editLayerStyleDisplay.getLayer().setStrokeOpacity(editLayerStyleDisplay.getStrokeOpacitySpinner().getValue());
 								editLayerStyleDisplay.getLayer().setFillOpacity(editLayerStyleDisplay.getFillOpacitySpinner().getValue());
 							}
+							
+							editLayerStyleDisplay.getLayer().setMaxScale(editLayerStyleDisplay.getLowerSliderScale());
+							editLayerStyleDisplay.getLayer().setMinScale(editLayerStyleDisplay.getUpperSliderScale());
 							
 							editLayerStyleDisplay.hide();
 							

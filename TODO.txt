@@ -76,7 +76,7 @@
 	[X] DB integration
 	[X] client - DB communication
 	[X] layer visibility integration
-	[ ] layer tree dsiplay
+	[X] layer tree dsiplay
 	[ ] layer editing gui controls
 	[ ] quicksetting button
 	
@@ -106,6 +106,7 @@
 [ ] line corner and ends styles
 [ ] style editor preview (wms service)
 [ ] uploadable textures
+[ ] duplicate layer
 [ ] example: if a wfs feature is selected while rotating, switch to scaling and feature does not get unselected
 
 ## BUGS ##

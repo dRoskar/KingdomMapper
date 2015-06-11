@@ -12,6 +12,7 @@ import com.sencha.gxt.cell.core.client.form.ComboBoxCell.TriggerAction;
 import com.sencha.gxt.data.shared.LabelProvider;
 import com.sencha.gxt.widget.core.client.ColorPalette;
 import com.sencha.gxt.widget.core.client.ContentPanel;
+import com.sencha.gxt.widget.core.client.Slider;
 import com.sencha.gxt.widget.core.client.Window;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.container.BoxLayoutContainer.BoxLayoutPack;
@@ -42,9 +43,13 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 	private ColorPickerWindow		colorPickerWindow				= null;
 	private ClickHandler			colorPaletteClickHandler		= null;
 	private ClickHandler			fillColorPaletteClickHandler	= null;
+	private double[]				scales							= null;
+	private Slider					upperLimitSlider				= null;
+	private Slider					lowerLimitSlider				= null;
 	
-	public EditLayerStyleWindow(KingdomLayer layer){
+	public EditLayerStyleWindow(KingdomLayer layer, double[] scales){
 		this.layer = layer;
+		this.scales = scales;
 		setUp();
 	}
 	
@@ -163,6 +168,22 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 		shapeComboBox.setValue(layer.getShape());
 		layoutContainer.add(new FieldLabel(shapeComboBox, "Shape"));
 		
+		upperLimitSlider = new Slider();
+		upperLimitSlider.setIncrement(1);
+		upperLimitSlider.setMinValue(1);
+		upperLimitSlider.setMaxValue(scales.length);
+		upperLimitSlider.setMessage("Layer will be invisible until zoom level {0}");
+		upperLimitSlider.setValue(getScaleIndex(layer.getMinScale(), true));
+		layoutContainer.add(new FieldLabel(upperLimitSlider, "Upper visibility limit"));
+		
+		lowerLimitSlider = new Slider();
+		lowerLimitSlider.setIncrement(1);
+		lowerLimitSlider.setMinValue(1);
+		lowerLimitSlider.setMaxValue(scales.length);
+		lowerLimitSlider.setMessage("Layer will become invisible after zoom level {0}");
+		lowerLimitSlider.setValue(getScaleIndex(layer.getMaxScale(), false));
+		layoutContainer.add(new FieldLabel(lowerLimitSlider, "Lower visibility limit"));
+		
 		return layoutContainer;
 	}
 	
@@ -187,6 +208,22 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 		sizeSpinner.setEditable(false);
 		sizeSpinner.setValue(layer.getStrokeWidth());
 		layoutContainer.add(new FieldLabel(sizeSpinner, "Stroke width"));
+		
+		upperLimitSlider = new Slider();
+		upperLimitSlider.setIncrement(1);
+		upperLimitSlider.setMinValue(1);
+		upperLimitSlider.setMaxValue(scales.length);
+		upperLimitSlider.setMessage("Layer will be invisible until zoom level {0}");
+		upperLimitSlider.setValue(getScaleIndex(layer.getMinScale(), true));
+		layoutContainer.add(new FieldLabel(upperLimitSlider, "Upper visibility limit"));
+		
+		lowerLimitSlider = new Slider();
+		lowerLimitSlider.setIncrement(1);
+		lowerLimitSlider.setMinValue(1);
+		lowerLimitSlider.setMaxValue(scales.length);
+		lowerLimitSlider.setMessage("Layer will become invisible after zoom level {0}");
+		lowerLimitSlider.setValue(getScaleIndex(layer.getMaxScale(), false));
+		layoutContainer.add(new FieldLabel(lowerLimitSlider, "Lower visibility limit"));
 		
 		return layoutContainer;
 	}
@@ -240,6 +277,22 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 		fillOpacitySpinner.getPropertyEditor().setFormat(NumberFormat.getFormat("0.0"));
 		fillOpacitySpinner.setValue(layer.getFillOpacity());
 		layoutContainer.add(new FieldLabel(fillOpacitySpinner, "Fill opacity"));
+		
+		upperLimitSlider = new Slider();
+		upperLimitSlider.setIncrement(1);
+		upperLimitSlider.setMinValue(1);
+		upperLimitSlider.setMaxValue(scales.length);
+		upperLimitSlider.setMessage("Layer will be invisible until zoom level {0}");
+		upperLimitSlider.setValue(getScaleIndex(layer.getMinScale(), true));
+		layoutContainer.add(new FieldLabel(upperLimitSlider, "Upper visibility limit"));
+		
+		lowerLimitSlider = new Slider();
+		lowerLimitSlider.setIncrement(1);
+		lowerLimitSlider.setMinValue(1);
+		lowerLimitSlider.setMaxValue(scales.length);
+		lowerLimitSlider.setMessage("Layer will become invisible after zoom level {0}");
+		lowerLimitSlider.setValue(getScaleIndex(layer.getMaxScale(), false));
+		layoutContainer.add(new FieldLabel(lowerLimitSlider, "Lower visibility limit"));
 		
 		return layoutContainer;
 	}
@@ -343,5 +396,39 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 	@Override
 	public DoubleSpinnerField getFillOpacitySpinner(){
 		return fillOpacitySpinner;
+	}
+	
+	@Override
+	public Slider getUpperLimitSlider(){
+		return upperLimitSlider;
+	}
+	
+	@Override
+	public Slider getLowerLimitSlider(){
+		return lowerLimitSlider;
+	}
+	
+	@Override
+	public double getUpperSliderScale(){
+		return scales[upperLimitSlider.getValue() - 1];
+	}
+	
+	@Override
+	public double getLowerSliderScale(){
+		return scales[upperLimitSlider.getValue() - 1];
+	}
+	
+	private int getScaleIndex(double scale, boolean upper){
+		for(int i = 0; i < scales.length; i++){
+			if(Math.round(scale) == Math.round(scales[i])){
+				return (i + 1);
+			}
+		}
+		
+		if(upper){
+			return 1;
+		}else{
+			return scales.length;
+		}
 	}
 }

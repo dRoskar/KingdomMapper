@@ -121,6 +121,8 @@ public class LayerView implements Display{
 		
 		opacitySlider = new Slider();
 		opacitySlider.setSize("80px", "auto");
+		opacitySlider.setMinValue(0);
+		opacitySlider.setMaxValue(100);
 		opacitySlider.setLayoutData(new VerticalLayoutData(1, 1));
 		opacitySlider.setTitle("opacity");
 		

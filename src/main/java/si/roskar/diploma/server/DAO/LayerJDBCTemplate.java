@@ -86,9 +86,9 @@ public class LayerJDBCTemplate{
 		return true;
 	}
 	
-	public boolean updateLayerState(int layerId, boolean visibility, int zIndex, float opacity, double maxScale, double minScale){
+	public boolean updateLayerState(int layerId, boolean visibility, int zIndex, float opacity){
 		String visibilityString = visibility == true ? "TRUE" : "FALSE";
-		String SQL = "UPDATE public.\"Layer\" SET visibility = " + visibilityString + ", z_index = " + zIndex + ", opacity = " + opacity + ", maxscale = " + maxScale + ", minscale = " + minScale + " WHERE id = " + layerId;
+		String SQL = "UPDATE public.\"Layer\" SET visibility = " + visibilityString + ", z_index = " + zIndex + ", opacity = " + opacity + " WHERE id = " + layerId;
 		jdbcTemplateObject.update(SQL);
 		
 		return true;
@@ -107,13 +107,13 @@ public class LayerJDBCTemplate{
 		return true;
 	}
 	
-	public boolean updateLayerStyle(int layerId, String style, String color, int size, String shape, String fillColor, int strokeWidth, double fillOpacity, double strokeOpacity){
+	public boolean updateLayerStyle(int layerId, String style, String color, int size, String shape, String fillColor, int strokeWidth, double fillOpacity, double strokeOpacity, double maxScale, double minScale){
 		style = style == null ? "" : style;
 		color = color == null ? "" : color;
 		shape = shape == null ? "" : shape;
 		fillColor = fillColor == null ? "" : fillColor;	
 		
-		String SQL = "UPDATE public.\"Layer\" SET style = '" + style + "', color = '" + color + "', size = " + size + ", shape = '" + shape + "', fill_color = '" + fillColor + "', stroke_width = " + strokeWidth + ", fill_opacity = " + fillOpacity + ", stroke_opacity = " + strokeOpacity + "  WHERE id = " + layerId;
+		String SQL = "UPDATE public.\"Layer\" SET style = '" + style + "', color = '" + color + "', size = " + size + ", shape = '" + shape + "', fill_color = '" + fillColor + "', stroke_width = " + strokeWidth + ", fill_opacity = " + fillOpacity + ", stroke_opacity = " + strokeOpacity + ", maxscale = " + maxScale + ", minscale = " + minScale + "  WHERE id = " + layerId;
 		jdbcTemplateObject.update(SQL);
 		
 		return true;
