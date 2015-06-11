@@ -161,6 +161,10 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		TextButton getEditLayerStyleButton();
 		
+		TextButton getSetUpperLimitButton();
+		
+		TextButton getSetLowerLimitButton();
+		
 		void bringLayerToFront(KingdomLayer selectedLayer);
 		
 		void sendLayerToBack(KingdomLayer selectedLayer);
@@ -174,6 +178,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		void setLayerOpacity(KingdomLayer layer, float opacity);
 		
 		void reApplyLayerZIndices();
+		
+		void refreshLayerScaleLimit(KingdomLayer layer);
 	}
 	
 	public interface AddMarkerDisplay extends View{
@@ -1074,11 +1080,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 							display.getCurrentOLWmsLayer().getParams().setParameter("env", layer.getEnvValues());
 							
 							// refresh layer maxscale and minscale
-							display.getOLMap().removeLayer(display.getCurrentOLWmsLayer());							
-							display.getCurrentOLWmsLayer().getOptions().setMaxScale((float)layer.getMaxScale());
-							display.getCurrentOLWmsLayer().getOptions().setMinScale((float)layer.getMinScale());
-							display.getOLMap().addLayer(display.getCurrentOLWmsLayer());
-							display.reApplyLayerZIndices();
+							display.refreshLayerScaleLimit(layer);
 							
 							// redraw wms layer
 							display.getCurrentOLWmsLayer().redraw();
@@ -1100,6 +1102,46 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				}
 				
 				editLayerStyleDisplay.show();
+			}
+		});
+		
+		// handle set upper limit button click
+		display.getSetUpperLimitButton().addSelectHandler(new SelectHandler() {
+			
+			@Override
+			public void onSelect(SelectEvent event){
+				// update object
+				KingdomLayer layer = display.getCurrentLayer();
+				layer.setMinScale((float)display.getOLMap().getScale());
+				
+				// update wms layer
+				display.getCurrentOLWmsLayer().getOptions().setMinScale((float)display.getOLMap().getScale());
+				
+				// refresh view
+				display.refreshLayerScaleLimit(layer);
+				
+				// save layer style to db
+				updateLayerStyleDB(layer);
+			}
+		});
+		
+		// handle set lower limit button click
+		display.getSetLowerLimitButton().addSelectHandler(new SelectHandler() {
+			
+			@Override
+			public void onSelect(SelectEvent event){
+				// update object
+				KingdomLayer layer = display.getCurrentLayer();
+				layer.setMaxScale((float)display.getOLMap().getScale());
+				
+				// update wms layer
+				display.getCurrentOLWmsLayer().getOptions().setMaxScale((float)display.getOLMap().getScale());
+				
+				// refresh view
+				display.refreshLayerScaleLimit(layer);
+				
+				// save layer style to db
+				updateLayerStyleDB(layer);
 			}
 		});
 		

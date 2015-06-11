@@ -81,6 +81,8 @@ public class MapView implements Display{
 	private TextButton										bringToFrontButton		= null;
 	private TextButton										sendToBackButton		= null;
 	private TextButton										editLayerStyleButton	= null;
+	private TextButton										setUpperLimitButton		= null;
+	private TextButton										setLowerLimitButton		= null;
 	private ToggleButton									grid					= null;
 	private TextButton										saveMapStateButton		= null;
 	private ToggleButton									drawButton				= null;
@@ -253,6 +255,14 @@ public class MapView implements Display{
 		editLayerStyleButton.setIcon(Resources.ICONS.layerStyle());
 		editLayerStyleButton.setToolTip("Edit layer style");
 		
+		setUpperLimitButton = new TextButton();
+		setUpperLimitButton.setIcon(Resources.ICONS.upperLimit());
+		setUpperLimitButton.setToolTip("Set current zoomlevel as upper limit for this layer");
+		
+		setLowerLimitButton = new TextButton();
+		setLowerLimitButton.setIcon(Resources.ICONS.lowerLimit());
+		setLowerLimitButton.setToolTip("Set current zoomlevel as lower limit for this layer");
+		
 		editButtonToggleGroup = new ToggleGroup();
 		editButtonToggleGroup.add(drawButton);
 		editButtonToggleGroup.add(drawRectangleButton);
@@ -284,6 +294,8 @@ public class MapView implements Display{
 		editingToolbar.add(bringToFrontButton);
 		editingToolbar.add(sendToBackButton);
 		editingToolbar.add(editLayerStyleButton);
+		editingToolbar.add(setUpperLimitButton);
+		editingToolbar.add(setLowerLimitButton);
 		editingToolbar.disable();
 		
 		// create map container
@@ -993,6 +1005,16 @@ public class MapView implements Display{
 	}
 	
 	@Override
+	public TextButton getSetUpperLimitButton(){
+		return setUpperLimitButton;
+	}
+	
+	@Override
+	public TextButton getSetLowerLimitButton(){
+		return setLowerLimitButton;
+	}
+	
+	@Override
 	public void bringLayerToFront(KingdomLayer selectedLayer){
 		// get a list of current layers without the grids
 		List<KingdomLayer> layers = new ArrayList<KingdomLayer>();
@@ -1134,5 +1156,16 @@ public class MapView implements Display{
 		
 		// apply Z-Indices
 		applyLayerZIndices(layers);
+	}
+	
+	@Override
+	public void refreshLayerScaleLimit(KingdomLayer layer){
+		WMS wmsLayer = getCurrentOLWmsLayer();
+		
+		mapWidget.getMap().removeLayer(wmsLayer);							
+		wmsLayer.getOptions().setMaxScale((float)layer.getMaxScale());
+		wmsLayer.getOptions().setMinScale((float)layer.getMinScale());
+		mapWidget.getMap().addLayer(wmsLayer);
+		reApplyLayerZIndices();
 	}
 }

@@ -131,6 +131,12 @@ public class Resources{
 		
 		@Source ("rename.png")
 		ImageResource rename();
+		
+		@Source ("upper_limit.png")
+		ImageResource upperLimit();
+		
+		@Source ("lower_limit.png")
+		ImageResource lowerLimit();
 	}
 	
 	public static final Icons	ICONS	= GWT.create(Icons.class);
