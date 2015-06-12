@@ -6,9 +6,11 @@ import java.util.List;
 import org.gwtopenmaps.openlayers.client.Bounds;
 import org.gwtopenmaps.openlayers.client.Map;
 import org.gwtopenmaps.openlayers.client.control.DrawFeature;
-import org.gwtopenmaps.openlayers.client.control.Measure;
+import org.gwtopenmaps.openlayers.client.event.ControlActivateListener;
 import org.gwtopenmaps.openlayers.client.event.EventHandler;
 import org.gwtopenmaps.openlayers.client.event.EventObject;
+import org.gwtopenmaps.openlayers.client.event.MeasureEvent;
+import org.gwtopenmaps.openlayers.client.event.MeasurePartialListener;
 import org.gwtopenmaps.openlayers.client.event.VectorFeatureAddedListener;
 import org.gwtopenmaps.openlayers.client.feature.VectorFeature;
 import org.gwtopenmaps.openlayers.client.layer.Vector;
@@ -46,6 +48,7 @@ import si.roskar.diploma.client.util.KingdomMeasure;
 import si.roskar.diploma.client.util.WFSLayerPackage;
 import si.roskar.diploma.client.view.AddMarkerDialog;
 import si.roskar.diploma.client.view.EditLayerStyleWindow;
+import si.roskar.diploma.client.view.MeasureDisplayWindow;
 import si.roskar.diploma.client.view.View;
 import si.roskar.diploma.shared.EditingMode;
 import si.roskar.diploma.shared.GeometryType;
@@ -53,11 +56,13 @@ import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
 import si.roskar.diploma.shared.KingdomVectorFeature;
 
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.ClosingEvent;
 import com.google.gwt.user.client.Window.ClosingHandler;
@@ -134,9 +139,9 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		void setCurrentLayer(KingdomLayer currentLayer);
 		
-//		ToggleButton getMeasureDistanceButton();
-//		
-//		ToggleButton getMeasureAreaButton();
+		ToggleButton getMeasureDistanceButton();
+		
+		ToggleButton getMeasureAreaButton();
 		
 		ToggleButton getGridButton();
 		
@@ -180,9 +185,9 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		TextButton getSaveMapStateButton();
 		
-//		KingdomMeasure getMeasureDistanceControl();
-//		
-//		KingdomMeasure getMeasureAreaControl();
+		KingdomMeasure getMeasureDistanceControl();
+		
+		KingdomMeasure getMeasureAreaControl();
 		
 		void setSnapEnabled(boolean enabled);
 		
@@ -262,13 +267,33 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		double getLowerSliderScale();
 	}
 	
+	public interface MeasureDisplay extends View{
+		void show();
+		
+		void hide();
+		
+		void setPosition(int left, int top);
+		
+		void setMeasurementText(String text);
+		
+		boolean isVisible();
+		
+		int getWidth();
+		
+		int getHeight();
+		
+		void resetPosition(Element viewport, int padding);
+	}
+	
 	private AddMarkerDisplay		addMarkerDisplay		= null;
 	private EditLayerStyleDisplay	editLayerStyleDisplay	= null;
+	private MeasureDisplay			measureDisplay			= null;
 	
 	public MapPresenter(Display display){
 		super(display);
 		
 		addMarkerDisplay = new AddMarkerDialog();
+		measureDisplay = new MeasureDisplayWindow();
 	}
 	
 	@Override
@@ -1188,35 +1213,88 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			}
 		}, KeyDownEvent.getType());
 		
-//		// handle measure distance toggle
-//		display.getMeasureDistanceButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-//			
-//			@Override
-//			public void onValueChange(ValueChangeEvent<Boolean> event){
-//				KingdomMeasure measure = display.getMeasureDistanceControl();
-//				
-//				if(event.getValue()){
-//					measure.activate();
-//				}else{
-//					measure.deactivate();
-//				}
-//			}
-//		});
-//		
-//		// handle measure area toggle
-//		display.getMeasureAreaButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-//			
-//			@Override
-//			public void onValueChange(ValueChangeEvent<Boolean> event){
-//				KingdomMeasure measure = display.getMeasureAreaControl();
-//				
-//				if(event.getValue()){
-//					measure.activate();
-//				}else{
-//					measure.deactivate();
-//				}
-//			}
-//		});
+		// handle measure distance toggle
+		display.getMeasureDistanceButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+			
+			@Override
+			public void onValueChange(ValueChangeEvent<Boolean> event){
+				KingdomMeasure measure = display.getMeasureDistanceControl();
+				
+				if(event.getValue()){
+					measure.activate();
+					measureDisplay.hide();
+				}else{
+					measure.deactivate();
+					display.reApplyLayerZIndices();
+					measureDisplay.hide();
+				}
+			}
+		});
+		
+		// handle measure area toggle
+		display.getMeasureAreaButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+			
+			@Override
+			public void onValueChange(ValueChangeEvent<Boolean> event){
+				KingdomMeasure measure = display.getMeasureAreaControl();
+				
+				if(event.getValue()){
+					measure.activate();
+					measureDisplay.hide();
+				}else{
+					measure.deactivate();
+					display.reApplyLayerZIndices();
+					measureDisplay.hide();
+				}
+			}
+		});
+		
+		// measure view activation listener
+		// Measure view activation listener.
+		ControlActivateListener cal = new ControlActivateListener() {
+			
+			@Override
+			public void onActivate(ControlActivateEvent eventObject){
+				eventObject.getSource().getLayer().addVectorFeatureAddedListener(new VectorFeatureAddedListener() {
+					
+					@Override
+					public void onFeatureAdded(FeatureAddedEvent eventObject){
+						if(!measureDisplay.isVisible()){
+							// show measurement window
+							measureDisplay.show();
+							
+							// position the measurement window in the bottom
+							// right corner of the map view
+							measureDisplay.resetPosition(display.getOLMap().getViewport(), 10);
+						}
+					}
+				});
+			}
+		};
+		
+		// add measure distance activate listener
+		display.getMeasureDistanceControl().addControlActivateListener(cal);
+		
+		// add measure area activate listener
+		display.getMeasureAreaControl().addControlActivateListener(cal);
+		
+		// measure distance partial display handler
+		display.getMeasureDistanceControl().addMeasurePartialListener(new MeasurePartialListener() {
+			
+			@Override
+			public void onMeasurePartial(MeasureEvent eventObject){
+				measureDisplay.setMeasurementText(NumberFormat.getFormat("0.000").format(eventObject.getMeasure()) + " " + eventObject.getUnits());
+			}
+		});
+		
+		// measure area partial display handler
+		display.getMeasureAreaControl().addMeasurePartialListener(new MeasurePartialListener() {
+			
+			@Override
+			public void onMeasurePartial(MeasureEvent eventObject){
+				measureDisplay.setMeasurementText(NumberFormat.getFormat("0.000").format(eventObject.getMeasure()) + " " + eventObject.getUnits() + "²");
+			}
+		});
 		
 		// handle save map state button click
 		display.getSaveMapStateButton().addSelectHandler(new SelectHandler() {

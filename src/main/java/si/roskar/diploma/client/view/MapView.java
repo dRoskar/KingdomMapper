@@ -154,9 +154,11 @@ public class MapView implements Display{
 		drawingLayer = new Vector("drawingLayer");
 		drawingLayer.setIsVisible(false);
 		
-		map.addControl(new ScaleLine());
+		ScaleLine scaleLine = new ScaleLine();
+		scaleLine.getJSObject().setProperty("geodesic", true);
+		map.addControl(scaleLine);
 		
-//		createNewMeasureControls();
+		createNewMeasureControls();
 		
 		// create navigation toolbar
 		ToolBar navigationToolbar = new ToolBar();
@@ -178,17 +180,17 @@ public class MapView implements Display{
 		grid.setToolTip("Show/hide grid");
 		grid.setValue(true);
 		
-//		measureDistanceButton = new ToggleButton();
-//		measureDistanceButton.setIcon(Resources.ICONS.measureDistance());
-//		measureDistanceButton.setToolTip("Measure distance");
-//		
-//		measureAreaButton = new ToggleButton();
-//		measureAreaButton.setIcon(Resources.ICONS.measureArea());
-//		measureAreaButton.setToolTip("Measure area");
+		measureDistanceButton = new ToggleButton();
+		measureDistanceButton.setIcon(Resources.ICONS.measureDistance());
+		measureDistanceButton.setToolTip("Measure distance");
+		//
+		measureAreaButton = new ToggleButton();
+		measureAreaButton.setIcon(Resources.ICONS.measureArea());
+		measureAreaButton.setToolTip("Measure area");
 		
-//		ToggleGroup navigationGroup = new ToggleGroup();
-//		navigationGroup.add(measureDistanceButton);
-//		navigationGroup.add(measureAreaButton);
+		ToggleGroup navigationGroup = new ToggleGroup();
+		navigationGroup.add(measureDistanceButton);
+		navigationGroup.add(measureAreaButton);
 		
 		saveMapStateButton = new TextButton();
 		saveMapStateButton.setIcon(Resources.ICONS.mapSave());
@@ -198,8 +200,8 @@ public class MapView implements Display{
 		navigationToolbar.add(navigateBack);
 		navigationToolbar.add(navigateForward);
 		navigationToolbar.add(grid);
-//		navigationToolbar.add(measureDistanceButton);
-//		navigationToolbar.add(measureAreaButton);
+		navigationToolbar.add(measureDistanceButton);
+		navigationToolbar.add(measureAreaButton);
 		navigationToolbar.add(saveMapStateButton);
 		
 		// create drawing toolbar
@@ -1110,11 +1112,8 @@ public class MapView implements Display{
 		
 		resortLayerZIndices(layers);
 		
-		// set OL Z indices; get highest z index
-		for(KingdomLayer layer : layers){
-			wmsLayerHashMap.get(layer).setZIndex(layer.getZIndex());
-			wfsLayerPackageHashMap.get(layer).getWfsLayer().setZIndex(layer.getZIndex());
-		}
+		// set OL Z indices
+		applyLayerZIndices(layers);
 	}
 	
 	@Override
@@ -1169,30 +1168,30 @@ public class MapView implements Display{
 		return layerList;
 	}
 	
-//	@Override
-//	public ToggleButton getMeasureDistanceButton(){
-//		return measureDistanceButton;
-//	}
-//	
-//	@Override
-//	public ToggleButton getMeasureAreaButton(){
-//		return measureAreaButton;
-//	}
+	@Override
+	public ToggleButton getMeasureDistanceButton(){
+		return measureDistanceButton;
+	}
+	
+	@Override
+	public ToggleButton getMeasureAreaButton(){
+		return measureAreaButton;
+	}
 	
 	@Override
 	public TextButton getSaveMapStateButton(){
 		return saveMapStateButton;
 	}
 	
-//	@Override
-//	public KingdomMeasure getMeasureDistanceControl(){
-//		return measureDistanceControl;
-//	};
-//	
-//	@Override
-//	public KingdomMeasure getMeasureAreaControl(){
-//		return measureAreaContol;
-//	}
+	@Override
+	public KingdomMeasure getMeasureDistanceControl(){
+		return measureDistanceControl;
+	};
+	
+	@Override
+	public KingdomMeasure getMeasureAreaControl(){
+		return measureAreaContol;
+	}
 	
 	@Override
 	public void setSnapEnabled(boolean enabled){
