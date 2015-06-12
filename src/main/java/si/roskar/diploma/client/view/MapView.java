@@ -528,6 +528,16 @@ public class MapView implements Display{
 		mapWidget.getMap().zoomToExtent(new Bounds(-105.591875, 40.365717041016, -105.498125, 40.433282958984));
 	}
 	
+	private void zoomToBounds(Bounds bounds, int zoomLevel){
+		if(mapWidget == null || mapWidget.getMap() == null || mapWidget.getMap().getLayers().length == 0){
+			return;
+		}
+		
+		
+		mapWidget.getMap().zoomToExtent(bounds);
+		mapWidget.getMap().zoomTo(zoomLevel);
+	}
+	
 	private void setUpLayers(KingdomMap map){
 		layerList = new ArrayList<KingdomLayer>();
 		
@@ -558,7 +568,11 @@ public class MapView implements Display{
 			addLayer(layer);
 		}
 		
-		zoomToStartingBounds();
+		if(map.getPreviousView() == null){
+			zoomToStartingBounds();
+		}else{
+			zoomToBounds(map.getPreviousView(), map.getPreviousZoomLevel());
+		}
 	}
 	
 	@Override
@@ -1162,9 +1176,9 @@ public class MapView implements Display{
 	public void refreshLayerScaleLimit(KingdomLayer layer){
 		WMS wmsLayer = getCurrentOLWmsLayer();
 		
-		mapWidget.getMap().removeLayer(wmsLayer);							
-		wmsLayer.getOptions().setMaxScale((float)layer.getMaxScale());
-		wmsLayer.getOptions().setMinScale((float)layer.getMinScale());
+		mapWidget.getMap().removeLayer(wmsLayer);
+		wmsLayer.getOptions().setMaxScale((float) layer.getMaxScale());
+		wmsLayer.getOptions().setMinScale((float) layer.getMinScale());
 		mapWidget.getMap().addLayer(wmsLayer);
 		reApplyLayerZIndices();
 	}

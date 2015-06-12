@@ -21,6 +21,14 @@ public class MapDataMapper implements RowMapper<KingdomMap>{
 		
 		map.setUser(user);
 		
+		if(rs.getDouble("lower_left_x") != 0.0 && rs.getDouble("lower_left_y") != 0.0 && rs.getDouble("upper_right_x") != 0.0 && rs.getDouble("upper_right_y") != 0.0){
+			map.setPreviousViewllx(rs.getDouble("lower_left_x"));
+			map.setPreviousViewlly(rs.getDouble("lower_left_y"));
+			map.setPreviousViewurx(rs.getDouble("upper_right_x"));
+			map.setPreviousViewury(rs.getDouble("upper_right_y"));
+			map.setPreviousZoomLevel(rs.getInt("previous_zoom"));
+		}
+		
 		return map;
 	}
 }

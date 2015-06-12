@@ -917,7 +917,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 
 			@Override
 			public void onMapScaleChanged(EventMapScaleChanged event){
-				display.refreshLayerTree(event.getScale());
+				display.refreshLayerTree(Math.round(event.getScale()));
 			}
 		});
 	}

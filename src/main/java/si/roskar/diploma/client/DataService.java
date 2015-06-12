@@ -33,6 +33,8 @@ public interface DataService extends RemoteService{
 	
 	KingdomMap updateMapName(KingdomMap map);
 	
+	boolean updateMapPreviousView(KingdomMap map);
+	
 	boolean deleteLayer(KingdomLayer layer);
 	
 	boolean updateLayers(List<KingdomLayer> layers);

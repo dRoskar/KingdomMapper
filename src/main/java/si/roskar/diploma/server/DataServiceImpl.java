@@ -99,6 +99,11 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		
 		return map;
 	}
+	
+	@Override
+	public boolean updateMapPreviousView(KingdomMap map){
+		return mapJdbcTemplate.updatePreviousView(map.getId(), map.getPreviousViewllx(), map.getPreviousViewlly(), map.getPreviousViewurx(), map.getPreviousViewury(), map.getPreviousZoomLevel());
+	}
 	// =========================================
 	
 	// ===== ===== LAYER DATA SERVICES ===== =====

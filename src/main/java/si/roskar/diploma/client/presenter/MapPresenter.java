@@ -3,6 +3,7 @@ package si.roskar.diploma.client.presenter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.gwtopenmaps.openlayers.client.Bounds;
 import org.gwtopenmaps.openlayers.client.Map;
 import org.gwtopenmaps.openlayers.client.control.DrawFeature;
 import org.gwtopenmaps.openlayers.client.event.EventHandler;
@@ -1120,6 +1121,9 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				// refresh view
 				display.refreshLayerScaleLimit(layer);
 				
+				// redraw layer tree
+				Bus.get().fireEvent(new EventMapScaleChanged(display.getOLMap().getScale()));
+				
 				// save layer style to db
 				updateLayerStyleDB(layer);
 			}
@@ -1140,6 +1144,9 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				// refresh view
 				display.refreshLayerScaleLimit(layer);
 				
+				// redraw layer tree
+				Bus.get().fireEvent(new EventMapScaleChanged(display.getOLMap().getScale()));
+				
 				// save layer style to db
 				updateLayerStyleDB(layer);
 			}
@@ -1150,7 +1157,11 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			
 			@Override
 			public void onWindowClosing(ClosingEvent event){
+				// update map state
 				updateLayersDB(display.getLayerList(), false);
+				
+				// update current view
+				updatePreviousMapView();
 			}
 		});
 		
@@ -1172,7 +1183,11 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			
 			@Override
 			public void onSelect(SelectEvent event){
+				// update map state
 				updateLayersDB(display.getLayerList(), true);
+				
+				// update current view
+				updatePreviousMapView();
 			}
 		});
 		
@@ -1190,7 +1205,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 
 			@Override
 			public void onHandle(EventObject eventObject){
-				Bus.get().fireEvent(new EventMapScaleChanged(Math.round(display.getOLMap().getScale())));
+				Bus.get().fireEvent(new EventMapScaleChanged(display.getOLMap().getScale()));
 			}
 		});
 	}
@@ -1234,6 +1249,28 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			
 			@Override
 			public void onSuccess(KingdomLayer layer){
+			}
+		});
+	}
+	
+	private void updatePreviousMapView(){
+		KingdomMap currentMap = display.getCurrentMap();
+		Bounds currentView = display.getOLMap().getExtent();
+		currentMap.setPreviousViewllx(currentView.getLowerLeftX());
+		currentMap.setPreviousViewlly(currentView.getLowerLeftY());
+		currentMap.setPreviousViewurx(currentView.getUpperRightX());
+		currentMap.setPreviousViewury(currentView.getUpperRightY());
+		currentMap.setPreviousZoomLevel(display.getOLMap().getZoom());
+		
+		DataServiceAsync.Util.getInstance().updateMapPreviousView(currentMap, new AsyncCallback<Boolean>() {
+
+			@Override
+			public void onFailure(Throwable caught){
+				KingdomInfo.showInfoPopUp("Error", "Error saving current map view");
+			}
+
+			@Override
+			public void onSuccess(Boolean result){
 			}
 		});
 	}

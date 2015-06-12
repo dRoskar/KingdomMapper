@@ -107,4 +107,11 @@ public class MapJDBCTemplate{
 		
 		return true;
 	}
+	
+	public boolean updatePreviousView(int mapId, double llx, double lly, double urx, double ury, int zoomLevel){
+		String SQL = "UPDATE public.\"Map\" SET lower_left_x = " + llx + ", lower_left_y = " + lly + ", upper_right_x = " + urx + ", upper_right_y = " + ury + ", previous_zoom = " + zoomLevel + " WHERE id = " + mapId;
+		jdbcTemplateObject.update(SQL);
+		
+		return true;
+	}
 }

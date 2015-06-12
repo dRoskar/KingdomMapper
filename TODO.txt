@@ -72,15 +72,15 @@
 	[ ] validation - no special chars
 	[ ] hash and salt strategy
 
-[.] Layer max and min scales
+[X] Layer max and min scales
 	[X] DB integration
 	[X] client - DB communication
 	[X] layer visibility integration
 	[X] layer tree dsiplay
 	[X] layer editing gui controls
-	[ ] quicksetting button
+	[X] quicksetting button
 	
-[ ] remember what user was looking at last - save to map object; if it exists use it instead of zoomToStartingBounds() when loading map layers (adding map)
+[.] remember what user was looking at last - save to map object; if it exists use it instead of zoomToStartingBounds() when loading map layers (adding map) - saving extent, now save zoomlevel too
 [ ] measure
 [ ] Labels
 [ ] marker icons
