@@ -15,6 +15,8 @@ import org.gwtopenmaps.openlayers.client.Projection;
 import org.gwtopenmaps.openlayers.client.Style;
 import org.gwtopenmaps.openlayers.client.StyleMap;
 import org.gwtopenmaps.openlayers.client.control.DrawFeature;
+import org.gwtopenmaps.openlayers.client.control.Measure;
+import org.gwtopenmaps.openlayers.client.control.MeasureOptions;
 import org.gwtopenmaps.openlayers.client.control.ModifyFeature;
 import org.gwtopenmaps.openlayers.client.control.ModifyFeatureOptions;
 import org.gwtopenmaps.openlayers.client.control.ScaleLine;
@@ -29,6 +31,7 @@ import org.gwtopenmaps.openlayers.client.feature.VectorFeature.State;
 import org.gwtopenmaps.openlayers.client.filter.ComparisonFilter;
 import org.gwtopenmaps.openlayers.client.filter.ComparisonFilter.Types;
 import org.gwtopenmaps.openlayers.client.handler.PathHandler;
+import org.gwtopenmaps.openlayers.client.handler.PathHandlerOptions;
 import org.gwtopenmaps.openlayers.client.handler.PointHandler;
 import org.gwtopenmaps.openlayers.client.handler.PolygonHandler;
 import org.gwtopenmaps.openlayers.client.handler.RegularPolygonHandler;
@@ -51,6 +54,7 @@ import org.gwtopenmaps.openlayers.client.strategy.Strategy;
 
 import si.roskar.diploma.client.presenter.MapPresenter.Display;
 import si.roskar.diploma.client.resources.Resources;
+import si.roskar.diploma.client.util.KingdomMeasure;
 import si.roskar.diploma.client.util.WFSLayerPackage;
 import si.roskar.diploma.shared.EditingMode;
 import si.roskar.diploma.shared.GeometryType;
@@ -84,6 +88,8 @@ public class MapView implements Display{
 	private TextButton										setUpperLimitButton		= null;
 	private TextButton										setLowerLimitButton		= null;
 	private ToggleButton									grid					= null;
+	private ToggleButton									measureDistanceButton	= null;
+	private ToggleButton									measureAreaButton		= null;
 	private TextButton										saveMapStateButton		= null;
 	private ToggleButton									drawButton				= null;
 	private ToggleButton									drawRectangleButton		= null;
@@ -109,6 +115,8 @@ public class MapView implements Display{
 	private KingdomLayer									editingLayer			= null;
 	private KingdomLayer									modifiedLayer			= null;
 	private DrawFeature										currentDrawControl		= null;
+	private KingdomMeasure									measureDistanceControl	= null;
+	private KingdomMeasure									measureAreaContol		= null;
 	private boolean											isInEditMode			= false;
 	private boolean											isInAddingShapesMode	= false;
 	private boolean											isInAddingHolesMode		= false;
@@ -148,6 +156,8 @@ public class MapView implements Display{
 		
 		map.addControl(new ScaleLine());
 		
+//		createNewMeasureControls();
+		
 		// create navigation toolbar
 		ToolBar navigationToolbar = new ToolBar();
 		
@@ -168,6 +178,18 @@ public class MapView implements Display{
 		grid.setToolTip("Show/hide grid");
 		grid.setValue(true);
 		
+//		measureDistanceButton = new ToggleButton();
+//		measureDistanceButton.setIcon(Resources.ICONS.measureDistance());
+//		measureDistanceButton.setToolTip("Measure distance");
+//		
+//		measureAreaButton = new ToggleButton();
+//		measureAreaButton.setIcon(Resources.ICONS.measureArea());
+//		measureAreaButton.setToolTip("Measure area");
+		
+//		ToggleGroup navigationGroup = new ToggleGroup();
+//		navigationGroup.add(measureDistanceButton);
+//		navigationGroup.add(measureAreaButton);
+		
 		saveMapStateButton = new TextButton();
 		saveMapStateButton.setIcon(Resources.ICONS.mapSave());
 		saveMapStateButton.setToolTip("Save map state");
@@ -176,6 +198,8 @@ public class MapView implements Display{
 		navigationToolbar.add(navigateBack);
 		navigationToolbar.add(navigateForward);
 		navigationToolbar.add(grid);
+//		navigationToolbar.add(measureDistanceButton);
+//		navigationToolbar.add(measureAreaButton);
 		navigationToolbar.add(saveMapStateButton);
 		
 		// create drawing toolbar
@@ -533,7 +557,6 @@ public class MapView implements Display{
 			return;
 		}
 		
-		
 		mapWidget.getMap().zoomToExtent(bounds);
 		mapWidget.getMap().zoomTo(zoomLevel);
 	}
@@ -736,6 +759,42 @@ public class MapView implements Display{
 			
 			wfsLayerPackageHashMap.put(layer, layerPackage);
 		}
+	}
+	
+	private void createNewMeasureControls(){
+		// measure style
+		final Style measureStyle = new Style();
+		measureStyle.setPointRadius(6);
+		measureStyle.setStrokeWidth(3);
+		measureStyle.setStrokeColor("#0066FF");
+		measureStyle.setFillColor("#66FF99");
+		measureStyle.setStrokeOpacity(0.7);
+		measureStyle.setFillOpacity(0.4);
+		measureStyle.setStrokeDashstyle("dash");
+		
+		PathHandlerOptions pathHandlerOptions = new PathHandlerOptions();
+		pathHandlerOptions.setStyleMap(new StyleMap(measureStyle));
+		
+		// measure options
+		MeasureOptions distanceOptions = new MeasureOptions();
+		MeasureOptions areaOptions = new MeasureOptions();
+		
+		distanceOptions.setGeodesic(true);
+		distanceOptions.setPersist(true);
+		distanceOptions.setHandlerOptions(pathHandlerOptions);
+		
+		areaOptions.setGeodesic(true);
+		areaOptions.setPersist(true);
+		areaOptions.setHandlerOptions(pathHandlerOptions);
+		
+		measureDistanceControl = new KingdomMeasure(new PathHandler(), distanceOptions);
+		measureAreaContol = new KingdomMeasure(new PolygonHandler(), areaOptions);
+		
+		KingdomMeasure.setImmediate(measureDistanceControl.getJSObject(), true);
+		KingdomMeasure.setImmediate(measureAreaContol.getJSObject(), true);
+		
+		mapWidget.getMap().addControl(measureDistanceControl);
+		mapWidget.getMap().addControl(measureAreaContol);
 	}
 	
 	@Override
@@ -1110,10 +1169,30 @@ public class MapView implements Display{
 		return layerList;
 	}
 	
+//	@Override
+//	public ToggleButton getMeasureDistanceButton(){
+//		return measureDistanceButton;
+//	}
+//	
+//	@Override
+//	public ToggleButton getMeasureAreaButton(){
+//		return measureAreaButton;
+//	}
+	
 	@Override
 	public TextButton getSaveMapStateButton(){
 		return saveMapStateButton;
 	}
+	
+//	@Override
+//	public KingdomMeasure getMeasureDistanceControl(){
+//		return measureDistanceControl;
+//	};
+//	
+//	@Override
+//	public KingdomMeasure getMeasureAreaControl(){
+//		return measureAreaContol;
+//	}
 	
 	@Override
 	public void setSnapEnabled(boolean enabled){

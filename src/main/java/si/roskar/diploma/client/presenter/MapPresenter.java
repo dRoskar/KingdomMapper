@@ -6,6 +6,7 @@ import java.util.List;
 import org.gwtopenmaps.openlayers.client.Bounds;
 import org.gwtopenmaps.openlayers.client.Map;
 import org.gwtopenmaps.openlayers.client.control.DrawFeature;
+import org.gwtopenmaps.openlayers.client.control.Measure;
 import org.gwtopenmaps.openlayers.client.event.EventHandler;
 import org.gwtopenmaps.openlayers.client.event.EventObject;
 import org.gwtopenmaps.openlayers.client.event.VectorFeatureAddedListener;
@@ -41,6 +42,7 @@ import si.roskar.diploma.client.event.EventSetLayerVisibility.EventSetLayerVisib
 import si.roskar.diploma.client.event.EventSortLayerTree;
 import si.roskar.diploma.client.util.ColorPickerWindow;
 import si.roskar.diploma.client.util.KingdomInfo;
+import si.roskar.diploma.client.util.KingdomMeasure;
 import si.roskar.diploma.client.util.WFSLayerPackage;
 import si.roskar.diploma.client.view.AddMarkerDialog;
 import si.roskar.diploma.client.view.EditLayerStyleWindow;
@@ -132,6 +134,10 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		void setCurrentLayer(KingdomLayer currentLayer);
 		
+//		ToggleButton getMeasureDistanceButton();
+//		
+//		ToggleButton getMeasureAreaButton();
+		
 		ToggleButton getGridButton();
 		
 		void toggleGridVisible(boolean visible);
@@ -173,6 +179,10 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		List<KingdomLayer> getLayerList();
 		
 		TextButton getSaveMapStateButton();
+		
+//		KingdomMeasure getMeasureDistanceControl();
+//		
+//		KingdomMeasure getMeasureAreaControl();
 		
 		void setSnapEnabled(boolean enabled);
 		
@@ -1113,10 +1123,10 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			public void onSelect(SelectEvent event){
 				// update object
 				KingdomLayer layer = display.getCurrentLayer();
-				layer.setMinScale((float)display.getOLMap().getScale());
+				layer.setMinScale((float) display.getOLMap().getScale());
 				
 				// update wms layer
-				display.getCurrentOLWmsLayer().getOptions().setMinScale((float)display.getOLMap().getScale());
+				display.getCurrentOLWmsLayer().getOptions().setMinScale((float) display.getOLMap().getScale());
 				
 				// refresh view
 				display.refreshLayerScaleLimit(layer);
@@ -1136,10 +1146,10 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			public void onSelect(SelectEvent event){
 				// update object
 				KingdomLayer layer = display.getCurrentLayer();
-				layer.setMaxScale((float)display.getOLMap().getScale());
+				layer.setMaxScale((float) display.getOLMap().getScale());
 				
 				// update wms layer
-				display.getCurrentOLWmsLayer().getOptions().setMaxScale((float)display.getOLMap().getScale());
+				display.getCurrentOLWmsLayer().getOptions().setMaxScale((float) display.getOLMap().getScale());
 				
 				// refresh view
 				display.refreshLayerScaleLimit(layer);
@@ -1178,6 +1188,36 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			}
 		}, KeyDownEvent.getType());
 		
+//		// handle measure distance toggle
+//		display.getMeasureDistanceButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+//			
+//			@Override
+//			public void onValueChange(ValueChangeEvent<Boolean> event){
+//				KingdomMeasure measure = display.getMeasureDistanceControl();
+//				
+//				if(event.getValue()){
+//					measure.activate();
+//				}else{
+//					measure.deactivate();
+//				}
+//			}
+//		});
+//		
+//		// handle measure area toggle
+//		display.getMeasureAreaButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+//			
+//			@Override
+//			public void onValueChange(ValueChangeEvent<Boolean> event){
+//				KingdomMeasure measure = display.getMeasureAreaControl();
+//				
+//				if(event.getValue()){
+//					measure.activate();
+//				}else{
+//					measure.deactivate();
+//				}
+//			}
+//		});
+		
 		// handle save map state button click
 		display.getSaveMapStateButton().addSelectHandler(new SelectHandler() {
 			
@@ -1201,8 +1241,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		});
 		
 		// map zoomend
-		display.getOLMap().getEvents().register("zoomend", display.getOLMap(), new EventHandler(){
-
+		display.getOLMap().getEvents().register("zoomend", display.getOLMap(), new EventHandler() {
+			
 			@Override
 			public void onHandle(EventObject eventObject){
 				Bus.get().fireEvent(new EventMapScaleChanged(display.getOLMap().getScale()));
@@ -1231,8 +1271,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				if(sourceIsButton){
 					KingdomInfo.hideLoadingBar();
 					KingdomInfo.showInfoPopUp("Success", "Map state was saved successfully");
-				}
-				else{
+				}else{
 					KingdomInfo.showInfoPopUp("Autosave", "Map state was saved");
 				}
 			}
@@ -1263,12 +1302,12 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		currentMap.setPreviousZoomLevel(display.getOLMap().getZoom());
 		
 		DataServiceAsync.Util.getInstance().updateMapPreviousView(currentMap, new AsyncCallback<Boolean>() {
-
+			
 			@Override
 			public void onFailure(Throwable caught){
 				KingdomInfo.showInfoPopUp("Error", "Error saving current map view");
 			}
-
+			
 			@Override
 			public void onSuccess(Boolean result){
 			}

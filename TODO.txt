@@ -80,7 +80,7 @@
 	[X] layer editing gui controls
 	[X] quicksetting button
 	
-[.] remember what user was looking at last - save to map object; if it exists use it instead of zoomToStartingBounds() when loading map layers (adding map) - saving extent, now save zoomlevel too
+[X] remember what user was looking at last - save to map object; if it exists use it instead of zoomToStartingBounds() when loading map layers (adding map) - saving extent, now save zoomlevel too
 [ ] measure
 [ ] Labels
 [ ] marker icons

@@ -137,6 +137,15 @@ public class Resources{
 		
 		@Source ("lower_limit.png")
 		ImageResource lowerLimit();
+		
+		@Source ("measure.png")
+		ImageResource measure();
+		
+		@Source ("distance_measure.png")
+		ImageResource measureDistance();
+		
+		@Source ("area_measure.png")
+		ImageResource measureArea();
 	}
 	
 	public static final Icons	ICONS	= GWT.create(Icons.class);
