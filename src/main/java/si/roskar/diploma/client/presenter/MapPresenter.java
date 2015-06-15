@@ -54,6 +54,7 @@ import si.roskar.diploma.shared.EditingMode;
 import si.roskar.diploma.shared.GeometryType;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
+import si.roskar.diploma.shared.KingdomMarker;
 import si.roskar.diploma.shared.KingdomVectorFeature;
 
 import com.google.gwt.dom.client.Element;
@@ -75,6 +76,7 @@ import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.button.ToggleButton;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
+import com.sencha.gxt.widget.core.client.form.ComboBox;
 import com.sencha.gxt.widget.core.client.form.DoubleSpinnerField;
 import com.sencha.gxt.widget.core.client.form.SimpleComboBox;
 import com.sencha.gxt.widget.core.client.form.TextArea;
@@ -257,6 +259,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		DoubleSpinnerField getStrokeOpacitySpinner();
 		
 		DoubleSpinnerField getFillOpacitySpinner();
+		
+		ComboBox<KingdomMarker> getMarkerComboBox();
 		
 		Slider getUpperLimitSlider();
 		
@@ -1089,7 +1093,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 							// apply new values to layer object
 							KingdomLayer layer = editLayerStyleDisplay.getLayer();
 							
-							if(layer.getGeometryType().equals(GeometryType.POINT) || layer.getGeometryType().equals(GeometryType.MARKER)){
+							if(layer.getGeometryType().equals(GeometryType.POINT)){
 								layer.setColor(editLayerStyleDisplay.getColor());
 								layer.setSize(editLayerStyleDisplay.getSize());
 								layer.setShape(editLayerStyleDisplay.getShapeComboBox().getValue());
@@ -1102,6 +1106,10 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 								layer.setStrokeWidth(editLayerStyleDisplay.getSize());
 								layer.setStrokeOpacity(editLayerStyleDisplay.getStrokeOpacitySpinner().getValue());
 								layer.setFillOpacity(editLayerStyleDisplay.getFillOpacitySpinner().getValue());
+							}else if(layer.getGeometryType().equals(GeometryType.MARKER)){
+								layer.setColor(editLayerStyleDisplay.getColor());
+								layer.setFillColor(editLayerStyleDisplay.getFillColor());
+								layer.setMarkerImage(editLayerStyleDisplay.getMarkerComboBox().getValue().getImageName());
 							}
 							
 							layer.setMaxScale(editLayerStyleDisplay.getLowerSliderScale());

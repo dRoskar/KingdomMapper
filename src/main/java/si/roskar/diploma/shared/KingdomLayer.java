@@ -23,6 +23,8 @@ public class KingdomLayer implements IsSerializable{
 	private double			strokeOpacity	= 1.0;
 	private double			maxScale		= 0.0;
 	private double			minScale		= 0.0;
+	private boolean			hasLabel		= false;
+	private String			markerImage		= null;
 	
 	public KingdomLayer(){
 		
@@ -177,26 +179,42 @@ public class KingdomLayer implements IsSerializable{
 	public double getMaxScale(){
 		return maxScale;
 	}
-
+	
 	public void setMaxScale(double maxScale){
 		this.maxScale = maxScale;
 	}
-
+	
 	public double getMinScale(){
 		return minScale;
 	}
-
+	
 	public void setMinScale(double minScale){
 		this.minScale = minScale;
 	}
 	
+	public boolean hasLabel(){
+		return hasLabel;
+	}
+	
+	public void setHasLabel(boolean hasLabel){
+		this.hasLabel = hasLabel;
+	}
+	
+	public String getMarkerImage(){
+		return markerImage;
+	}
+
+	public void setMarkerImage(String markerImage){
+		this.markerImage = markerImage;
+	}
+
 	public KingdomLayer getLayer(){
 		return this;
 	}
-
+	
 	public String getEnvValues(){
 		String env = "";
-		if(this.getGeometryType().equals(GeometryType.POINT) || this.getGeometryType().equals(GeometryType.MARKER)){
+		if(this.getGeometryType().equals(GeometryType.POINT)){
 			if(this.getColor() != null){
 				env = env + "color:" + this.getColor() + ";";
 			}
@@ -232,6 +250,22 @@ public class KingdomLayer implements IsSerializable{
 			}
 			
 			env = env + "stroke_opacity:" + this.getStrokeOpacity() + ";";
+		}else if(this.getGeometryType().equals(GeometryType.MARKER)){
+			if(this.getFillColor() != null){
+				env = env + "fill_color:" + this.getFillColor() + ";";
+			}
+			
+			if(this.getColor() != null){
+				env = env + "color:" + this.getColor() + ";";
+			}
+			
+			if(this.getSize() > 0){
+				env = env + "size:" + this.getSize() + ";";
+			}
+			
+			if(this.getMarkerImage() != null){
+				env = env + "marker:" + this.getMarkerImage() + ";";
+			}
 		}
 		
 		if(!env.equals("")){

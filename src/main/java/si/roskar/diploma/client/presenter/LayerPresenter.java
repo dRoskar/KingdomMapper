@@ -34,6 +34,7 @@ import si.roskar.diploma.shared.GeometryType;
 import si.roskar.diploma.shared.KingdomGridLayer;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
+import si.roskar.diploma.shared.KingdomMarker;
 import si.roskar.diploma.shared.KingdomUser;
 import si.roskar.diploma.shared.MapSize;
 
@@ -584,7 +585,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 								newLayer.setZIndex(highestZIndex + 1);
 								
 								// set default style
-								if(newLayer.getGeometryType().equals(GeometryType.POINT) || newLayer.getGeometryType().equals(GeometryType.MARKER)){
+								if(newLayer.getGeometryType().equals(GeometryType.POINT)){
 									newLayer.setColor("0066FF");
 									newLayer.setShape("square");
 									newLayer.setSize(6);
@@ -597,6 +598,11 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 									newLayer.setStrokeWidth(1);
 									newLayer.setColor("009933");
 									newLayer.setStrokeOpacity(1);
+								}else if(newLayer.getGeometryType().equals(GeometryType.MARKER)){
+									newLayer.setColor("000000");
+									newLayer.setFillColor("FFCC00");
+									newLayer.setMarkerImage(KingdomMarker.GREEN_MARKER);
+									newLayer.setStyle("marker_label");
 								}
 								
 								// check if layer already exists for this map

@@ -110,7 +110,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	@Override
 	public Integer addLayer(KingdomLayer layer){
 		return layerJdbcTemplate.insert(layer.getName(), layer.getStyle(), layer.getOpacity(), layer.isVisible(), layer.getGeometryType(), layer.getZIndex(), layer.getColor(), layer.getSize(), layer.getShape(),
-				layer.getFillColor(), layer.getStrokeWidth(), layer.getStrokeOpacity(), layer.getFillOpacity(), layer.getMaxScale(), layer.getMinScale(), layer.getMap().getId());
+				layer.getFillColor(), layer.getStrokeWidth(), layer.getStrokeOpacity(), layer.getFillOpacity(), layer.getMaxScale(), layer.getMinScale(), layer.getMarkerImage(), layer.getMap().getId());
 	}
 	
 	@Override
@@ -161,7 +161,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	@Override
 	public KingdomLayer updateLayerStyle(KingdomLayer layer){
 		layerJdbcTemplate.updateLayerStyle(layer.getId(), layer.getStyle(), layer.getColor(), layer.getSize(), layer.getShape(), layer.getFillColor(), layer.getStrokeWidth(), layer.getFillOpacity(),
-				layer.getStrokeOpacity(), layer.getMaxScale(), layer.getMinScale());
+				layer.getStrokeOpacity(), layer.getMaxScale(), layer.getMinScale(), layer.getMarkerImage());
 		
 		return layer;
 	}

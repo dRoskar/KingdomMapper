@@ -15,7 +15,6 @@ import org.gwtopenmaps.openlayers.client.Projection;
 import org.gwtopenmaps.openlayers.client.Style;
 import org.gwtopenmaps.openlayers.client.StyleMap;
 import org.gwtopenmaps.openlayers.client.control.DrawFeature;
-import org.gwtopenmaps.openlayers.client.control.Measure;
 import org.gwtopenmaps.openlayers.client.control.MeasureOptions;
 import org.gwtopenmaps.openlayers.client.control.ModifyFeature;
 import org.gwtopenmaps.openlayers.client.control.ModifyFeatureOptions;

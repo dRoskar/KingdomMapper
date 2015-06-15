@@ -81,11 +81,11 @@
 	[X] quicksetting button
 	
 [X] remember what user was looking at last - save to map object; if it exists use it instead of zoomToStartingBounds() when loading map layers (adding map) - saving extent, now save zoomlevel too
-[ ] measure
+[X] measure
 [ ] Labels
 [ ] marker icons
 [ ] textures
-[ ] identify 
+[ ] identify
 [X] use .equals instead of compareTo (except for the sort class)
 [X] use JST for wkt to gml instead of your own crappy function
 	
@@ -124,3 +124,4 @@
 [X] click cancel when selecting color
 [ ] subtract sometimes changes into add
 [ ] if subtract is on when adding new layer, subtract stay on, but button is off (what about when adding new map?)
+[ ] deleting a layer scramles z indices

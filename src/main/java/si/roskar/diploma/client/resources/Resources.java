@@ -60,6 +60,15 @@ public class Resources{
 		@Source("marker.png")
 		ImageResource marker();
 		
+		@Source("marker_man.png")
+		ImageResource markerMan();
+		
+		@Source("marker_quest.png")
+		ImageResource markerQuest();
+		
+		@Source("marker_reward.png")
+		ImageResource markerReward();
+		
 		@Source("shape_move_front.png")
 		ImageResource moveToFront();
 		

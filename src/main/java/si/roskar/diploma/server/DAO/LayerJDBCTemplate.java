@@ -29,7 +29,7 @@ public class LayerJDBCTemplate{
 		this.jdbcTemplateObject = new JdbcTemplate(dataSource);
 	}
 	
-	public int insert(String name, String style, float opacity, boolean visibility, GeometryType geometryType, int zIndex, String color, int size, String shape, String fillColor, int strokeWidth, double strokeOpacity, double fillOpacity, double maxScale, double minScale, int mapId){
+	public int insert(String name, String style, float opacity, boolean visibility, GeometryType geometryType, int zIndex, String color, int size, String shape, String fillColor, int strokeWidth, double strokeOpacity, double fillOpacity, double maxScale, double minScale, String markerImage, int mapId){
 		
 		// escape unicode
 		name = Tools.encodeToNumericCharacterReference(name);
@@ -38,8 +38,8 @@ public class LayerJDBCTemplate{
 		name = name.replace("'", "''");
 		
 		String visibilityString = visibility == true ? "TRUE" : "FALSE";
-		final String SQL = "INSERT INTO public.\"Layer\"(name, style, opacity, visibility, geometry_type, z_index, color, size, shape, fill_color, stroke_width, stroke_opacity, fill_opacity, maxscale, minscale, map_id) VALUES ('" + name + "', '" + style + "', " + opacity +  ", " + visibilityString + ", '"
-				+ geometryType.getGeometryName() + "', " + zIndex + ", '" + color + "', " + size + ", '" + shape + "', '" + fillColor + "', " + strokeWidth + ", " + strokeOpacity + ", " + fillOpacity + ", " + maxScale + ", " + minScale + ", " + mapId + ")";
+		final String SQL = "INSERT INTO public.\"Layer\"(name, style, opacity, visibility, geometry_type, z_index, color, size, shape, fill_color, stroke_width, stroke_opacity, fill_opacity, maxscale, minscale, marker_image, map_id) VALUES ('" + name + "', '" + style + "', " + opacity +  ", " + visibilityString + ", '"
+				+ geometryType.getGeometryName() + "', " + zIndex + ", '" + color + "', " + size + ", '" + shape + "', '" + fillColor + "', " + strokeWidth + ", " + strokeOpacity + ", " + fillOpacity + ", " + maxScale + ", " + minScale + ", '" + markerImage + "', " + mapId + ")";
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		
 		jdbcTemplateObject.update(new PreparedStatementCreator() {
@@ -107,13 +107,13 @@ public class LayerJDBCTemplate{
 		return true;
 	}
 	
-	public boolean updateLayerStyle(int layerId, String style, String color, int size, String shape, String fillColor, int strokeWidth, double fillOpacity, double strokeOpacity, double maxScale, double minScale){
+	public boolean updateLayerStyle(int layerId, String style, String color, int size, String shape, String fillColor, int strokeWidth, double fillOpacity, double strokeOpacity, double maxScale, double minScale, String markerImage){
 		style = style == null ? "" : style;
 		color = color == null ? "" : color;
 		shape = shape == null ? "" : shape;
 		fillColor = fillColor == null ? "" : fillColor;	
 		
-		String SQL = "UPDATE public.\"Layer\" SET style = '" + style + "', color = '" + color + "', size = " + size + ", shape = '" + shape + "', fill_color = '" + fillColor + "', stroke_width = " + strokeWidth + ", fill_opacity = " + fillOpacity + ", stroke_opacity = " + strokeOpacity + ", maxscale = " + maxScale + ", minscale = " + minScale + "  WHERE id = " + layerId;
+		String SQL = "UPDATE public.\"Layer\" SET style = '" + style + "', color = '" + color + "', size = " + size + ", shape = '" + shape + "', fill_color = '" + fillColor + "', stroke_width = " + strokeWidth + ", fill_opacity = " + fillOpacity + ", stroke_opacity = " + strokeOpacity + ", maxscale = " + maxScale + ", minscale = " + minScale + ", marker_image = '" + markerImage + "' WHERE id = " + layerId;
 		jdbcTemplateObject.update(SQL);
 		
 		return true;

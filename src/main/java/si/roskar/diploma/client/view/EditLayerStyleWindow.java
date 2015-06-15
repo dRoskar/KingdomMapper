@@ -4,12 +4,21 @@ import si.roskar.diploma.client.presenter.MapPresenter.EditLayerStyleDisplay;
 import si.roskar.diploma.client.util.ColorPickerWindow;
 import si.roskar.diploma.shared.GeometryType;
 import si.roskar.diploma.shared.KingdomLayer;
+import si.roskar.diploma.shared.KingdomMarker;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeUri;
+import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
 import com.sencha.gxt.cell.core.client.form.ComboBoxCell.TriggerAction;
+import com.sencha.gxt.core.client.XTemplates;
 import com.sencha.gxt.data.shared.LabelProvider;
+import com.sencha.gxt.data.shared.ListStore;
+import com.sencha.gxt.data.shared.ModelKeyProvider;
+import com.sencha.gxt.data.shared.PropertyAccess;
 import com.sencha.gxt.widget.core.client.ColorPalette;
 import com.sencha.gxt.widget.core.client.ContentPanel;
 import com.sencha.gxt.widget.core.client.Slider;
@@ -19,12 +28,24 @@ import com.sencha.gxt.widget.core.client.container.BoxLayoutContainer.BoxLayoutP
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 import com.sencha.gxt.widget.core.client.event.HideEvent;
 import com.sencha.gxt.widget.core.client.event.HideEvent.HideHandler;
+import com.sencha.gxt.widget.core.client.form.ComboBox;
 import com.sencha.gxt.widget.core.client.form.DoubleSpinnerField;
 import com.sencha.gxt.widget.core.client.form.FieldLabel;
 import com.sencha.gxt.widget.core.client.form.IntegerSpinnerField;
 import com.sencha.gxt.widget.core.client.form.SimpleComboBox;
 
 public class EditLayerStyleWindow extends Window implements EditLayerStyleDisplay{
+	
+	interface ComboBoxTemplates extends XTemplates {
+		@XTemplate("<img width=\"24\" height=\"24\" src=\"{imageUri}\"> {title}")
+		SafeHtml marker(SafeUri imageUri, String title);
+	}
+	
+	interface MarkerProperties extends PropertyAccess<KingdomMarker>{
+		ModelKeyProvider<KingdomMarker> imageName();
+		
+		LabelProvider<KingdomMarker> title();
+	}
 	
 	private KingdomLayer			layer							= null;
 	private ColorPalette			colorPalette					= null;
@@ -46,6 +67,9 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 	private double[]				scales							= null;
 	private Slider					upperLimitSlider				= null;
 	private Slider					lowerLimitSlider				= null;
+	private ComboBox<KingdomMarker>	markerComboBox					= null;
+	
+	private MarkerProperties		markerProps						= GWT.create(MarkerProperties.class);
 	
 	public EditLayerStyleWindow(KingdomLayer layer, double[] scales){
 		this.layer = layer;
@@ -54,6 +78,7 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 	}
 	
 	private void setUp(){
+		
 		colorPaletteClickHandler = new ClickHandler() {
 			
 			@Override
@@ -108,12 +133,14 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 		
 		VerticalLayoutContainer layoutContainer = null;
 		
-		if(layer.getGeometryType().equals(GeometryType.POINT) || layer.getGeometryType().equals(GeometryType.MARKER)){
+		if(layer.getGeometryType().equals(GeometryType.POINT)){
 			layoutContainer = assemblePointStyleEditorLayout();
 		}else if(layer.getGeometryType().equals(GeometryType.LINE)){
 			layoutContainer = assembleLineStyleEditorLayout();
 		}else if(layer.getGeometryType().equals(GeometryType.POLYGON)){
 			layoutContainer = assemblePolygonStyleEditorLayout();
+		}else if(layer.getGeometryType().equals(GeometryType.MARKER)){
+			layoutContainer = assembleMarkerStyleEditorLayout();
 		}
 		
 		cp.add(layoutContainer);
@@ -297,6 +324,73 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 		return layoutContainer;
 	}
 	
+	private VerticalLayoutContainer assembleMarkerStyleEditorLayout(){
+		this.fillColor = layer.getFillColor();
+		this.color = layer.getColor();
+		
+		VerticalLayoutContainer layoutContainer = new VerticalLayoutContainer();
+		
+		ListStore<KingdomMarker> markers = new ListStore<KingdomMarker>(markerProps.imageName());
+		markers.addAll(KingdomMarker.getMarkerList());
+		
+		markerComboBox = new ComboBox<KingdomMarker>(markers, markerProps.title(), new AbstractSafeHtmlRenderer<KingdomMarker>() {
+			final ComboBoxTemplates comboBoxTemplates = GWT.create(ComboBoxTemplates.class);
+			
+			@Override
+			public SafeHtml render(KingdomMarker object){
+				return comboBoxTemplates.marker(object.getIcon().getSafeUri(), object.getTitle());
+			}
+		});
+		
+		markerComboBox.setValue(KingdomMarker.getMarkerByImageName(markers.getAll(), layer.getMarkerImage()));
+		markerComboBox.setTriggerAction(TriggerAction.ALL);
+		layoutContainer.add(new FieldLabel(markerComboBox, "Marker"));
+		
+		sizeSpinner = new IntegerSpinnerField();
+		sizeSpinner.setIncrement(1);
+		sizeSpinner.setMinValue(1);
+		sizeSpinner.setMaxValue(1000);
+		sizeSpinner.setEditable(false);
+		sizeSpinner.setValue(layer.getSize());
+		layoutContainer.add(new FieldLabel(sizeSpinner, "Size"));
+		
+		String[] colors = new String[] { layer.getColor() };
+		colorPalette = new ColorPalette(colors, colors);
+		colorPalette.addDomHandler(colorPaletteClickHandler, ClickEvent.getType());
+		
+		colorPaletteFieldLabel = new FieldLabel();
+		colorPaletteFieldLabel.setWidget(colorPalette);
+		colorPaletteFieldLabel.setText("Label background color");
+		layoutContainer.add(colorPaletteFieldLabel);
+		
+		String[] fillColors = new String[] { layer.getFillColor() };
+		fillColorPalette = new ColorPalette(fillColors, fillColors);
+		fillColorPalette.addDomHandler(fillColorPaletteClickHandler, ClickEvent.getType());
+		
+		fillColorPaletteFieldLabel = new FieldLabel();
+		fillColorPaletteFieldLabel.setWidget(fillColorPalette);
+		fillColorPaletteFieldLabel.setText("Lebel color");
+		layoutContainer.add(fillColorPaletteFieldLabel);
+		
+		upperLimitSlider = new Slider();
+		upperLimitSlider.setIncrement(1);
+		upperLimitSlider.setMinValue(1);
+		upperLimitSlider.setMaxValue(scales.length);
+		upperLimitSlider.setMessage("Layer will be invisible until zoom level {0}");
+		upperLimitSlider.setValue(getScaleIndex(layer.getMinScale(), true));
+		layoutContainer.add(new FieldLabel(upperLimitSlider, "Upper visibility limit"));
+		
+		lowerLimitSlider = new Slider();
+		lowerLimitSlider.setIncrement(1);
+		lowerLimitSlider.setMinValue(1);
+		lowerLimitSlider.setMaxValue(scales.length);
+		lowerLimitSlider.setMessage("Layer will become invisible after zoom level {0}");
+		lowerLimitSlider.setValue(getScaleIndex(layer.getMaxScale(), false));
+		layoutContainer.add(new FieldLabel(lowerLimitSlider, "Lower visibility limit"));
+		
+		return layoutContainer;
+	}
+	
 	@Override
 	public void show(){
 		super.show();
@@ -396,6 +490,11 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 	@Override
 	public DoubleSpinnerField getFillOpacitySpinner(){
 		return fillOpacitySpinner;
+	}
+	
+	@Override
+	public ComboBox<KingdomMarker> getMarkerComboBox(){
+		return markerComboBox;
 	}
 	
 	@Override

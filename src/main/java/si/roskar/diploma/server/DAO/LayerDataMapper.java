@@ -36,6 +36,7 @@ public class LayerDataMapper implements RowMapper<KingdomLayer>{
 		layer.setStrokeOpacity(rs.getDouble("stroke_opacity"));
 		layer.setMaxScale(rs.getDouble("maxscale"));
 		layer.setMinScale(rs.getDouble("minscale"));
+		layer.setMarkerImage(rs.getString("marker_image"));
 		
 		return layer;
 	}
