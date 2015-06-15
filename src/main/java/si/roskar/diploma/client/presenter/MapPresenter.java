@@ -1108,6 +1108,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 								layer.setFillOpacity(editLayerStyleDisplay.getFillOpacitySpinner().getValue());
 							}else if(layer.getGeometryType().equals(GeometryType.MARKER)){
 								layer.setColor(editLayerStyleDisplay.getColor());
+								layer.setSize(editLayerStyleDisplay.getSize());
 								layer.setFillColor(editLayerStyleDisplay.getFillColor());
 								layer.setMarkerImage(editLayerStyleDisplay.getMarkerComboBox().getValue().getImageName());
 							}
