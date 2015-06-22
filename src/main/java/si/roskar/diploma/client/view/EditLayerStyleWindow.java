@@ -5,6 +5,7 @@ import si.roskar.diploma.client.util.ColorPickerWindow;
 import si.roskar.diploma.shared.GeometryType;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMarker;
+import si.roskar.diploma.shared.KingdomTexture;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -40,6 +41,9 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 	interface ComboBoxTemplates extends XTemplates{
 		@XTemplate("<img width=\"24\" height=\"24\" src=\"{imageUri}\"> {title}")
 		SafeHtml marker(SafeUri imageUri, String title);
+		
+		@XTemplate("<img width=\"24\" height=\"24\" src=\"{imageUri}\"> {title}")
+		SafeHtml texture(SafeUri imageUri, String title);
 	}
 	
 	interface MarkerProperties extends PropertyAccess<KingdomMarker>{
@@ -48,30 +52,39 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 		LabelProvider<KingdomMarker> title();
 	}
 	
-	private KingdomLayer			layer							= null;
-	private ColorPalette			colorPalette					= null;
-	private ColorPalette			fillColorPalette				= null;
-	private FieldLabel				colorPaletteFieldLabel			= null;
-	private FieldLabel				fillColorPaletteFieldLabel		= null;
-	private IntegerSpinnerField		sizeSpinner						= null;
-	private DoubleSpinnerField		strokeOpacitySpinner			= null;
-	private DoubleSpinnerField		fillOpacitySpinner				= null;
-	private SimpleComboBox<String>	shapeComboBox					= null;
-	private TextButton				applyButton						= null;
-	private TextButton				cancelButton					= null;
-	private boolean					isBound							= false;
-	private String					color							= null;
-	private String					fillColor						= null;
-	private ColorPickerWindow		colorPickerWindow				= null;
-	private ClickHandler			colorPaletteClickHandler		= null;
-	private ClickHandler			fillColorPaletteClickHandler	= null;
-	private double[]				scales							= null;
-	private Slider					upperLimitSlider				= null;
-	private Slider					lowerLimitSlider				= null;
-	private CheckBox				labelCheckBox					= null;
-	private ComboBox<KingdomMarker>	markerComboBox					= null;
+	interface TextureProperties extends PropertyAccess<KingdomTexture>{
+		ModelKeyProvider<KingdomTexture> imageName();
+		
+		LabelProvider<KingdomTexture> title();
+	}
 	
-	private MarkerProperties		markerProps						= GWT.create(MarkerProperties.class);
+	private KingdomLayer				layer							= null;
+	private ColorPalette				colorPalette					= null;
+	private ColorPalette				fillColorPalette				= null;
+	private FieldLabel					colorPaletteFieldLabel			= null;
+	private FieldLabel					fillColorPaletteFieldLabel		= null;
+	private IntegerSpinnerField			sizeSpinner						= null;
+	private DoubleSpinnerField			strokeOpacitySpinner			= null;
+	private DoubleSpinnerField			fillOpacitySpinner				= null;
+	private SimpleComboBox<String>		shapeComboBox					= null;
+	private TextButton					applyButton						= null;
+	private TextButton					cancelButton					= null;
+	private boolean						isBound							= false;
+	private String						color							= null;
+	private String						fillColor						= null;
+	private ColorPickerWindow			colorPickerWindow				= null;
+	private ClickHandler				colorPaletteClickHandler		= null;
+	private ClickHandler				fillColorPaletteClickHandler	= null;
+	private double[]					scales							= null;
+	private Slider						upperLimitSlider				= null;
+	private Slider						lowerLimitSlider				= null;
+	private CheckBox					labelCheckBox					= null;
+	private CheckBox					textureCheckBox					= null;
+	private ComboBox<KingdomMarker>		markerComboBox					= null;
+	private ComboBox<KingdomTexture>	textureComboBox					= null;
+	
+	private MarkerProperties			markerProps						= GWT.create(MarkerProperties.class);
+	private TextureProperties			textureProps					= GWT.create(TextureProperties.class);
 	
 	public EditLayerStyleWindow(KingdomLayer layer, double[] scales){
 		this.layer = layer;
@@ -263,6 +276,27 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 		
 		VerticalLayoutContainer layoutContainer = new VerticalLayoutContainer();
 		
+		textureCheckBox = new CheckBox();
+		textureCheckBox.setValue(layer.getStyle().contains("texture"));
+		layoutContainer.add(new FieldLabel(textureCheckBox, "Textured"));
+		
+		ListStore<KingdomTexture> textures = new ListStore<KingdomTexture>(textureProps.imageName());
+		textures.addAll(KingdomTexture.getTextureList());
+		
+		textureComboBox = new ComboBox<KingdomTexture>(textures, textureProps.title(), new AbstractSafeHtmlRenderer<KingdomTexture>() {
+			final ComboBoxTemplates	comboBoxTemplates	= GWT.create(ComboBoxTemplates.class);
+			
+			@Override
+			public SafeHtml render(KingdomTexture object){
+				return comboBoxTemplates.texture(object.getIcon().getSafeUri(), object.getTitle());
+			}
+		});
+		
+		textureComboBox.setValue(KingdomTexture.getTextureByImageName(textures.getAll(), layer.getTextureImage()));
+		
+		textureComboBox.setTriggerAction(TriggerAction.ALL);
+		layoutContainer.add(new FieldLabel(textureComboBox, "Texture"));
+		
 		String[] strokeColors = new String[] { layer.getColor() };
 		colorPalette = new ColorPalette(strokeColors, strokeColors);
 		colorPalette.addDomHandler(colorPaletteClickHandler, ClickEvent.getType());
@@ -358,7 +392,7 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 		
 		labelCheckBox = new CheckBox();
 		labelCheckBox.setValue(layer.getStyle().contains("label"));
-		layoutContainer.add(new FieldLabel(labelCheckBox, "Label"));
+		layoutContainer.add(new FieldLabel(labelCheckBox, "Labeled"));
 		
 		String[] colors = new String[] { layer.getColor() };
 		colorPalette = new ColorPalette(colors, colors);
@@ -504,6 +538,11 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 	}
 	
 	@Override
+	public ComboBox<KingdomTexture> getTextureComboBox(){
+		return textureComboBox;
+	}
+	
+	@Override
 	public Slider getUpperLimitSlider(){
 		return upperLimitSlider;
 	}
@@ -516,6 +555,11 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 	@Override
 	public CheckBox getLabelCheckBox(){
 		return labelCheckBox;
+	}
+	
+	@Override
+	public CheckBox getTextureCheckBox(){
+		return textureCheckBox;
 	}
 	
 	@Override

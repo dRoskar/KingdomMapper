@@ -86,7 +86,8 @@
 [ ] Marker label styles
 	[X] background color
 	[X] color
-	[X] size
+	[ ] size
+	[X] visible
 	
 [ ] textures
 [ ] identify
@@ -112,6 +113,7 @@
 [ ] line corner and ends styles
 [ ] layer tree folders
 [ ] style editor preview (wms service)
+[ ] upoadable markers
 [ ] uploadable textures
 [ ] duplicate layer
 [ ] vector sizes in ground units http://docs.geoserver.org/stable/en/user/styling/sld-extensions/uom.html

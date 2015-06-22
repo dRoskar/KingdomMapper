@@ -21,6 +21,7 @@ public class KingdomMarker{
 	public static final String	CROSS_MARKER		= "marker_cross.png";
 	public static final String	CELTIC_CROSS_MARKER	= "marker_celtic_cross.png";
 	public static final String	MINE_MARKER			= "marker_mine.png";
+	public static final String	METULJ_MARKER		= "marker_metulj.svg";
 	
 	private String				imageName			= null;
 	private String				title				= null;
@@ -74,6 +75,7 @@ public class KingdomMarker{
 		markers.add(new KingdomMarker(CROSS_MARKER, "Cross", Resources.ICONS.markerCross()));
 		markers.add(new KingdomMarker(CELTIC_CROSS_MARKER, "Celtic cross", Resources.ICONS.markerCelticCross()));
 		markers.add(new KingdomMarker(MINE_MARKER, "Mine", Resources.ICONS.markerMine()));
+		markers.add(new KingdomMarker(METULJ_MARKER, "Amadej", Resources.ICONS.markerMetulj()));
 		
 		return markers;
 	}

@@ -55,6 +55,7 @@ import si.roskar.diploma.shared.GeometryType;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
 import si.roskar.diploma.shared.KingdomMarker;
+import si.roskar.diploma.shared.KingdomTexture;
 import si.roskar.diploma.shared.KingdomVectorFeature;
 
 import com.google.gwt.dom.client.Element;
@@ -263,6 +264,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		ComboBox<KingdomMarker> getMarkerComboBox();
 		
+		ComboBox<KingdomTexture> getTextureComboBox();
+		
 		Slider getUpperLimitSlider();
 		
 		Slider getLowerLimitSlider();
@@ -272,6 +275,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		double getLowerSliderScale();
 		
 		CheckBox getLabelCheckBox();
+		
+		CheckBox getTextureCheckBox();
 	}
 	
 	public interface MeasureDisplay extends View{
@@ -1109,18 +1114,16 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 								layer.setStrokeWidth(editLayerStyleDisplay.getSize());
 								layer.setStrokeOpacity(editLayerStyleDisplay.getStrokeOpacitySpinner().getValue());
 								layer.setFillOpacity(editLayerStyleDisplay.getFillOpacitySpinner().getValue());
+								if(editLayerStyleDisplay.getTextureComboBox().getValue() != null){
+									layer.setTextureImage(editLayerStyleDisplay.getTextureComboBox().getValue().getImageName());
+								}
+								layer.setStyle(editLayerStyleDisplay.getTextureCheckBox().getValue() ? "kingdom_polygon_texture" : "kingdom_polygon");
 							}else if(layer.getGeometryType().equals(GeometryType.MARKER)){
 								layer.setColor(editLayerStyleDisplay.getColor());
 								layer.setSize(editLayerStyleDisplay.getSize());
 								layer.setFillColor(editLayerStyleDisplay.getFillColor());
 								layer.setMarkerImage(editLayerStyleDisplay.getMarkerComboBox().getValue().getImageName());
-								
-								if(editLayerStyleDisplay.getLabelCheckBox().getValue()){
-									layer.setStyle("marker_label");
-								}
-								else{
-									layer.setStyle("marker");
-								}
+								layer.setStyle(editLayerStyleDisplay.getLabelCheckBox().getValue() ? "marker_label" : "marker");
 							}
 							
 							layer.setMaxScale(editLayerStyleDisplay.getLowerSliderScale());

@@ -180,7 +180,18 @@ public class Resources{
 		
 		@Source("marker_cross.png")
 		ImageResource markerCross();
+		
+		@Source("marker_metulj.png")
+		ImageResource markerMetulj();
 		// ===================
+		
+		// ===== textures =====
+		@Source ("textures/texture_grass.png")
+		ImageResource textureGrass();
+		
+		@Source ("textures/texture_desert.png")
+		ImageResource textureDesert();
+		// ====================
 	}
 	
 	public static final Icons	ICONS	= GWT.create(Icons.class);

@@ -37,6 +37,7 @@ public class LayerDataMapper implements RowMapper<KingdomLayer>{
 		layer.setMaxScale(rs.getDouble("maxscale"));
 		layer.setMinScale(rs.getDouble("minscale"));
 		layer.setMarkerImage(rs.getString("marker_image"));
+		layer.setTextureImage(rs.getString("texture_image"));
 		
 		return layer;
 	}

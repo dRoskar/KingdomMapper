@@ -107,13 +107,13 @@ public class LayerJDBCTemplate{
 		return true;
 	}
 	
-	public boolean updateLayerStyle(int layerId, String style, String color, int size, String shape, String fillColor, int strokeWidth, double fillOpacity, double strokeOpacity, double maxScale, double minScale, String markerImage){
+	public boolean updateLayerStyle(int layerId, String style, String color, int size, String shape, String fillColor, int strokeWidth, double fillOpacity, double strokeOpacity, double maxScale, double minScale, String markerImage, String textureImage){
 		style = style == null ? "" : style;
 		color = color == null ? "" : color;
 		shape = shape == null ? "" : shape;
 		fillColor = fillColor == null ? "" : fillColor;	
 		
-		String SQL = "UPDATE public.\"Layer\" SET style = '" + style + "', color = '" + color + "', size = " + size + ", shape = '" + shape + "', fill_color = '" + fillColor + "', stroke_width = " + strokeWidth + ", fill_opacity = " + fillOpacity + ", stroke_opacity = " + strokeOpacity + ", maxscale = " + maxScale + ", minscale = " + minScale + ", marker_image = '" + markerImage + "' WHERE id = " + layerId;
+		String SQL = "UPDATE public.\"Layer\" SET style = '" + style + "', color = '" + color + "', size = " + size + ", shape = '" + shape + "', fill_color = '" + fillColor + "', stroke_width = " + strokeWidth + ", fill_opacity = " + fillOpacity + ", stroke_opacity = " + strokeOpacity + ", maxscale = " + maxScale + ", minscale = " + minScale + ", marker_image = '" + markerImage + "', texture_image = '" + textureImage + "' WHERE id = " + layerId;
 		jdbcTemplateObject.update(SQL);
 		
 		return true;

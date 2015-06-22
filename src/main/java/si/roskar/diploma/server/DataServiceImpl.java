@@ -161,7 +161,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	@Override
 	public KingdomLayer updateLayerStyle(KingdomLayer layer){
 		layerJdbcTemplate.updateLayerStyle(layer.getId(), layer.getStyle(), layer.getColor(), layer.getSize(), layer.getShape(), layer.getFillColor(), layer.getStrokeWidth(), layer.getFillOpacity(),
-				layer.getStrokeOpacity(), layer.getMaxScale(), layer.getMinScale(), layer.getMarkerImage());
+				layer.getStrokeOpacity(), layer.getMaxScale(), layer.getMinScale(), layer.getMarkerImage(), layer.getTextureImage());
 		
 		return layer;
 	}

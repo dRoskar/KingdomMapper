@@ -25,6 +25,7 @@ public class KingdomLayer implements IsSerializable{
 	private double			minScale		= 0.0;
 	private boolean			hasLabel		= false;
 	private String			markerImage		= null;
+	private String			textureImage	= null;
 	
 	public KingdomLayer(){
 		
@@ -203,15 +204,23 @@ public class KingdomLayer implements IsSerializable{
 	public String getMarkerImage(){
 		return markerImage;
 	}
-
+	
 	public void setMarkerImage(String markerImage){
 		this.markerImage = markerImage;
 	}
-
+	
 	public KingdomLayer getLayer(){
 		return this;
 	}
 	
+	public String getTextureImage(){
+		return textureImage;
+	}
+
+	public void setTextureImage(String textureImage){
+		this.textureImage = textureImage;
+	}
+
 	public String getEnvValues(){
 		String env = "";
 		if(this.getGeometryType().equals(GeometryType.POINT)){
@@ -250,6 +259,10 @@ public class KingdomLayer implements IsSerializable{
 			}
 			
 			env = env + "stroke_opacity:" + this.getStrokeOpacity() + ";";
+			
+			if(this.getTextureImage() != null){
+				env = env + "texture:" + this.getTextureImage() + ";";
+			}
 		}else if(this.getGeometryType().equals(GeometryType.MARKER)){
 			if(this.getFillColor() != null){
 				env = env + "fill_color:" + this.getFillColor() + ";";
@@ -261,7 +274,7 @@ public class KingdomLayer implements IsSerializable{
 			
 			if(this.getSize() > 0){
 				env = env + "size:" + this.getSize() + ";";
-				env = env + "label_displacement:" + ((this.getSize()/2) + this.getSize()/10) + ";";
+				env = env + "label_displacement:" + ((this.getSize() / 2) + this.getSize() / 10) + ";";
 			}
 			
 			if(this.getMarkerImage() != null){
