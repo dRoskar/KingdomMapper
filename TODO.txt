@@ -86,7 +86,7 @@
 [ ] Marker label styles
 	[X] background color
 	[X] color
-	[.] size
+	[X] size
 	
 [ ] textures
 [ ] identify
@@ -110,6 +110,7 @@
 [ ] print
 [ ] dash line style
 [ ] line corner and ends styles
+[ ] layer tree folders
 [ ] style editor preview (wms service)
 [ ] uploadable textures
 [ ] duplicate layer

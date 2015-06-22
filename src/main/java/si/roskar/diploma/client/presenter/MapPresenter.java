@@ -76,6 +76,7 @@ import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.button.ToggleButton;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
+import com.sencha.gxt.widget.core.client.form.CheckBox;
 import com.sencha.gxt.widget.core.client.form.ComboBox;
 import com.sencha.gxt.widget.core.client.form.DoubleSpinnerField;
 import com.sencha.gxt.widget.core.client.form.SimpleComboBox;
@@ -269,6 +270,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		double getUpperSliderScale();
 		
 		double getLowerSliderScale();
+		
+		CheckBox getLabelCheckBox();
 	}
 	
 	public interface MeasureDisplay extends View{
@@ -1111,6 +1114,13 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 								layer.setSize(editLayerStyleDisplay.getSize());
 								layer.setFillColor(editLayerStyleDisplay.getFillColor());
 								layer.setMarkerImage(editLayerStyleDisplay.getMarkerComboBox().getValue().getImageName());
+								
+								if(editLayerStyleDisplay.getLabelCheckBox().getValue()){
+									layer.setStyle("marker_label");
+								}
+								else{
+									layer.setStyle("marker");
+								}
 							}
 							
 							layer.setMaxScale(editLayerStyleDisplay.getLowerSliderScale());
@@ -1126,6 +1136,9 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 							
 							// refresh layer maxscale and minscale
 							display.refreshLayerScaleLimit(layer);
+							
+							// refresh layer style
+							display.getCurrentOLWmsLayer().getParams().setStyles(layer.getStyle());
 							
 							// redraw wms layer
 							display.getCurrentOLWmsLayer().redraw();

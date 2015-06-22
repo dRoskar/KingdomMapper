@@ -28,6 +28,7 @@ import com.sencha.gxt.widget.core.client.container.BoxLayoutContainer.BoxLayoutP
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 import com.sencha.gxt.widget.core.client.event.HideEvent;
 import com.sencha.gxt.widget.core.client.event.HideEvent.HideHandler;
+import com.sencha.gxt.widget.core.client.form.CheckBox;
 import com.sencha.gxt.widget.core.client.form.ComboBox;
 import com.sencha.gxt.widget.core.client.form.DoubleSpinnerField;
 import com.sencha.gxt.widget.core.client.form.FieldLabel;
@@ -36,7 +37,7 @@ import com.sencha.gxt.widget.core.client.form.SimpleComboBox;
 
 public class EditLayerStyleWindow extends Window implements EditLayerStyleDisplay{
 	
-	interface ComboBoxTemplates extends XTemplates {
+	interface ComboBoxTemplates extends XTemplates{
 		@XTemplate("<img width=\"24\" height=\"24\" src=\"{imageUri}\"> {title}")
 		SafeHtml marker(SafeUri imageUri, String title);
 	}
@@ -67,6 +68,7 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 	private double[]				scales							= null;
 	private Slider					upperLimitSlider				= null;
 	private Slider					lowerLimitSlider				= null;
+	private CheckBox				labelCheckBox					= null;
 	private ComboBox<KingdomMarker>	markerComboBox					= null;
 	
 	private MarkerProperties		markerProps						= GWT.create(MarkerProperties.class);
@@ -334,7 +336,7 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 		markers.addAll(KingdomMarker.getMarkerList());
 		
 		markerComboBox = new ComboBox<KingdomMarker>(markers, markerProps.title(), new AbstractSafeHtmlRenderer<KingdomMarker>() {
-			final ComboBoxTemplates comboBoxTemplates = GWT.create(ComboBoxTemplates.class);
+			final ComboBoxTemplates	comboBoxTemplates	= GWT.create(ComboBoxTemplates.class);
 			
 			@Override
 			public SafeHtml render(KingdomMarker object){
@@ -353,6 +355,10 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 		sizeSpinner.setEditable(false);
 		sizeSpinner.setValue(layer.getSize());
 		layoutContainer.add(new FieldLabel(sizeSpinner, "Size"));
+		
+		labelCheckBox = new CheckBox();
+		labelCheckBox.setValue(layer.getStyle().contains("label"));
+		layoutContainer.add(new FieldLabel(labelCheckBox, "Label"));
 		
 		String[] colors = new String[] { layer.getColor() };
 		colorPalette = new ColorPalette(colors, colors);
@@ -505,6 +511,11 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 	@Override
 	public Slider getLowerLimitSlider(){
 		return lowerLimitSlider;
+	}
+	
+	@Override
+	public CheckBox getLabelCheckBox(){
+		return labelCheckBox;
 	}
 	
 	@Override
