@@ -643,6 +643,12 @@ public class MapView implements Display{
 		wms.setIsVisible(layer.isVisible());
 		wms.setZIndex(layer.getZIndex());
 		
+		if(!(layer instanceof KingdomGridLayer) && layer.getGeometryType().equals(GeometryType.MARKER)){
+			wms.setSingleTile(true);
+		}else{
+			wms.setSingleTile(false);
+		}
+		
 		mapWidget.getMap().addLayer(wms);
 		
 		wms.setZIndex(layer.getZIndex());
