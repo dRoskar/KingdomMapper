@@ -82,10 +82,15 @@
 	
 [X] remember what user was looking at last - save to map object; if it exists use it instead of zoomToStartingBounds() when loading map layers (adding map) - saving extent, now save zoomlevel too
 [X] measure
-[ ] Labels
-[ ] marker icons
+[X] Marker labels
+[ ] Marker label styles
+	[X] background color
+	[X] color
+	[.] size
+	
 [ ] textures
 [ ] identify
+[ ] icons for points
 [X] use .equals instead of compareTo (except for the sort class)
 [X] use JST for wkt to gml instead of your own crappy function
 	
@@ -101,13 +106,17 @@
 [ ] select (and edit) multiple features
 [ ] subtract shapes from lines and points
 [ ] add different grid size choices
+[ ] marker label fonts
 [ ] print
 [ ] dash line style
 [ ] line corner and ends styles
 [ ] style editor preview (wms service)
 [ ] uploadable textures
 [ ] duplicate layer
+[ ] vector sizes in ground units http://docs.geoserver.org/stable/en/user/styling/sld-extensions/uom.html
 [ ] example: if a wfs feature is selected while rotating, switch to scaling and feature does not get unselected
+[ ] multiple styles for single layer could be achieved like so http://docs.geoserver.org/stable/en/user/styling/sld-cookbook/lines.html#attribute-based-line
+	for instance, each layer is allowed 10 styles, user determines properties for each style. Attributes are pre-named (style_1, style_2, ...)
 
 ## BUGS ##
 [X] points aren't showing

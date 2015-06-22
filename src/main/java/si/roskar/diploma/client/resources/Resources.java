@@ -57,18 +57,6 @@ public class Resources{
 		@Source("accept.png")
 		ImageResource accept();
 		
-		@Source("marker.png")
-		ImageResource marker();
-		
-		@Source("marker_man.png")
-		ImageResource markerMan();
-		
-		@Source("marker_quest.png")
-		ImageResource markerQuest();
-		
-		@Source("marker_reward.png")
-		ImageResource markerReward();
-		
 		@Source("shape_move_front.png")
 		ImageResource moveToFront();
 		
@@ -155,6 +143,44 @@ public class Resources{
 		
 		@Source ("area_measure.png")
 		ImageResource measureArea();
+		
+		// ===== markers =====
+		@Source("marker.png")
+		ImageResource marker();
+		
+		@Source("marker_man.png")
+		ImageResource markerMan();
+		
+		@Source("marker_quest.png")
+		ImageResource markerQuest();
+		
+		@Source("marker_reward.png")
+		ImageResource markerReward();
+		
+		@Source("marker_cactus.png")
+		ImageResource markerCactus();
+		
+		@Source("marker_celtic_cross.png")
+		ImageResource markerCelticCross();
+		
+		@Source("marker_city.png")
+		ImageResource markerCity();
+		
+		@Source("marker_mine.png")
+		ImageResource markerMine();
+		
+		@Source("marker_tree1.png")
+		ImageResource markerEvergreen();
+		
+		@Source("marker_tree2.png")
+		ImageResource markerTree();
+		
+		@Source("marker_village.png")
+		ImageResource markerVillage();
+		
+		@Source("marker_cross.png")
+		ImageResource markerCross();
+		// ===================
 	}
 	
 	public static final Icons	ICONS	= GWT.create(Icons.class);

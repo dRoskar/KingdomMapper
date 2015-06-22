@@ -261,6 +261,7 @@ public class KingdomLayer implements IsSerializable{
 			
 			if(this.getSize() > 0){
 				env = env + "size:" + this.getSize() + ";";
+				env = env + "label_displacement:" + ((this.getSize()/2) + this.getSize()/10) + ";";
 			}
 			
 			if(this.getMarkerImage() != null){
