@@ -989,6 +989,12 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			
 			@Override
 			public void onDisableEditMode(EventDisableEditMode event){
+				
+				// if snap mode is on, refresh it
+				if(display.getSnapButton().getValue()){
+					display.setSnapEnabled(false);
+				}
+				
 				display.disableEditMode();
 				
 				// toggle any edit buttons

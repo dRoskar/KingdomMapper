@@ -549,6 +549,10 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 		display.getAddLayerButton().addSelectHandler(new SelectHandler() {
 			@Override
 			public void onSelect(SelectEvent event){
+				
+				// disable edit mode
+				Bus.get().fireEvent(new EventDisableEditMode());
+				
 				addLayerDisplay.show();
 				
 				// bind dialog events

@@ -62,7 +62,7 @@
 [X] drawing circles
 [X] changing icons (with layer type)
 [X] subtracting everything from a feature should delete the feature (what happens?)
-[ ] if you have rotating (or moving vertices or scaling) on and switch to points, you don't have to do any mumo jumbo. Open layers already switches to drag on it's own, and back to desired control when going back to lines/polygons
+[ ] if you have rotating (or moving vertices or scaling) on and switch to points, you don't have to do any mumbo jumbo. Open layers already switches to drag on it's own, and back to desired control when going back to lines/polygons
 [X] renaming stuff
 [X] check if name already exists when renaming stuff
 [X] loading bars
@@ -89,7 +89,8 @@
 	[ ] size
 	[X] visible
 	
-[ ] textures
+[X] textures
+[ ] z indexes (don't change them, just re-add the layers to the map)
 [ ] identify
 [ ] icons for points
 [X] use .equals instead of compareTo (except for the sort class)
@@ -135,6 +136,4 @@
 [X] layer with multiple features, select erase tool, click on a feature, it's gone. Click on empty space, feature is back (only on wfs layer)
 [X] click cancel when selecting color
 [ ] subtract sometimes changes into add
-[ ] if subtract is on when adding new layer, subtract stay on, but button is off (what about when adding new map?)
-[ ] deleting a layer scramles z indices
-z indexes are fucking up. Try putting them 5 spaces apart
+[ ] if subtract is on when adding new layer, subtract stays on, but button is off (what about when adding new map?)

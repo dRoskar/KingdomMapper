@@ -1207,12 +1207,18 @@ public class MapView implements Display{
 				mapWidget.getMap().addControl(snapControl);
 				snapControl.activate();
 				oldSnapControl = snapControl;
+				if(!snapButton.getValue()){
+					snapButton.setValue(true, false);
+				}
 			}
 		}else{
 			if(oldSnapControl != null){
 				oldSnapControl.deactivate();
 				mapWidget.getMap().removeControl(oldSnapControl);
 				mapWidget.getMap().removeLayer(drawingLayer);
+				if(snapButton.getValue()){
+					snapButton.setValue(false, false);
+				}
 			}
 		}
 	}
