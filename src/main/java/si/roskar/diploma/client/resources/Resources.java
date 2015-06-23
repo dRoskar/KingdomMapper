@@ -202,6 +202,15 @@ public class Resources{
 		
 		@Source ("textures/texture_desert.png")
 		ImageResource textureDesert();
+		
+		@Source ("textures/texture_lava.png")
+		ImageResource textureLava();
+		
+		@Source ("textures/texture_stone.png")
+		ImageResource textureStone();
+		
+		@Source ("textures/texture_dirt.png")
+		ImageResource textureDirt();
 		// ====================
 	}
 	

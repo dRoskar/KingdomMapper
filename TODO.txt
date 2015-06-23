@@ -137,3 +137,4 @@
 [ ] subtract sometimes changes into add
 [ ] if subtract is on when adding new layer, subtract stay on, but button is off (what about when adding new map?)
 [ ] deleting a layer scramles z indices
+z indexes are fucking up. Try putting them 5 spaces apart
