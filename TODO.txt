@@ -90,7 +90,7 @@
 	[X] visible
 	
 [X] textures
-[ ] z indexes (don't change them, just re-add the layers to the map)
+[X] z indexes (don't change them, just re-add the layers to the map)
 [ ] identify
 [ ] icons for points
 [X] use .equals instead of compareTo (except for the sort class)
@@ -110,6 +110,7 @@
 [ ] add different grid size choices
 [ ] marker label fonts
 [ ] print
+[ ] consider updating to DB less often. MAybe only when user stops editing
 [ ] dash line style
 [ ] line corner and ends styles
 [ ] layer tree folders

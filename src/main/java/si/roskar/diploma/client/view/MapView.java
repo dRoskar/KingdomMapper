@@ -571,10 +571,6 @@ public class MapView implements Display{
 		// clear old layers
 		mapWidget.getMap().removeOverlayLayers();
 		
-		// clear cached layers
-		wmsLayerHashMap.clear();
-		wfsLayerPackageHashMap.clear();
-		
 		currentLayer = null;
 		editingLayer = null;
 		
@@ -587,6 +583,9 @@ public class MapView implements Display{
 			mapWidget.getMap().setMaxExtent(countryGridExtent);
 			mapWidget.getMap().setRestrictedExtent(countryGridExtent);
 		}
+		
+		// sort layers by Z index
+		Collections.sort(map.getLayers(), new LayerZIndexComparator());
 		
 		for(KingdomLayer layer : map.getLayers()){
 			addLayer(layer);
@@ -641,7 +640,6 @@ public class MapView implements Display{
 		
 		wms.setOpacity(layer.getOpacity());
 		wms.setIsVisible(layer.isVisible());
-		wms.setZIndex(layer.getZIndex());
 		
 		if(!(layer instanceof KingdomGridLayer) && layer.getGeometryType().equals(GeometryType.MARKER)){
 			wms.setSingleTile(true);
@@ -650,8 +648,6 @@ public class MapView implements Display{
 		}
 		
 		mapWidget.getMap().addLayer(wms);
-		
-		wms.setZIndex(layer.getZIndex());
 		
 		wmsLayerHashMap.put(layer, wms);
 		
@@ -717,7 +713,6 @@ public class MapView implements Display{
 			
 			Vector wfsLayer = new Vector(layer.getName() + "Wfs", vectorOptions);
 			wfsLayer.setFilter(wfsFilter);
-			wfsLayer.setZIndex(layer.getZIndex());
 			wfsLayer.setStyleMap(new StyleMap(defaultStyle, selectStyle, defaultStyle));
 			
 			// modify feature
@@ -760,7 +755,6 @@ public class MapView implements Display{
 			Snapping snapControl = new Snapping();
 			snapControl.setLayer(drawingLayer);
 			snapControl.setTargetLayer(wfsLayer);
-			// mapWidget.getMap().addControl(snapControl);
 			
 			WFSLayerPackage layerPackage = new WFSLayerPackage(wfsLayer, modifyFeature, refreshStrategy, wfsProtocol, deleteFeature, saveStrategy, snapControl);
 			
@@ -1118,7 +1112,7 @@ public class MapView implements Display{
 		resortLayerZIndices(layers);
 		
 		// set OL Z indices
-		applyLayerZIndices(layers);
+		applyLayerZIndices();
 	}
 	
 	@Override
@@ -1145,18 +1139,25 @@ public class MapView implements Display{
 		resortLayerZIndices(layers);
 		
 		// set OL Z indices
-		applyLayerZIndices(layers);
+		applyLayerZIndices();
 	}
 	
-	private void applyLayerZIndices(List<KingdomLayer> layers){
-		// set OL Z indices
-		for(KingdomLayer layer : layers){
-			wmsLayerHashMap.get(layer).setZIndex(layer.getZIndex());
-			wfsLayerPackageHashMap.get(layer).getWfsLayer().setZIndex(layer.getZIndex());
+	private void applyLayerZIndices(){
+		// sort layers by Z index
+		Collections.sort(layerList, new LayerZIndexComparator());
+		
+		// remove all layers from map
+		for(KingdomLayer layer : layerList){
+			mapWidget.getMap().removeLayer(wmsLayerHashMap.get(layer));
+		}
+		
+		// add layers back to map in correct order
+		for(KingdomLayer layer : layerList){
+			mapWidget.getMap().addLayer(wmsLayerHashMap.get(layer));
 		}
 	}
 	
-	private List<KingdomLayer> resortLayerZIndices(List<KingdomLayer> layers){
+	private void resortLayerZIndices(List<KingdomLayer> layers){
 		// sort layers by Z index
 		Collections.sort(layers, new LayerZIndexComparator());
 		
@@ -1164,8 +1165,6 @@ public class MapView implements Display{
 		for(int i = 1; i < (layers.size() + 1); i++){
 			layers.get(i - 1).setZIndex(i);
 		}
-		
-		return layers;
 	}
 	
 	@Override
@@ -1244,24 +1243,6 @@ public class MapView implements Display{
 	}
 	
 	@Override
-	public void reApplyLayerZIndices(){
-		// get a list of current layers without the grids
-		List<KingdomLayer> layers = new ArrayList<KingdomLayer>();
-		
-		for(KingdomLayer current : layerList){
-			if(!(current instanceof KingdomGridLayer)){
-				layers.add(current);
-			}
-		}
-		
-		// re-sort
-		resortLayerZIndices(layers);
-		
-		// apply Z-Indices
-		applyLayerZIndices(layers);
-	}
-	
-	@Override
 	public void refreshLayerScaleLimit(KingdomLayer layer){
 		WMS wmsLayer = getCurrentOLWmsLayer();
 		
@@ -1269,6 +1250,10 @@ public class MapView implements Display{
 		wmsLayer.getOptions().setMaxScale((float) layer.getMaxScale());
 		wmsLayer.getOptions().setMinScale((float) layer.getMinScale());
 		mapWidget.getMap().addLayer(wmsLayer);
-		reApplyLayerZIndices();
+		
+		// re-apply Z-indices
+		
+		// set OL Z indices
+		applyLayerZIndices();
 	}
 }

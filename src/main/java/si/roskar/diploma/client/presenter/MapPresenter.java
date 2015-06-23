@@ -197,8 +197,6 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		void setLayerOpacity(KingdomLayer layer, float opacity);
 		
-		void reApplyLayerZIndices();
-		
 		void refreshLayerScaleLimit(KingdomLayer layer);
 	}
 	
@@ -1256,7 +1254,6 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					measureDisplay.hide();
 				}else{
 					measure.deactivate();
-					display.reApplyLayerZIndices();
 					measureDisplay.hide();
 				}
 			}
@@ -1274,7 +1271,6 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					measureDisplay.hide();
 				}else{
 					measure.deactivate();
-					display.reApplyLayerZIndices();
 					measureDisplay.hide();
 				}
 			}
