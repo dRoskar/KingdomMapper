@@ -9,18 +9,20 @@ import com.google.gwt.resources.client.ImageResource;
 
 public class KingdomMarker{
 	
-	public static final String	GREEN_MARKER		= "marker_green.png";
-	public static final String	MAN_MARKER			= "marker_man.png";
-	public static final String	QUEST_MARKER		= "marker_quest.png";
-	public static final String	REWARD_MARKER		= "marker_reward.png";
-	public static final String	TREE_MARKER			= "marker_tree1.png";
-	public static final String	EVERGREEN_MARKER	= "marker_tree2.png";
-	public static final String	CACTUS_MARKER		= "marker_cactus.png";
-	public static final String	VILLAGE_MARKER		= "marker_village.png";
-	public static final String	CITY_MARKER			= "marker_city.png";
-	public static final String	CROSS_MARKER		= "marker_cross.png";
-	public static final String	CELTIC_CROSS_MARKER	= "marker_celtic_cross.png";
-	public static final String	MINE_MARKER			= "marker_mine.png";
+	public static final String	GREEN_MARKER		= "marker_green.svg";
+	public static final String	RED_MARKER			= "marker_red.svg";
+	public static final String	BLUE_MARKER			= "marker_blue.svg";
+	public static final String	MAN_MARKER			= "marker_man.svg";
+	public static final String	QUEST_MARKER		= "marker_quest.svg";
+	public static final String	REWARD_MARKER		= "marker_reward.svg";
+	public static final String	TREE_MARKER			= "marker_tree1.svg";
+	public static final String	EVERGREEN_MARKER	= "marker_tree2.svg";
+	public static final String	CACTUS_MARKER		= "marker_cactus.svg";
+	public static final String	VILLAGE_MARKER		= "marker_village.svg";
+	public static final String	CITY_MARKER			= "marker_city.svg";
+	public static final String	CROSS_MARKER		= "marker_cross.svg";
+	public static final String	CELTIC_CROSS_MARKER	= "marker_celtic_cross.svg";
+	public static final String	MINE_MARKER			= "marker_mine.svg";
 	public static final String	METULJ_MARKER		= "marker_metulj.svg";
 	
 	private String				imageName			= null;
@@ -63,7 +65,9 @@ public class KingdomMarker{
 	
 	public static List<KingdomMarker> getMarkerList(){
 		List<KingdomMarker> markers = new ArrayList<KingdomMarker>();
-		markers.add(new KingdomMarker(GREEN_MARKER, "Green", Resources.ICONS.marker()));
+		markers.add(new KingdomMarker(GREEN_MARKER, "Green", Resources.ICONS.markerGreen()));
+		markers.add(new KingdomMarker(RED_MARKER, "Red", Resources.ICONS.markerRed()));
+		markers.add(new KingdomMarker(BLUE_MARKER, "Blue", Resources.ICONS.markerBlue()));
 		markers.add(new KingdomMarker(MAN_MARKER, "Man", Resources.ICONS.markerMan()));
 		markers.add(new KingdomMarker(QUEST_MARKER, "Quest", Resources.ICONS.markerQuest()));
 		markers.add(new KingdomMarker(REWARD_MARKER, "Reward", Resources.ICONS.markerReward()));

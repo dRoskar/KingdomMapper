@@ -30,6 +30,9 @@ public class Resources{
 		@Source("polygon.png")
 		ImageResource polygon();
 		
+		@Source("marker.png")
+		ImageResource marker();
+		
 		@Source("map.png")
 		ImageResource map();
 		
@@ -145,43 +148,51 @@ public class Resources{
 		ImageResource measureArea();
 		
 		// ===== markers =====
-		@Source("marker.png")
-		ImageResource marker();
+		@Source("markers/marker_green.png")
+		ImageResource markerGreen();
 		
-		@Source("marker_man.png")
+		// ===== markers =====
+		@Source("markers/marker_red.png")
+		ImageResource markerRed();
+		
+		// ===== markers =====
+		@Source("markers/marker_blue.png")
+		ImageResource markerBlue();
+		
+		@Source("markers/marker_man.png")
 		ImageResource markerMan();
 		
-		@Source("marker_quest.png")
+		@Source("markers/marker_quest.png")
 		ImageResource markerQuest();
 		
-		@Source("marker_reward.png")
+		@Source("markers/marker_reward.png")
 		ImageResource markerReward();
 		
-		@Source("marker_cactus.png")
+		@Source("markers/marker_cactus.png")
 		ImageResource markerCactus();
 		
-		@Source("marker_celtic_cross.png")
+		@Source("markers/marker_celtic_cross.png")
 		ImageResource markerCelticCross();
 		
-		@Source("marker_city.png")
+		@Source("markers/marker_city.png")
 		ImageResource markerCity();
 		
-		@Source("marker_mine.png")
+		@Source("markers/marker_mine.png")
 		ImageResource markerMine();
 		
-		@Source("marker_tree1.png")
+		@Source("markers/marker_tree1.png")
 		ImageResource markerEvergreen();
 		
-		@Source("marker_tree2.png")
+		@Source("markers/marker_tree2.png")
 		ImageResource markerTree();
 		
-		@Source("marker_village.png")
+		@Source("markers/marker_village.png")
 		ImageResource markerVillage();
 		
-		@Source("marker_cross.png")
+		@Source("markers/marker_cross.png")
 		ImageResource markerCross();
 		
-		@Source("marker_metulj.png")
+		@Source("markers/marker_metulj.png")
 		ImageResource markerMetulj();
 		// ===================
 		

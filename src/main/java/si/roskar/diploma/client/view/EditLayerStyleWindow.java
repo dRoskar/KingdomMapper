@@ -187,7 +187,7 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 		sizeSpinner.setIncrement(1);
 		sizeSpinner.setMinValue(1);
 		sizeSpinner.setMaxValue(1000);
-		sizeSpinner.setEditable(false);
+		sizeSpinner.setEditable(true);
 		sizeSpinner.setValue(layer.getSize());
 		layoutContainer.add(new FieldLabel(sizeSpinner, "Size"));
 		
@@ -247,7 +247,7 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 		sizeSpinner.setIncrement(1);
 		sizeSpinner.setMinValue(1);
 		sizeSpinner.setMaxValue(1000);
-		sizeSpinner.setEditable(false);
+		sizeSpinner.setEditable(true);
 		sizeSpinner.setValue(layer.getStrokeWidth());
 		layoutContainer.add(new FieldLabel(sizeSpinner, "Stroke width"));
 		
@@ -319,7 +319,7 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 		sizeSpinner.setIncrement(1);
 		sizeSpinner.setMinValue(1);
 		sizeSpinner.setMaxValue(1000);
-		sizeSpinner.setEditable(false);
+		sizeSpinner.setEditable(true);
 		sizeSpinner.setValue(layer.getStrokeWidth());
 		layoutContainer.add(new FieldLabel(sizeSpinner, "Stroke width"));
 		
@@ -386,7 +386,7 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 		sizeSpinner.setIncrement(1);
 		sizeSpinner.setMinValue(1);
 		sizeSpinner.setMaxValue(1000);
-		sizeSpinner.setEditable(false);
+		sizeSpinner.setEditable(true);
 		sizeSpinner.setValue(layer.getSize());
 		layoutContainer.add(new FieldLabel(sizeSpinner, "Size"));
 		

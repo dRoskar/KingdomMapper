@@ -601,8 +601,8 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 								}else if(newLayer.getGeometryType().equals(GeometryType.MARKER)){
 									newLayer.setColor("000000");
 									newLayer.setFillColor("FFCC00");
-									newLayer.setSize(40);
-									newLayer.setMarkerImage(KingdomMarker.GREEN_MARKER);
+									newLayer.setSize(60);
+									newLayer.setMarkerImage(KingdomMarker.RED_MARKER);
 									newLayer.setStyle("marker_label");
 								}
 								

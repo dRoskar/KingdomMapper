@@ -113,7 +113,7 @@
 [ ] line corner and ends styles
 [ ] layer tree folders
 [ ] style editor preview (wms service)
-[ ] upoadable markers
+[ ] upoadable markers https://xmlgraphics.apache.org/batik/
 [ ] uploadable textures
 [ ] duplicate layer
 [ ] vector sizes in ground units http://docs.geoserver.org/stable/en/user/styling/sld-extensions/uom.html
