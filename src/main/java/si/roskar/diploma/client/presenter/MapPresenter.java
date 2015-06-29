@@ -465,7 +465,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				
 				// LINE
 				if(geometryType.equals(GeometryType.LINE) && eventObject.getVectorFeature().getGeometry().getVertices(true).length > 1){
-					DataServiceAsync.Util.getInstance().insertLine(geometry, "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
+					DataServiceAsync.Util.getInstance().insertLine(geometry, display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
 						
 						@Override
 						public void onFailure(Throwable caught){
@@ -486,7 +486,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				// POLYGON
 				if(geometryType.equals(GeometryType.POLYGON) && eventObject.getVectorFeature().getGeometry().getVertices(false).length > 2 && !display.isInAddingHolesMode()
 						&& !display.isInAddingShapesMode()){
-					DataServiceAsync.Util.getInstance().insertPolygon(geometry, "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
+					DataServiceAsync.Util.getInstance().insertPolygon(geometry, display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
 						
 						@Override
 						public void onFailure(Throwable caught){

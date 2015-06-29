@@ -92,8 +92,8 @@
 [X] textures
 [X] z indexes (don't change them, just re-add the layers to the map)
 [X] feature info
-[ ] geoserver url from properties file
-[ ] no need to insert descriptions when adding new features
+[X] geoserver url from properties file
+[X] no need to insert descriptions when adding new features
 [ ] dataservice methods return bool: in exception -> return false
 [ ] marker icons for points
 [ ] city and village icon shouldn't be centered

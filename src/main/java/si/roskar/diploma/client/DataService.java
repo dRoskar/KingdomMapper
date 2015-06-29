@@ -2,7 +2,6 @@ package si.roskar.diploma.client;
 
 import java.util.List;
 
-import si.roskar.diploma.shared.GeometryType;
 import si.roskar.diploma.shared.KingdomFeature;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
@@ -47,9 +46,9 @@ public interface DataService extends RemoteService{
 	
 	void insertMarker(String wktGeometry, String label, String description, int layerId);
 	
-	void insertLine(String wktGeometry, String description, int layerId);
+	void insertLine(String wktGeometry, int layerId);
 	
-	void insertPolygon(String wktGeometry, String description, int layerId);
+	void insertPolygon(String wktGeometry, int layerId);
 	
 	boolean slicePolygonGeometry(String originalPolygonWktGeometry, String intersectorWktGeometry, String polygonFid);
 	

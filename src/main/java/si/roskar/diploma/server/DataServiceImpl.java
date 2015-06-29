@@ -271,16 +271,10 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		}
 	}
 	
-	public void insertLine(String wktGeometry, String description, int layerId){
+	public void insertLine(String wktGeometry, int layerId){
 		String wmsUrl = GeoserverSource.getWmsUrl();
 		
 		NetIO netIo = new NetIO();
-		
-		// encode special characters
-		description = Tools.encodeToNumericCharacterReference(description);
-		
-		// escape apostrophes
-		description = description.replace("'", "''");
 		
 		// assemble request XML
 		//@formatter:off
@@ -292,7 +286,6 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 				+ "  xsi:schemaLocation=\"http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename=topp:tasmania_roads\">\r\n"
 				+ "  <wfs:Insert>\r\n" 
 				+ "    <kingdom:line>\r\n" 
-				+ "      <kingdom:description>" + description + "</kingdom:description>\r\n" 
 				+ "      <kingdom:layer_id>" + layerId + "</kingdom:layer_id>\r\n" 
 				+ "      <geometry>" + Tools.wktToGml(wktGeometry) + "</geometry>\r\n" 
 				+ "    </kingdom:line>\r\n" 
@@ -311,16 +304,10 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		}
 	}
 	
-	public void insertPolygon(String wktGeometry, String description, int layerId){
+	public void insertPolygon(String wktGeometry, int layerId){
 		String wmsUrl = GeoserverSource.getWmsUrl();
 		
 		NetIO netIo = new NetIO();
-		
-		// encode special characters
-		description = Tools.encodeToNumericCharacterReference(description);
-		
-		// escape apostrophes
-		description = description.replace("'", "''");
 		
 		// assemble request XML
 		//@formatter:off
@@ -331,8 +318,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 				+ "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n"
 				+ "  xsi:schemaLocation=\"http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename=topp:tasmania_roads\">\r\n"
 				+ "  <wfs:Insert>\r\n" 
-				+ "    <kingdom:polygon>\r\n" 
-				+ "      <kingdom:description>" + description + "</kingdom:description>\r\n" 
+				+ "    <kingdom:polygon>\r\n"
 				+ "      <kingdom:layer_id>" + layerId + "</kingdom:layer_id>\r\n" 
 				+ "      <geometry> " + Tools.wktToGml(wktGeometry) + "</geometry>\r\n" 
 				+ "    </kingdom:polygon>\r\n" 
