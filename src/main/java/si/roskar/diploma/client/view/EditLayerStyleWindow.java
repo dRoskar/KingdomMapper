@@ -34,7 +34,6 @@ import com.sencha.gxt.widget.core.client.form.ComboBox;
 import com.sencha.gxt.widget.core.client.form.DoubleSpinnerField;
 import com.sencha.gxt.widget.core.client.form.FieldLabel;
 import com.sencha.gxt.widget.core.client.form.IntegerSpinnerField;
-import com.sencha.gxt.widget.core.client.form.SimpleComboBox;
 
 public class EditLayerStyleWindow extends Window implements EditLayerStyleDisplay{
 	
@@ -58,33 +57,40 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 		LabelProvider<KingdomTexture> title();
 	}
 	
-	private KingdomLayer				layer							= null;
-	private ColorPalette				colorPalette					= null;
-	private ColorPalette				fillColorPalette				= null;
-	private FieldLabel					colorPaletteFieldLabel			= null;
-	private FieldLabel					fillColorPaletteFieldLabel		= null;
-	private IntegerSpinnerField			sizeSpinner						= null;
-	private DoubleSpinnerField			strokeOpacitySpinner			= null;
-	private DoubleSpinnerField			fillOpacitySpinner				= null;
-	private SimpleComboBox<String>		shapeComboBox					= null;
-	private TextButton					applyButton						= null;
-	private TextButton					cancelButton					= null;
-	private boolean						isBound							= false;
-	private String						color							= null;
-	private String						fillColor						= null;
-	private ColorPickerWindow			colorPickerWindow				= null;
-	private ClickHandler				colorPaletteClickHandler		= null;
-	private ClickHandler				fillColorPaletteClickHandler	= null;
-	private double[]					scales							= null;
-	private Slider						upperLimitSlider				= null;
-	private Slider						lowerLimitSlider				= null;
-	private CheckBox					labelCheckBox					= null;
-	private CheckBox					textureCheckBox					= null;
-	private ComboBox<KingdomMarker>		markerComboBox					= null;
-	private ComboBox<KingdomTexture>	textureComboBox					= null;
+	private KingdomLayer				layer								= null;
+	private ColorPalette				colorPalette						= null;
+	private ColorPalette				fillColorPalette					= null;
+	private ColorPalette				labelColorPalette					= null;
+	private ColorPalette				labelFillColorPalette				= null;
+	private FieldLabel					colorPaletteFieldLabel				= null;
+	private FieldLabel					fillColorPaletteFieldLabel			= null;
+	private FieldLabel					labelColorPaletteFieldLabel			= null;
+	private FieldLabel					labelFillColorPaletteFieldLabel		= null;
+	private IntegerSpinnerField			sizeSpinner							= null;
+	private DoubleSpinnerField			strokeOpacitySpinner				= null;
+	private DoubleSpinnerField			fillOpacitySpinner					= null;
+	private TextButton					applyButton							= null;
+	private TextButton					cancelButton						= null;
+	private boolean						isBound								= false;
+	private String						color								= null;
+	private String						fillColor							= null;
+	private String						labelColor							= null;
+	private String						labelFillColor						= null;
+	private ColorPickerWindow			colorPickerWindow					= null;
+	private ClickHandler				colorPaletteClickHandler			= null;
+	private ClickHandler				fillColorPaletteClickHandler		= null;
+	private ClickHandler				labelColorPaletteClickHandler		= null;
+	private ClickHandler				labelFillColorPaletteClickHandler	= null;
+	private double[]					scales								= null;
+	private Slider						upperLimitSlider					= null;
+	private Slider						lowerLimitSlider					= null;
+	private CheckBox					labelCheckBox						= null;
+	private CheckBox					textureCheckBox						= null;
+	private ComboBox<KingdomMarker>		markerComboBox						= null;
+	private ComboBox<KingdomTexture>	textureComboBox						= null;
 	
-	private MarkerProperties			markerProps						= GWT.create(MarkerProperties.class);
-	private TextureProperties			textureProps					= GWT.create(TextureProperties.class);
+	private MarkerProperties			markerProps							= GWT.create(MarkerProperties.class);
+	private TextureProperties			textureProps						= GWT.create(TextureProperties.class);
 	
 	public EditLayerStyleWindow(KingdomLayer layer, double[] scales){
 		this.layer = layer;
@@ -134,6 +140,46 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 			}
 		};
 		
+		labelColorPaletteClickHandler = new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event){
+				colorPickerWindow = new ColorPickerWindow();
+				colorPickerWindow.show();
+				colorPickerWindow.setColor(layer.getLabelColor());
+				
+				colorPickerWindow.addHideHandler(new HideHandler() {
+					
+					@Override
+					public void onHide(HideEvent event){
+						if(colorPickerWindow.isColorPicked()){
+							setLabelColor(colorPickerWindow.getColor());
+						}
+					}
+				});
+			}
+		};
+		
+		labelFillColorPaletteClickHandler = new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event){
+				colorPickerWindow = new ColorPickerWindow();
+				colorPickerWindow.show();
+				colorPickerWindow.setColor(layer.getLabelFillColor());
+				
+				colorPickerWindow.addHideHandler(new HideHandler() {
+					
+					@Override
+					public void onHide(HideEvent event){
+						if(colorPickerWindow.isColorPicked()){
+							setLabelFillColor(colorPickerWindow.getColor());
+						}
+					}
+				});
+			}
+		};
+		
 		setHeadingText("Layer style - " + layer.getName());
 		setModal(true);
 		setResizable(false);
@@ -171,6 +217,8 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 	
 	private VerticalLayoutContainer assemblePointStyleEditorLayout(){
 		this.color = layer.getColor();
+		this.labelColor = layer.getLabelColor();
+		this.labelFillColor = layer.getLabelFillColor();
 		
 		VerticalLayoutContainer layoutContainer = new VerticalLayoutContainer();
 		
@@ -183,6 +231,28 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 		colorPaletteFieldLabel.setText("Color");
 		layoutContainer.add(colorPaletteFieldLabel);
 		
+		labelCheckBox = new CheckBox();
+		labelCheckBox.setValue(layer.getStyle().contains("label"));
+		layoutContainer.add(new FieldLabel(labelCheckBox, "Labeled"));
+		
+		String[] labelColors = new String[] { layer.getLabelColor() };
+		labelColorPalette = new ColorPalette(labelColors, labelColors);
+		labelColorPalette.addDomHandler(labelColorPaletteClickHandler, ClickEvent.getType());
+		
+		labelColorPaletteFieldLabel = new FieldLabel();
+		labelColorPaletteFieldLabel.setWidget(labelColorPalette);
+		labelColorPaletteFieldLabel.setText("Label background color");
+		layoutContainer.add(labelColorPaletteFieldLabel);
+		
+		String[] labelFillColors = new String[] { layer.getLabelFillColor() };
+		labelFillColorPalette = new ColorPalette(labelFillColors, labelFillColors);
+		labelFillColorPalette.addDomHandler(labelFillColorPaletteClickHandler, ClickEvent.getType());
+		
+		labelFillColorPaletteFieldLabel = new FieldLabel();
+		labelFillColorPaletteFieldLabel.setWidget(labelFillColorPalette);
+		labelFillColorPaletteFieldLabel.setText("Label color");
+		layoutContainer.add(labelFillColorPaletteFieldLabel);
+		
 		sizeSpinner = new IntegerSpinnerField();
 		sizeSpinner.setIncrement(1);
 		sizeSpinner.setMinValue(1);
@@ -191,24 +261,21 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 		sizeSpinner.setValue(layer.getSize());
 		layoutContainer.add(new FieldLabel(sizeSpinner, "Size"));
 		
-		LabelProvider<String> shapeLabelProvider = new LabelProvider<String>() {
+		ListStore<KingdomMarker> markers = new ListStore<KingdomMarker>(markerProps.imageName());
+		markers.addAll(KingdomMarker.getMarkerList());
+		
+		markerComboBox = new ComboBox<KingdomMarker>(markers, markerProps.title(), new AbstractSafeHtmlRenderer<KingdomMarker>() {
+			final ComboBoxTemplates	comboBoxTemplates	= GWT.create(ComboBoxTemplates.class);
 			
 			@Override
-			public String getLabel(String item){
-				return item;
+			public SafeHtml render(KingdomMarker object){
+				return comboBoxTemplates.marker(object.getIcon().getSafeUri(), object.getTitle());
 			}
-		};
+		});
 		
-		shapeComboBox = new SimpleComboBox<String>(shapeLabelProvider);
-		shapeComboBox.add("square");
-		shapeComboBox.add("triangle");
-		shapeComboBox.add("circle");
-		shapeComboBox.add("star");
-		shapeComboBox.add("cross");
-		shapeComboBox.add("x");
-		shapeComboBox.setTriggerAction(TriggerAction.ALL);
-		shapeComboBox.setValue(layer.getShape());
-		layoutContainer.add(new FieldLabel(shapeComboBox, "Shape"));
+		markerComboBox.setValue(KingdomMarker.getMarkerByImageName(markers.getAll(), layer.getMarkerImage()));
+		markerComboBox.setTriggerAction(TriggerAction.ALL);
+		layoutContainer.add(new FieldLabel(markerComboBox, "Marker"));
 		
 		upperLimitSlider = new Slider();
 		upperLimitSlider.setIncrement(1);
@@ -363,6 +430,8 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 	private VerticalLayoutContainer assembleMarkerStyleEditorLayout(){
 		this.fillColor = layer.getFillColor();
 		this.color = layer.getColor();
+		this.labelColor = layer.getLabelColor();
+		this.labelFillColor = layer.getLabelFillColor();
 		
 		VerticalLayoutContainer layoutContainer = new VerticalLayoutContainer();
 		
@@ -390,27 +459,36 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 		sizeSpinner.setValue(layer.getSize());
 		layoutContainer.add(new FieldLabel(sizeSpinner, "Size"));
 		
-		labelCheckBox = new CheckBox();
-		labelCheckBox.setValue(layer.getStyle().contains("label"));
-		layoutContainer.add(new FieldLabel(labelCheckBox, "Labeled"));
-		
 		String[] colors = new String[] { layer.getColor() };
 		colorPalette = new ColorPalette(colors, colors);
 		colorPalette.addDomHandler(colorPaletteClickHandler, ClickEvent.getType());
 		
 		colorPaletteFieldLabel = new FieldLabel();
 		colorPaletteFieldLabel.setWidget(colorPalette);
-		colorPaletteFieldLabel.setText("Label background color");
+		colorPaletteFieldLabel.setText("Color");
 		layoutContainer.add(colorPaletteFieldLabel);
 		
-		String[] fillColors = new String[] { layer.getFillColor() };
-		fillColorPalette = new ColorPalette(fillColors, fillColors);
-		fillColorPalette.addDomHandler(fillColorPaletteClickHandler, ClickEvent.getType());
+		labelCheckBox = new CheckBox();
+		labelCheckBox.setValue(layer.getStyle().contains("label"));
+		layoutContainer.add(new FieldLabel(labelCheckBox, "Labeled"));
 		
-		fillColorPaletteFieldLabel = new FieldLabel();
-		fillColorPaletteFieldLabel.setWidget(fillColorPalette);
-		fillColorPaletteFieldLabel.setText("Lebel color");
-		layoutContainer.add(fillColorPaletteFieldLabel);
+		String[] labelColors = new String[] { layer.getLabelColor() };
+		labelColorPalette = new ColorPalette(labelColors, labelColors);
+		labelColorPalette.addDomHandler(labelColorPaletteClickHandler, ClickEvent.getType());
+		
+		labelColorPaletteFieldLabel = new FieldLabel();
+		labelColorPaletteFieldLabel.setWidget(labelColorPalette);
+		labelColorPaletteFieldLabel.setText("Label background color");
+		layoutContainer.add(labelColorPaletteFieldLabel);
+		
+		String[] labelFillColors = new String[] { layer.getLabelFillColor() };
+		labelFillColorPalette = new ColorPalette(labelFillColors, labelFillColors);
+		labelFillColorPalette.addDomHandler(labelFillColorPaletteClickHandler, ClickEvent.getType());
+		
+		labelFillColorPaletteFieldLabel = new FieldLabel();
+		labelFillColorPaletteFieldLabel.setWidget(labelFillColorPalette);
+		labelFillColorPaletteFieldLabel.setText("Label color");
+		layoutContainer.add(labelFillColorPaletteFieldLabel);
 		
 		upperLimitSlider = new Slider();
 		upperLimitSlider.setIncrement(1);
@@ -466,6 +544,16 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 		return colorPalette;
 	}
 	
+	@Override
+	public ColorPalette getLabelColorPalette(){
+		return labelColorPalette;
+	}
+	
+	@Override
+	public ColorPalette getLabelFillColorPalette(){
+		return labelFillColorPalette;
+	}
+	
 	private void setColor(String color){
 		this.color = color;
 		String[] colors = new String[] { color };
@@ -480,6 +568,22 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 		fillColorPalette = new ColorPalette(fillColors, fillColors);
 		fillColorPalette.addDomHandler(fillColorPaletteClickHandler, ClickEvent.getType());
 		fillColorPaletteFieldLabel.setWidget(fillColorPalette);
+	}
+	
+	private void setLabelColor(String color){
+		this.labelColor = color;
+		String[] labelColors = new String[] { color };
+		labelColorPalette = new ColorPalette(labelColors, labelColors);
+		labelColorPalette.addDomHandler(labelColorPaletteClickHandler, ClickEvent.getType());
+		labelColorPaletteFieldLabel.setWidget(labelColorPalette);
+	}
+	
+	private void setLabelFillColor(String color){
+		this.labelFillColor = color;
+		String[] labelFillColors = new String[] { color };
+		labelFillColorPalette = new ColorPalette(labelFillColors, labelFillColors);
+		labelFillColorPalette.addDomHandler(labelFillColorPaletteClickHandler, ClickEvent.getType());
+		labelFillColorPaletteFieldLabel.setWidget(labelFillColorPalette);
 	}
 	
 	@Override
@@ -508,8 +612,13 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 	}
 	
 	@Override
-	public SimpleComboBox<String> getShapeComboBox(){
-		return shapeComboBox;
+	public String getLabelColor(){
+		return labelColor;
+	}
+	
+	@Override
+	public String getLabelFillColor(){
+		return labelFillColor;
 	}
 	
 	@Override

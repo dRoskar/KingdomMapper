@@ -151,6 +151,9 @@ public class Resources{
 		ImageResource info();
 		
 		// ===== markers =====
+		@Source("markers/marker_point.png")
+		ImageResource markerPoint();
+		
 		@Source("markers/marker_green.png")
 		ImageResource markerGreen();
 		

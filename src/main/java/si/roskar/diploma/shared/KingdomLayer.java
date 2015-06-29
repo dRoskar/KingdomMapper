@@ -14,18 +14,19 @@ public class KingdomLayer implements IsSerializable{
 	private int				zIndex			= 0;
 	private GeometryType	geometryType	= null;
 	private KingdomMap		map				= null;
-	private String			color			= null;
+	private String			color			= "";
+	private String			labelColor		= "";
 	private int				size			= 0;
-	private String			shape			= null;
 	private int				strokeWidth		= 0;
-	private String			fillColor		= null;
+	private String			fillColor		= "";
+	private String			labelFillColor	= "";
 	private double			fillOpacity		= 1.0;
 	private double			strokeOpacity	= 1.0;
 	private double			maxScale		= 0.0;
 	private double			minScale		= 0.0;
 	private boolean			hasLabel		= false;
-	private String			markerImage		= null;
-	private String			textureImage	= null;
+	private String			markerImage		= "";
+	private String			textureImage	= "";
 	
 	public KingdomLayer(){
 		
@@ -128,21 +129,29 @@ public class KingdomLayer implements IsSerializable{
 	public void setColor(String color){
 		this.color = color;
 	}
-	
+		
+	public String getLabelColor(){
+		return labelColor;
+	}
+
+	public void setLabelColor(String labelColor){
+		this.labelColor = labelColor;
+	}
+
+	public String getLabelFillColor(){
+		return labelFillColor;
+	}
+
+	public void setLabelFillColor(String labelFillColor){
+		this.labelFillColor = labelFillColor;
+	}
+
 	public int getSize(){
 		return size;
 	}
 	
 	public void setSize(int size){
 		this.size = size;
-	}
-	
-	public String getShape(){
-		return shape;
-	}
-	
-	public void setShape(String shape){
-		this.shape = shape;
 	}
 	
 	public int getStrokeWidth(){
@@ -216,11 +225,11 @@ public class KingdomLayer implements IsSerializable{
 	public String getTextureImage(){
 		return textureImage;
 	}
-
+	
 	public void setTextureImage(String textureImage){
 		this.textureImage = textureImage;
 	}
-
+	
 	public String getEnvValues(){
 		String env = "";
 		if(this.getGeometryType().equals(GeometryType.POINT)){
@@ -228,12 +237,25 @@ public class KingdomLayer implements IsSerializable{
 				env = env + "color:" + this.getColor() + ";";
 			}
 			
+			if(this.getLabelColor() != null){
+				env = env + "label_color:" + this.getLabelColor() + ";";
+			}
+			
+			if(this.getLabelFillColor() != null){
+				env = env + "label_fill_color:" + this.getLabelFillColor() + ";";
+			}
+			
 			if(this.getSize() > 0){
 				env = env + "size:" + this.getSize() + ";";
 			}
 			
-			if(this.getShape() != null){
-				env = env + "shape:" + this.getShape() + ";";
+			if(this.getMarkerImage() != null){
+				env = env + "marker:" + this.getMarkerImage() + ";";
+			}
+			
+			if(this.getSize() > 0){
+				env = env + "size:" + this.getSize() + ";";
+				env = env + "label_displacement:" + ((this.getSize() / 2) + this.getSize() / 10) + ";";
 			}
 		}else if(this.getGeometryType().equals(GeometryType.LINE)){
 			if(this.getColor() != null){
@@ -272,6 +294,14 @@ public class KingdomLayer implements IsSerializable{
 				env = env + "color:" + this.getColor() + ";";
 			}
 			
+			if(this.getLabelColor() != null){
+				env = env + "label_color:" + this.getLabelColor() + ";";
+			}
+			
+			if(this.getLabelFillColor() != null){
+				env = env + "label_fill_color:" + this.getLabelFillColor() + ";";
+			}
+			
 			if(this.getSize() > 0){
 				env = env + "size:" + this.getSize() + ";";
 				env = env + "label_displacement:" + ((this.getSize() / 2) + this.getSize() / 10) + ";";
@@ -296,11 +326,9 @@ public class KingdomLayer implements IsSerializable{
 	public String getServerName(){
 		if(this.getGeometryType().equals(GeometryType.POINT) || this.getGeometryType().equals(GeometryType.MARKER)){
 			return "kingdom:point";
-		}
-		else if(this.getGeometryType().equals(GeometryType.LINE)){
+		}else if(this.getGeometryType().equals(GeometryType.LINE)){
 			return "kingdom:line";
-		}
-		else if(this.getGeometryType().equals(GeometryType.POLYGON)){
+		}else if(this.getGeometryType().equals(GeometryType.POLYGON)){
 			return "kingdom:polygon";
 		}
 		

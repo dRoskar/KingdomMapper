@@ -94,7 +94,7 @@
 [X] feature info
 [X] geoserver url from properties file
 [X] no need to insert descriptions when adding new features
-[ ] dataservice methods return bool: in exception -> return false
+[-] dataservice methods return bool: in exception -> return false
 [ ] marker icons for points
 [ ] city and village icon shouldn't be centered
 [X] use .equals instead of compareTo (except for the sort class)
@@ -146,4 +146,7 @@
 [X] click cancel when selecting color
 [ ] subtract sometimes changes into add
 [ ] if subtract is on when adding new layer, subtract stays on, but button is off (what about when adding new map?)
-[ ] info button enable/disable switch sucks
+[X] info button enable/disable switch sucks
+[ ] map zooms after layer style is changed
+[ ] labels don't always show
+[ ] markers are getting cut

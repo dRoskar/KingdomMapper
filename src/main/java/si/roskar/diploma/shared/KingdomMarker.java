@@ -9,6 +9,7 @@ import com.google.gwt.resources.client.ImageResource;
 
 public class KingdomMarker{
 	
+	public static final String	POINT_MARKER		= "point";
 	public static final String	GREEN_MARKER		= "marker_green.svg";
 	public static final String	RED_MARKER			= "marker_red.svg";
 	public static final String	BLUE_MARKER			= "marker_blue.svg";
@@ -65,6 +66,7 @@ public class KingdomMarker{
 	
 	public static List<KingdomMarker> getMarkerList(){
 		List<KingdomMarker> markers = new ArrayList<KingdomMarker>();
+		markers.add(new KingdomMarker(POINT_MARKER, "Colored point", Resources.ICONS.markerPoint()));
 		markers.add(new KingdomMarker(GREEN_MARKER, "Green", Resources.ICONS.markerGreen()));
 		markers.add(new KingdomMarker(RED_MARKER, "Red", Resources.ICONS.markerRed()));
 		markers.add(new KingdomMarker(BLUE_MARKER, "Blue", Resources.ICONS.markerBlue()));

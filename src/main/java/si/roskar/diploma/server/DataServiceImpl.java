@@ -115,9 +115,9 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	// ===== ===== LAYER DATA SERVICES ===== =====
 	@Override
 	public Integer addLayer(KingdomLayer layer){
-		return layerJdbcTemplate.insert(layer.getName(), layer.getStyle(), layer.getOpacity(), layer.isVisible(), layer.getGeometryType(), layer.getZIndex(), layer.getColor(), layer.getSize(),
-				layer.getShape(), layer.getFillColor(), layer.getStrokeWidth(), layer.getStrokeOpacity(), layer.getFillOpacity(), layer.getMaxScale(), layer.getMinScale(), layer.getMarkerImage(),
-				layer.getMap().getId());
+		return layerJdbcTemplate.insert(layer.getName(), layer.getStyle(), layer.getOpacity(), layer.isVisible(), layer.getGeometryType(), layer.getZIndex(), layer.getColor(), layer.getLabelColor(),
+				layer.getSize(), layer.getFillColor(), layer.getLabelFillColor(), layer.getStrokeWidth(), layer.getStrokeOpacity(), layer.getFillOpacity(), layer.getMaxScale(), layer.getMinScale(),
+				layer.getMarkerImage(), layer.getMap().getId());
 	}
 	
 	@Override
@@ -167,8 +167,8 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	
 	@Override
 	public KingdomLayer updateLayerStyle(KingdomLayer layer){
-		layerJdbcTemplate.updateLayerStyle(layer.getId(), layer.getStyle(), layer.getColor(), layer.getSize(), layer.getShape(), layer.getFillColor(), layer.getStrokeWidth(), layer.getFillOpacity(),
-				layer.getStrokeOpacity(), layer.getMaxScale(), layer.getMinScale(), layer.getMarkerImage(), layer.getTextureImage());
+		layerJdbcTemplate.updateLayerStyle(layer.getId(), layer.getStyle(), layer.getColor(), layer.getLabelColor(), layer.getSize(), layer.getFillColor(), layer.getLabelFillColor(),
+				layer.getStrokeWidth(), layer.getFillOpacity(), layer.getStrokeOpacity(), layer.getMaxScale(), layer.getMinScale(), layer.getMarkerImage(), layer.getTextureImage());
 		
 		return layer;
 	}
@@ -376,7 +376,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		String wmsUrl = GeoserverSource.getWmsUrl();
 		
 		NetIO netIo = new NetIO();
-				
+		
 		// encode special characters
 		label = Tools.encodeToNumericCharacterReference(label);
 		description = Tools.encodeToNumericCharacterReference(description);

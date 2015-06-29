@@ -86,7 +86,6 @@ import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
 import com.sencha.gxt.widget.core.client.form.CheckBox;
 import com.sencha.gxt.widget.core.client.form.ComboBox;
 import com.sencha.gxt.widget.core.client.form.DoubleSpinnerField;
-import com.sencha.gxt.widget.core.client.form.SimpleComboBox;
 import com.sencha.gxt.widget.core.client.form.TextArea;
 import com.sencha.gxt.widget.core.client.form.TextField;
 import com.sencha.gxt.widget.core.client.menu.Item;
@@ -251,11 +250,13 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		ColorPalette getFillColorPalette();
 		
+		ColorPalette getLabelColorPalette();
+		
+		ColorPalette getLabelFillColorPalette();
+		
 		void setColorPickerWindow(ColorPickerWindow colorPickerWindow);
 		
 		ColorPickerWindow getColorPickerWindow();
-		
-		SimpleComboBox<String> getShapeComboBox();
 		
 		int getSize();
 		
@@ -266,6 +267,10 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		String getColor();
 		
 		String getFillColor();
+		
+		String getLabelColor();
+		
+		String getLabelFillColor();
 		
 		DoubleSpinnerField getStrokeOpacitySpinner();
 		
@@ -1244,8 +1249,19 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 							
 							if(layer.getGeometryType().equals(GeometryType.POINT)){
 								layer.setColor(editLayerStyleDisplay.getColor());
+								layer.setLabelColor(editLayerStyleDisplay.getLabelColor());
+								layer.setLabelFillColor(editLayerStyleDisplay.getLabelFillColor());
 								layer.setSize(editLayerStyleDisplay.getSize());
-								layer.setShape(editLayerStyleDisplay.getShapeComboBox().getValue());
+								layer.setMarkerImage(editLayerStyleDisplay.getMarkerComboBox().getValue().getImageName());
+								if(editLayerStyleDisplay.getMarkerComboBox().getValue().getImageName().equals("point")){
+									layer.setStyle("kingdom_point");
+								}else{
+									layer.setStyle("marker");
+								}
+								
+								if(editLayerStyleDisplay.getLabelCheckBox().getValue()){
+									layer.setStyle(layer.getStyle() + "_label");									
+								}
 							}else if(layer.getGeometryType().equals(GeometryType.LINE)){
 								layer.setColor(editLayerStyleDisplay.getColor());
 								layer.setStrokeWidth(editLayerStyleDisplay.getSize());
@@ -1261,10 +1277,21 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 								layer.setStyle(editLayerStyleDisplay.getTextureCheckBox().getValue() ? "kingdom_polygon_texture" : "kingdom_polygon");
 							}else if(layer.getGeometryType().equals(GeometryType.MARKER)){
 								layer.setColor(editLayerStyleDisplay.getColor());
+								layer.setLabelColor(editLayerStyleDisplay.getLabelColor());
+								layer.setLabelFillColor(editLayerStyleDisplay.getLabelFillColor());
 								layer.setSize(editLayerStyleDisplay.getSize());
 								layer.setFillColor(editLayerStyleDisplay.getFillColor());
 								layer.setMarkerImage(editLayerStyleDisplay.getMarkerComboBox().getValue().getImageName());
-								layer.setStyle(editLayerStyleDisplay.getLabelCheckBox().getValue() ? "marker_label" : "marker");
+								
+								if(editLayerStyleDisplay.getMarkerComboBox().getValue().getImageName().equals("point")){
+									layer.setStyle("kingdom_point");
+								}else{
+									layer.setStyle("marker");
+								}
+								
+								if(editLayerStyleDisplay.getLabelCheckBox().getValue()){
+									layer.setStyle(layer.getStyle() + "_label");									
+								}
 							}
 							
 							layer.setMaxScale(editLayerStyleDisplay.getLowerSliderScale());

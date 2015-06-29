@@ -591,7 +591,10 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 								// set default style
 								if(newLayer.getGeometryType().equals(GeometryType.POINT)){
 									newLayer.setColor("0066FF");
-									newLayer.setShape("square");
+									newLayer.setLabelColor("000000");
+									newLayer.setLabelFillColor("FFCC00");
+									newLayer.setMarkerImage(KingdomMarker.POINT_MARKER);
+									newLayer.setStyle("kingdom_point");
 									newLayer.setSize(6);
 								}else if(newLayer.getGeometryType().equals(GeometryType.LINE)){
 									newLayer.setColor("FF3300");
@@ -603,8 +606,9 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 									newLayer.setColor("009933");
 									newLayer.setStrokeOpacity(1);
 								}else if(newLayer.getGeometryType().equals(GeometryType.MARKER)){
-									newLayer.setColor("000000");
-									newLayer.setFillColor("FFCC00");
+									newLayer.setColor("0066FF");
+									newLayer.setLabelColor("000000");
+									newLayer.setLabelFillColor("FFCC00");
 									newLayer.setSize(60);
 									newLayer.setMarkerImage(KingdomMarker.RED_MARKER);
 									newLayer.setStyle("marker_label");

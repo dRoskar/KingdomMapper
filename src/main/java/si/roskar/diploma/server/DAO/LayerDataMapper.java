@@ -28,10 +28,11 @@ public class LayerDataMapper implements RowMapper<KingdomLayer>{
 		layer.setMap(map);
 		
 		layer.setColor(rs.getString("color"));
+		layer.setLabelColor(rs.getString("label_color"));
 		layer.setSize(rs.getInt("size"));
-		layer.setShape(rs.getString("shape"));
 		layer.setStrokeWidth(rs.getInt("stroke_width"));
 		layer.setFillColor(rs.getString("fill_color"));
+		layer.setLabelFillColor(rs.getString("label_fill_color"));
 		layer.setFillOpacity(rs.getDouble("fill_opacity"));
 		layer.setStrokeOpacity(rs.getDouble("stroke_opacity"));
 		layer.setMaxScale(rs.getDouble("maxscale"));
