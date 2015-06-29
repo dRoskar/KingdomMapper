@@ -181,7 +181,9 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	// ===========================================
 	
 	// ===== ===== WFS-T ===== =====
-	public void insertMarker(String wmsUrl, String wktGeometry, String label, String description, int layerId){
+	public void insertMarker(String wktGeometry, String label, String description, int layerId){
+		String wmsUrl = GeoserverSource.getWmsUrl();
+		
 		NetIO netIo = new NetIO();
 		
 		// encode special characters
@@ -269,7 +271,9 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		}
 	}
 	
-	public void insertLine(String wmsUrl, String wktGeometry, String description, int layerId){
+	public void insertLine(String wktGeometry, String description, int layerId){
+		String wmsUrl = GeoserverSource.getWmsUrl();
+		
 		NetIO netIo = new NetIO();
 		
 		// encode special characters
@@ -307,7 +311,9 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		}
 	}
 	
-	public void insertPolygon(String wmsUrl, String wktGeometry, String description, int layerId){
+	public void insertPolygon(String wktGeometry, String description, int layerId){
+		String wmsUrl = GeoserverSource.getWmsUrl();
+		
 		NetIO netIo = new NetIO();
 		
 		// encode special characters
@@ -345,7 +351,9 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		}
 	}
 	
-	public void updatePolygonGeometry(String wmsUrl, String gmlGeometry, String polygonFid){
+	public void updatePolygonGeometry(String gmlGeometry, String polygonFid){
+		String wmsUrl = GeoserverSource.getWmsUrl();
+		
 		NetIO netIo = new NetIO();
 		
 		// assemble request XML
@@ -379,10 +387,10 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	}
 	
 	public boolean updateFeatureInfo(KingdomLayer layer, String label, String description, String featureId){
+		String wmsUrl = GeoserverSource.getWmsUrl();
+		
 		NetIO netIo = new NetIO();
-		
-		String wmsUrl = "http://127.0.0.1:8080/geoserver/wms";
-		
+				
 		// encode special characters
 		label = Tools.encodeToNumericCharacterReference(label);
 		description = Tools.encodeToNumericCharacterReference(description);
@@ -428,7 +436,9 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		return true;
 	}
 	
-	public void deletePolygon(String wmsUrl, String polygonFid){
+	public void deletePolygon(String polygonFid){
+		String wmsUrl = GeoserverSource.getWmsUrl();
+		
 		NetIO netIo = new NetIO();
 		
 		// assemble request XML
@@ -460,7 +470,8 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	// =============================
 	
 	// ===== ===== UTIL ===== =====
-	public boolean slicePolygonGeometry(String wmsUrl, String originalPolygonWktGeometry, String intersectorWktGeometry, String polygonFid){
+	public boolean slicePolygonGeometry(String originalPolygonWktGeometry, String intersectorWktGeometry, String polygonFid){
+		
 		// get geometry difference
 		WKTReader wktReader = new WKTReader();
 		GMLWriter gmlWriter = new GMLWriter();
@@ -476,10 +487,10 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 			// if intersector completely erases the original polygon, remove the
 			// original polygon
 			if(difference.isEmpty()){
-				deletePolygon(wmsUrl, polygonFid);
+				deletePolygon(polygonFid);
 				return true;
 			}else if(!difference.equalsExact(originalPolygon)){
-				updatePolygonGeometry(wmsUrl, gmlWriter.write(difference), polygonFid);
+				updatePolygonGeometry(gmlWriter.write(difference), polygonFid);
 				return true;
 			}
 			
@@ -492,7 +503,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		return false;
 	}
 	
-	public boolean bindPolygonGeometries(String wmsUrl, List<KingdomVectorFeature> partakigFeatures, String newGeometryWkt){
+	public boolean bindPolygonGeometries(List<KingdomVectorFeature> partakigFeatures, String newGeometryWkt){
 		WKTReader wktReader = new WKTReader();
 		GMLWriter gmlWriter = new GMLWriter();
 		Geometry newGeometry = null;
@@ -519,10 +530,10 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 			boolean updated = false;
 			for(KingdomVectorFeature feature : intersectingFeatures){
 				if(!updated){
-					updatePolygonGeometry(wmsUrl, gmlWriter.write(unionGeometry), feature.getFID());
+					updatePolygonGeometry(gmlWriter.write(unionGeometry), feature.getFID());
 					updated = true;
 				}else{
-					deletePolygon(wmsUrl, feature.getFID());
+					deletePolygon(feature.getFID());
 				}
 			}
 			
@@ -536,7 +547,9 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	}
 	
 	// info
-	public List<KingdomFeature> getFeatureInfo(String wmsUrl, KingdomLayer layer, String bbox, int width, int height, int pixelX, int pixelY){
+	public List<KingdomFeature> getFeatureInfo(KingdomLayer layer, String bbox, int width, int height, int pixelX, int pixelY){
+		String wmsUrl = GeoserverSource.getWmsUrl();
+		
 		List<KingdomFeature> features = new ArrayList<KingdomFeature>();
 		byte[] result = null;
 		
@@ -602,52 +615,5 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		
 		return features;
 	}
-	
-	public List<KingdomFeature> getFeatureInfoWfs(String wfsUrl, KingdomLayer layer, String bbox, int width, int height, int pixelX, int pixelY){
-		List<KingdomFeature> features = new ArrayList<KingdomFeature>();
-		byte[] result = null;
-		
-		NetIO netIo = new NetIO();
-		
-		bbox = bbox.replace(",", "%2C");
-		
-		// assemble request url
-		//@formatter:off
-		wfsUrl += "?service=wfs"
-				+ "&version=2.0.0"
-				+ "&request=GetFeature"
-				+ "&typeName=" + layer.getServerName()
-				+ "&propertyName=label,description"
-				+ "&srsName=EPSG:4326"
-				+ "&outputFormat=csv"
-				+ "&cql_filter=layer_id%3D" + layer.getId() + "%20AND%20INTERSECTS(geometry,%20" + bbox + ")";
-//				+ "&count = 50";
-//				+ "&styles=" + layer.getStyle()
-//				+ "&format=image%2Fpng"
-//				+ "&srs=EPSG:4326"
-//				+ "&info_format=application/json"
-// 				+ "&exceptions=application/json"
-//				+ "&bbox=" + bbox
-//				+ "&width=" + width
-//				+ "&height=" + height
-//				+ "&x=" + pixelX
-//				+ "&y=" + pixelY
-//				+ "&feature_count=50"
-				
-		//@formatter:on
-		
-		// execute request
-		try{
-			result = netIo.get(wfsUrl);
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-		
-		// parse result
-		// System.out.println(new String(result));
-		
-		return features;
-	}
-	
 	// =============================
 }

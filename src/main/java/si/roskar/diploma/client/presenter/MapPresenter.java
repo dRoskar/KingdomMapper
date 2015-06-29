@@ -63,8 +63,6 @@ import si.roskar.diploma.shared.KingdomTexture;
 import si.roskar.diploma.shared.KingdomVectorFeature;
 
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
@@ -408,7 +406,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 								// evaluate fields
 								if(addMarkerDisplay.isValid()){
 									// insert marker
-									DataServiceAsync.Util.getInstance().insertMarker("http://127.0.0.1:8080/geoserver/wms", addMarkerDisplay.getGeometry(), addMarkerDisplay.getLabelField().getText(),
+									DataServiceAsync.Util.getInstance().insertMarker(addMarkerDisplay.getGeometry(), addMarkerDisplay.getLabelField().getText(),
 											addMarkerDisplay.getDescriptionField().getText(), display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
 												
 												@Override
@@ -447,7 +445,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				
 				// POINT
 				if(geometryType.equals(GeometryType.POINT)){
-					DataServiceAsync.Util.getInstance().insertMarker("http://127.0.0.1:8080/geoserver/wms", geometry, "", "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
+					DataServiceAsync.Util.getInstance().insertMarker(geometry, "", "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
 						
 						@Override
 						public void onFailure(Throwable caught){
@@ -467,7 +465,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				
 				// LINE
 				if(geometryType.equals(GeometryType.LINE) && eventObject.getVectorFeature().getGeometry().getVertices(true).length > 1){
-					DataServiceAsync.Util.getInstance().insertLine("http://127.0.0.1:8080/geoserver/wms", geometry, "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
+					DataServiceAsync.Util.getInstance().insertLine(geometry, "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
 						
 						@Override
 						public void onFailure(Throwable caught){
@@ -488,7 +486,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				// POLYGON
 				if(geometryType.equals(GeometryType.POLYGON) && eventObject.getVectorFeature().getGeometry().getVertices(false).length > 2 && !display.isInAddingHolesMode()
 						&& !display.isInAddingShapesMode()){
-					DataServiceAsync.Util.getInstance().insertPolygon("http://127.0.0.1:8080/geoserver/wms", geometry, "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
+					DataServiceAsync.Util.getInstance().insertPolygon(geometry, "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
 						
 						@Override
 						public void onFailure(Throwable caught){
@@ -523,7 +521,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 						
 						// update partaking features' geometries
 						if(!partakingFeatures.isEmpty()){
-							DataServiceAsync.Util.getInstance().bindPolygonGeometries("http://127.0.0.1:8080/geoserver/wms", partakingFeatures,
+							DataServiceAsync.Util.getInstance().bindPolygonGeometries(partakingFeatures,
 									eventObject.getVectorFeature().getGeometry().toString(), new AsyncCallback<Boolean>() {
 										
 										@Override
@@ -559,7 +557,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 								// slice on serverside, if changes were made,
 								// update
 								// the geometry
-								DataServiceAsync.Util.getInstance().slicePolygonGeometry("http://127.0.0.1:8080/geoserver/wms", feature.getGeometry().toString(),
+								DataServiceAsync.Util.getInstance().slicePolygonGeometry(feature.getGeometry().toString(),
 										eventObject.getVectorFeature().getGeometry().toString(), feature.getFID(), new AsyncCallback<Boolean>() {
 											
 											@Override
@@ -712,7 +710,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 							
 							String bbox = display.getOLMap().getExtent().toBBox(4).toString();
 							
-							DataServiceAsync.Util.getInstance().getFeatureInfo("http://127.0.0.1:8080/geoserver/wms", selectedLayer, bbox, (int) display.getOLMap().getSize().getWidth(),
+							DataServiceAsync.Util.getInstance().getFeatureInfo(selectedLayer, bbox, (int) display.getOLMap().getSize().getWidth(),
 									(int) display.getOLMap().getSize().getHeight(), mapClickEvent.getPixel().x(), mapClickEvent.getPixel().y(), new AsyncCallback<List<KingdomFeature>>() {
 										
 										@Override
@@ -1609,18 +1607,18 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			}
 		});
 		
-		editFeatureDisplay.getLabelField().addValueChangeHandler(new ValueChangeHandler<String>() {
-
+		editFeatureDisplay.getLabelField().addKeyDownHandler(new KeyDownHandler() {
+			
 			@Override
-			public void onValueChange(ValueChangeEvent<String> event){
+			public void onKeyDown(KeyDownEvent event){
 				editFeatureDisplay.getSaveButton().enable();
 			}
 		});
 		
-		editFeatureDisplay.getDescriptionArea().addValueChangeHandler(new ValueChangeHandler<String>() {
-
+		editFeatureDisplay.getDescriptionArea().addKeyDownHandler(new KeyDownHandler() {
+			
 			@Override
-			public void onValueChange(ValueChangeEvent<String> event){
+			public void onKeyDown(KeyDownEvent event){
 				editFeatureDisplay.getSaveButton().enable();
 			}
 		});
