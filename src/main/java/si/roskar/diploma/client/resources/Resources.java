@@ -147,15 +147,16 @@ public class Resources{
 		@Source ("area_measure.png")
 		ImageResource measureArea();
 		
+		@Source ("info.png")
+		ImageResource info();
+		
 		// ===== markers =====
 		@Source("markers/marker_green.png")
 		ImageResource markerGreen();
 		
-		// ===== markers =====
 		@Source("markers/marker_red.png")
 		ImageResource markerRed();
 		
-		// ===== markers =====
 		@Source("markers/marker_blue.png")
 		ImageResource markerBlue();
 		

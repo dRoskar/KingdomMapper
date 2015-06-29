@@ -12,6 +12,7 @@ import si.roskar.diploma.server.DAO.UserJDBCTemplate;
 import si.roskar.diploma.server.DAO.VectorJDBCTemplate;
 import si.roskar.diploma.server.DB.DBSource;
 import si.roskar.diploma.shared.GeometryType;
+import si.roskar.diploma.shared.KingdomFeature;
 import si.roskar.diploma.shared.KingdomGridLayer;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
@@ -19,6 +20,10 @@ import si.roskar.diploma.shared.KingdomUser;
 import si.roskar.diploma.shared.KingdomVectorFeature;
 import si.roskar.diploma.shared.Tools;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
@@ -104,13 +109,15 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	public boolean updateMapPreviousView(KingdomMap map){
 		return mapJdbcTemplate.updatePreviousView(map.getId(), map.getPreviousViewllx(), map.getPreviousViewlly(), map.getPreviousViewurx(), map.getPreviousViewury(), map.getPreviousZoomLevel());
 	}
+	
 	// =========================================
 	
 	// ===== ===== LAYER DATA SERVICES ===== =====
 	@Override
 	public Integer addLayer(KingdomLayer layer){
-		return layerJdbcTemplate.insert(layer.getName(), layer.getStyle(), layer.getOpacity(), layer.isVisible(), layer.getGeometryType(), layer.getZIndex(), layer.getColor(), layer.getSize(), layer.getShape(),
-				layer.getFillColor(), layer.getStrokeWidth(), layer.getStrokeOpacity(), layer.getFillOpacity(), layer.getMaxScale(), layer.getMinScale(), layer.getMarkerImage(), layer.getMap().getId());
+		return layerJdbcTemplate.insert(layer.getName(), layer.getStyle(), layer.getOpacity(), layer.isVisible(), layer.getGeometryType(), layer.getZIndex(), layer.getColor(), layer.getSize(),
+				layer.getShape(), layer.getFillColor(), layer.getStrokeWidth(), layer.getStrokeOpacity(), layer.getFillOpacity(), layer.getMaxScale(), layer.getMinScale(), layer.getMarkerImage(),
+				layer.getMap().getId());
 	}
 	
 	@Override
@@ -371,6 +378,56 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		}
 	}
 	
+	public boolean updateFeatureInfo(KingdomLayer layer, String label, String description, String featureId){
+		NetIO netIo = new NetIO();
+		
+		String wmsUrl = "http://127.0.0.1:8080/geoserver/wms";
+		
+		// encode special characters
+		label = Tools.encodeToNumericCharacterReference(label);
+		description = Tools.encodeToNumericCharacterReference(description);
+		
+		// escape apostrophes
+		label = label.replace("'", "''");
+		description = description.replace("'", "''");
+		
+		// assemble request XML
+		//@formatter:off
+		String xml = "<wfs:Transaction service=\"WFS\" version=\"1.0.0\"\r\n" + 
+				"  xmlns:ogc=\"http://www.opengis.net/ogc\"\r\n" + 
+				"  xmlns:kingdom=\"http://kingdom.si\"\r\n" +
+				"  xmlns:gml=\"http://www.opengis.net/gml\"\r\n" +
+				"  xmlns:wfs=\"http://www.opengis.net/wfs\">\r\n" +
+				"  <wfs:Update typeName=\"" + layer.getServerName() + "\">\r\n" + 
+				"  <wfs:Property>\r\n" + 
+				"    <wfs:Name>label</wfs:Name>\r\n" + 
+				"      <wfs:Value>" + label + "</wfs:Value>\r\n" +
+				"    </wfs:Property>\r\n" + 
+				"    <wfs:Property>\r\n" + 
+				"      <wfs:Name>description</wfs:Name>\r\n" + 
+				"        <wfs:Value>" + description + "</wfs:Value>\r\n" +
+				"      </wfs:Property>\r\n" + 
+				"      <ogc:Filter>\r\n" + 
+				"        <ogc:FeatureId fid=\"" + featureId + "\"/>\r\n" +
+				"      </ogc:Filter>\r\n" + 
+				"    </wfs:Update>\r\n" + 
+				"  </wfs:Transaction>";
+		//@formatter:on
+		
+		try{
+			byte[] response = netIo.post(wmsUrl, xml);
+			
+			String responseString = new String(response);
+			
+			System.out.println(responseString);
+		}catch(Exception e){
+			e.printStackTrace();
+			return false;
+		}
+		
+		return true;
+	}
+	
 	public void deletePolygon(String wmsUrl, String polygonFid){
 		NetIO netIo = new NetIO();
 		
@@ -416,7 +473,8 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 			
 			difference = originalPolygon.difference(intersector);
 			
-			// if intersector completely erases the original polygon, remove the original polygon
+			// if intersector completely erases the original polygon, remove the
+			// original polygon
 			if(difference.isEmpty()){
 				deletePolygon(wmsUrl, polygonFid);
 				return true;
@@ -446,7 +504,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 			List<KingdomVectorFeature> intersectingFeatures = new ArrayList<KingdomVectorFeature>();
 			
 			// get intersecting features
-			for(KingdomVectorFeature feature : partakigFeatures){				
+			for(KingdomVectorFeature feature : partakigFeatures){
 				Geometry featureGeometry = wktReader.read(feature.getWktGeometry());
 				
 				// bind geometries
@@ -456,14 +514,14 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 				}
 			}
 			
-			// update new geometry to first of the intersecting features; delete the rest
+			// update new geometry to first of the intersecting features; delete
+			// the rest
 			boolean updated = false;
 			for(KingdomVectorFeature feature : intersectingFeatures){
 				if(!updated){
 					updatePolygonGeometry(wmsUrl, gmlWriter.write(unionGeometry), feature.getFID());
 					updated = true;
-				}
-				else{
+				}else{
 					deletePolygon(wmsUrl, feature.getFID());
 				}
 			}
@@ -475,6 +533,120 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		}
 		
 		return false;
+	}
+	
+	// info
+	public List<KingdomFeature> getFeatureInfo(String wmsUrl, KingdomLayer layer, String bbox, int width, int height, int pixelX, int pixelY){
+		List<KingdomFeature> features = new ArrayList<KingdomFeature>();
+		byte[] result = null;
+		
+		NetIO netIo = new NetIO();
+		
+		bbox = bbox.replace(",", "%2C");
+		
+		// assemble request url
+		//@formatter:off
+		wmsUrl += "?request=GetFeatureInfo"
+				+ "&service=WMS"
+				+ "&version=1.1.1"
+				+ "&layers=" + layer.getServerName()
+				+ "&query_layers=" + layer.getServerName()
+				+ "&styles="
+				+ "&srs=EPSG%3A4326"
+ 				+ "&format=jpeg"
+				+ "&info_format=application/json"
+ 				+ "&exceptions=application/json"
+				+ "&bbox=" + bbox
+				+ "&width=" + width
+				+ "&height=" + height
+				+ "&x=" + pixelX
+				+ "&y=" + pixelY
+				+ "&cql_filter=layer_id%3D" + layer.getId()
+				+ "&feature_count=50";
+				
+		//@formatter:on
+		
+		// execute request
+		try{
+			result = netIo.get(wmsUrl);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		// parse result
+		JsonObject jsonObject = new JsonParser().parse(new String(result)).getAsJsonObject();
+		
+		if(!jsonObject.has("exceptions")){
+			JsonArray jsonFeatures = jsonObject.getAsJsonArray("features");
+			
+			for(JsonElement element : jsonFeatures){
+				String featureId = element.getAsJsonObject().get("id").getAsString();
+				
+				jsonObject = element.getAsJsonObject().get("properties").getAsJsonObject();
+				
+				String label = "";
+				if(!jsonObject.get("label").isJsonNull()){
+					label = jsonObject.get("label").getAsString();
+				}
+				
+				String description = "";
+				if(!jsonObject.get("description").isJsonNull()){
+					description = jsonObject.get("description").getAsString();
+				}
+				
+				KingdomFeature kingdomFeature = new KingdomFeature(featureId, layer, label, description);
+				
+				features.add(kingdomFeature);
+			}
+		}
+		
+		return features;
+	}
+	
+	public List<KingdomFeature> getFeatureInfoWfs(String wfsUrl, KingdomLayer layer, String bbox, int width, int height, int pixelX, int pixelY){
+		List<KingdomFeature> features = new ArrayList<KingdomFeature>();
+		byte[] result = null;
+		
+		NetIO netIo = new NetIO();
+		
+		bbox = bbox.replace(",", "%2C");
+		
+		// assemble request url
+		//@formatter:off
+		wfsUrl += "?service=wfs"
+				+ "&version=2.0.0"
+				+ "&request=GetFeature"
+				+ "&typeName=" + layer.getServerName()
+				+ "&propertyName=label,description"
+				+ "&srsName=EPSG:4326"
+				+ "&outputFormat=csv"
+				+ "&cql_filter=layer_id%3D" + layer.getId() + "%20AND%20INTERSECTS(geometry,%20" + bbox + ")";
+//				+ "&count = 50";
+//				+ "&styles=" + layer.getStyle()
+//				+ "&format=image%2Fpng"
+//				+ "&srs=EPSG:4326"
+//				+ "&info_format=application/json"
+// 				+ "&exceptions=application/json"
+//				+ "&bbox=" + bbox
+//				+ "&width=" + width
+//				+ "&height=" + height
+//				+ "&x=" + pixelX
+//				+ "&y=" + pixelY
+//				+ "&feature_count=50"
+				
+		//@formatter:on
+		
+		// execute request
+		try{
+			result = netIo.get(wfsUrl);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		// parse result
+		// System.out.println(new String(result));
+		
+		return features;
 	}
 	
 	// =============================

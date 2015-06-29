@@ -292,4 +292,18 @@ public class KingdomLayer implements IsSerializable{
 	public boolean isInScale(double scale){
 		return (scale >= maxScale && scale <= minScale);
 	}
+	
+	public String getServerName(){
+		if(this.getGeometryType().equals(GeometryType.POINT) || this.getGeometryType().equals(GeometryType.MARKER)){
+			return "kingdom:point";
+		}
+		else if(this.getGeometryType().equals(GeometryType.LINE)){
+			return "kingdom:line";
+		}
+		else if(this.getGeometryType().equals(GeometryType.POLYGON)){
+			return "kingdom:polygon";
+		}
+		
+		return null;
+	}
 }

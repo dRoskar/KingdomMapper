@@ -92,7 +92,11 @@
 [X] textures
 [X] z indexes (don't change them, just re-add the layers to the map)
 [ ] identify
-[ ] icons for points
+[ ] don't send wms/wfs url from client
+[ ] no need to insert descriptions when adding new features
+[ ] dataservice methods return bool: in exception -> return false
+[ ] marker icons for points
+[ ] city and village icon shouldn't be centered
 [X] use .equals instead of compareTo (except for the sort class)
 [X] use JST for wkt to gml instead of your own crappy function
 	
@@ -101,6 +105,8 @@
 
 
 ## LONG-TERM ##
+[ ] feature z index
+[ ] do identify with wfs to skip geometry and make everything faster
 [ ] all kinds of shapes on the same layer?
 [ ] drawing straight lines
 [ ] drawing line rectangles
@@ -115,6 +121,7 @@
 [ ] line corner and ends styles
 [ ] layer tree folders
 [ ] style editor preview (wms service)
+[ ] info editor image of selected feature (with soruounding features vidible and selected feature highlighted) [wms]
 [ ] upoadable markers https://xmlgraphics.apache.org/batik/
 [ ] uploadable textures
 [ ] duplicate layer
@@ -138,3 +145,4 @@
 [X] click cancel when selecting color
 [ ] subtract sometimes changes into add
 [ ] if subtract is on when adding new layer, subtract stays on, but button is off (what about when adding new map?)
+[ ] info button enable/disable switch sucks

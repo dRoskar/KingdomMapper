@@ -9,6 +9,7 @@ import org.gwtopenmaps.openlayers.client.control.DrawFeature;
 import org.gwtopenmaps.openlayers.client.event.ControlActivateListener;
 import org.gwtopenmaps.openlayers.client.event.EventHandler;
 import org.gwtopenmaps.openlayers.client.event.EventObject;
+import org.gwtopenmaps.openlayers.client.event.MapClickListener;
 import org.gwtopenmaps.openlayers.client.event.MeasureEvent;
 import org.gwtopenmaps.openlayers.client.event.MeasurePartialListener;
 import org.gwtopenmaps.openlayers.client.event.VectorFeatureAddedListener;
@@ -47,11 +48,14 @@ import si.roskar.diploma.client.util.KingdomInfo;
 import si.roskar.diploma.client.util.KingdomMeasure;
 import si.roskar.diploma.client.util.WFSLayerPackage;
 import si.roskar.diploma.client.view.AddMarkerDialog;
+import si.roskar.diploma.client.view.EditFeatureDialog;
 import si.roskar.diploma.client.view.EditLayerStyleWindow;
+import si.roskar.diploma.client.view.FeatureInfoSelectionMenu;
 import si.roskar.diploma.client.view.MeasureDisplayWindow;
 import si.roskar.diploma.client.view.View;
 import si.roskar.diploma.shared.EditingMode;
 import si.roskar.diploma.shared.GeometryType;
+import si.roskar.diploma.shared.KingdomFeature;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
 import si.roskar.diploma.shared.KingdomMarker;
@@ -59,9 +63,13 @@ import si.roskar.diploma.shared.KingdomTexture;
 import si.roskar.diploma.shared.KingdomVectorFeature;
 
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.NumberFormat;
@@ -83,6 +91,9 @@ import com.sencha.gxt.widget.core.client.form.DoubleSpinnerField;
 import com.sencha.gxt.widget.core.client.form.SimpleComboBox;
 import com.sencha.gxt.widget.core.client.form.TextArea;
 import com.sencha.gxt.widget.core.client.form.TextField;
+import com.sencha.gxt.widget.core.client.menu.Item;
+import com.sencha.gxt.widget.core.client.menu.Menu;
+import com.sencha.gxt.widget.core.client.menu.MenuItem;
 import com.sencha.gxt.widget.core.client.toolbar.ToolBar;
 
 public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
@@ -148,6 +159,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		ToggleButton getMeasureAreaButton();
 		
 		ToggleButton getGridButton();
+		
+		ToggleButton getInfoButton();
 		
 		void toggleGridVisible(boolean visible);
 		
@@ -295,15 +308,46 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		void resetPosition(Element viewport, int padding);
 	}
 	
-	private AddMarkerDisplay		addMarkerDisplay		= null;
-	private EditLayerStyleDisplay	editLayerStyleDisplay	= null;
-	private MeasureDisplay			measureDisplay			= null;
+	public interface FeatureInfoSelectionDisplay extends View{
+		void show(Element element, int x, int y);
+		
+		boolean isBound();
+		
+		void setIsBound(boolean isBound);
+		
+		void setFeatures(List<KingdomFeature> features);
+		
+		Menu getMenu();
+		
+		KingdomFeature getFeatureById(String id);
+	}
+	
+	public interface EditFeatureDisplay extends View{
+		void show();
+		
+		void hide();
+		
+		TextField getLabelField();
+		
+		TextArea getDescriptionArea();
+		
+		TextButton getSaveButton();
+		
+		TextButton getCloseButton();
+	}
+	
+	private AddMarkerDisplay			addMarkerDisplay			= null;
+	private EditLayerStyleDisplay		editLayerStyleDisplay		= null;
+	private MeasureDisplay				measureDisplay				= null;
+	private FeatureInfoSelectionDisplay	featureInfoSelectionDisplay	= null;
+	private EditFeatureDisplay			editFeatureDisplay			= null;
 	
 	public MapPresenter(Display display){
 		super(display);
 		
 		addMarkerDisplay = new AddMarkerDialog();
 		measureDisplay = new MeasureDisplayWindow();
+		featureInfoSelectionDisplay = new FeatureInfoSelectionMenu();
 	}
 	
 	@Override
@@ -364,8 +408,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 								// evaluate fields
 								if(addMarkerDisplay.isValid()){
 									// insert marker
-									DataServiceAsync.Util.getInstance().insertMarker("http://127.0.0.1:8080/geoserver/wms/", addMarkerDisplay.getGeometry(),
-											addMarkerDisplay.getLabelField().getText(), addMarkerDisplay.getDescriptionField().getText(), display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
+									DataServiceAsync.Util.getInstance().insertMarker("http://127.0.0.1:8080/geoserver/wms", addMarkerDisplay.getGeometry(), addMarkerDisplay.getLabelField().getText(),
+											addMarkerDisplay.getDescriptionField().getText(), display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
 												
 												@Override
 												public void onFailure(Throwable caught){
@@ -403,7 +447,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				
 				// POINT
 				if(geometryType.equals(GeometryType.POINT)){
-					DataServiceAsync.Util.getInstance().insertMarker("http://127.0.0.1:8080/geoserver/wms/", geometry, "", "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
+					DataServiceAsync.Util.getInstance().insertMarker("http://127.0.0.1:8080/geoserver/wms", geometry, "", "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
 						
 						@Override
 						public void onFailure(Throwable caught){
@@ -423,7 +467,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				
 				// LINE
 				if(geometryType.equals(GeometryType.LINE) && eventObject.getVectorFeature().getGeometry().getVertices(true).length > 1){
-					DataServiceAsync.Util.getInstance().insertLine("http://127.0.0.1:8080/geoserver/wms/", geometry, "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
+					DataServiceAsync.Util.getInstance().insertLine("http://127.0.0.1:8080/geoserver/wms", geometry, "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
 						
 						@Override
 						public void onFailure(Throwable caught){
@@ -444,7 +488,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				// POLYGON
 				if(geometryType.equals(GeometryType.POLYGON) && eventObject.getVectorFeature().getGeometry().getVertices(false).length > 2 && !display.isInAddingHolesMode()
 						&& !display.isInAddingShapesMode()){
-					DataServiceAsync.Util.getInstance().insertPolygon("http://127.0.0.1:8080/geoserver/wms/", geometry, "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
+					DataServiceAsync.Util.getInstance().insertPolygon("http://127.0.0.1:8080/geoserver/wms", geometry, "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
 						
 						@Override
 						public void onFailure(Throwable caught){
@@ -479,7 +523,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 						
 						// update partaking features' geometries
 						if(!partakingFeatures.isEmpty()){
-							DataServiceAsync.Util.getInstance().bindPolygonGeometries("http://127.0.0.1:8080/geoserver/wms/", partakingFeatures,
+							DataServiceAsync.Util.getInstance().bindPolygonGeometries("http://127.0.0.1:8080/geoserver/wms", partakingFeatures,
 									eventObject.getVectorFeature().getGeometry().toString(), new AsyncCallback<Boolean>() {
 										
 										@Override
@@ -515,7 +559,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 								// slice on serverside, if changes were made,
 								// update
 								// the geometry
-								DataServiceAsync.Util.getInstance().slicePolygonGeometry("http://127.0.0.1:8080/geoserver/wms/", feature.getGeometry().toString(),
+								DataServiceAsync.Util.getInstance().slicePolygonGeometry("http://127.0.0.1:8080/geoserver/wms", feature.getGeometry().toString(),
 										eventObject.getVectorFeature().getGeometry().toString(), feature.getFID(), new AsyncCallback<Boolean>() {
 											
 											@Override
@@ -653,12 +697,107 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			}
 		});
 		
+		// handle map clicks
+		display.getOLMap().addMapClickListener(new MapClickListener() {
+			
+			@Override
+			public void onClick(final MapClickEvent mapClickEvent){
+				// handle info clicks
+				if(display.getInfoButton().getValue() && !display.isInEditMode()){
+					
+					KingdomLayer selectedLayer = display.getCurrentLayer();
+					
+					if(selectedLayer != null){
+						if(selectedLayer.isVisible()){
+							
+							String bbox = display.getOLMap().getExtent().toBBox(4).toString();
+							
+							DataServiceAsync.Util.getInstance().getFeatureInfo("http://127.0.0.1:8080/geoserver/wms", selectedLayer, bbox, (int) display.getOLMap().getSize().getWidth(),
+									(int) display.getOLMap().getSize().getHeight(), mapClickEvent.getPixel().x(), mapClickEvent.getPixel().y(), new AsyncCallback<List<KingdomFeature>>() {
+										
+										@Override
+										public void onFailure(Throwable caught){
+											KingdomInfo.showInfoPopUp("Error", "Error getting feature info");
+										}
+										
+										@Override
+										public void onSuccess(List<KingdomFeature> result){
+											if(!result.isEmpty()){
+												// if more than one feature was
+												// returned show selection
+												if(result.size() > 1){
+													// bind feature info
+													// selection menu events
+													if(!featureInfoSelectionDisplay.isBound()){
+														featureInfoSelectionDisplay.getMenu().addSelectionHandler(new SelectionHandler<Item>() {
+															
+															@Override
+															public void onSelection(SelectionEvent<Item> event){
+																MenuItem selectedItem = (MenuItem) event.getSelectedItem();
+																
+																// get selected
+																// feature
+																KingdomFeature selectedFeature = featureInfoSelectionDisplay.getFeatureById(selectedItem.getId());
+																
+																if(selectedFeature != null){
+																	// open
+																	// feature
+																	// in
+																	// feature
+																	// editor
+																	
+																	showEditFeatureDialog(selectedFeature);
+																}else{
+																	KingdomInfo.showInfoPopUp("Error", "Error retrieving feature from selection menu");
+																}
+															}
+														});
+														
+														featureInfoSelectionDisplay.setIsBound(true);
+													}
+													
+													// display feature info
+													// selection menu
+													featureInfoSelectionDisplay.setFeatures(result);
+													featureInfoSelectionDisplay.show(display.getOLMap().getViewport(), mapClickEvent.getPixel().x(), mapClickEvent.getPixel().y());
+													
+												}else{
+													// open feature in feature
+													// editor
+													showEditFeatureDialog(result.get(0));
+												}
+											}else{
+												KingdomInfo.showInfoPopUp("Info", "no features found in this location");
+											}
+										}
+									});
+						}
+					}else{
+						KingdomInfo.showInfoPopUp("Info", "Please select a layer");
+					}
+				}
+			}
+		});
+		
 		// grid button
 		display.getGridButton().addSelectHandler(new SelectHandler() {
 			
 			@Override
 			public void onSelect(SelectEvent event){
 				display.toggleGridVisible(display.getGridButton().getValue());
+			}
+		});
+		
+		// handle info button click
+		display.getInfoButton().addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+			
+			@Override
+			public void onValueChange(ValueChangeEvent<Boolean> event){
+				if(event.getValue()){
+					
+				}else{
+					
+				}
 			}
 		});
 		
@@ -1417,5 +1556,76 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			public void onSuccess(Boolean result){
 			}
 		});
+	}
+	
+	// edit feature dialog
+	private void showEditFeatureDialog(final KingdomFeature feature){
+		editFeatureDisplay = new EditFeatureDialog(feature);
+		
+		editFeatureDisplay.getSaveButton().addSelectHandler(new SelectHandler() {
+			
+			@Override
+			public void onSelect(SelectEvent event){
+				KingdomInfo.showLoadingBar("Updating", "Updating feature info", "updating...");
+				
+				// save new feature info
+				feature.setLabel(editFeatureDisplay.getLabelField().getText());
+				feature.setDescription(editFeatureDisplay.getDescriptionArea().getText());
+				
+				// update feature info
+				DataServiceAsync.Util.getInstance().updateFeatureInfo(display.getCurrentLayer(), feature.getLabel(), feature.getDescription(), feature.getFeatureId(), new AsyncCallback<Boolean>() {
+
+					@Override
+					public void onFailure(Throwable caught){
+						KingdomInfo.showInfoPopUp("Error", "Error updating feature info");
+						KingdomInfo.hideLoadingBar();
+					}
+
+					@Override
+					public void onSuccess(Boolean result){
+						if(result){
+							KingdomInfo.showInfoPopUp("Success", "Feature info successfully updated");
+							editFeatureDisplay.hide();
+							KingdomInfo.hideLoadingBar();
+							
+							// refresh layer
+							display.getCurrentOLWmsLayer().redraw();
+						}
+						else{
+							KingdomInfo.showInfoPopUp("Error", "Error updating feature info");
+							editFeatureDisplay.hide();
+							KingdomInfo.hideLoadingBar();
+						}
+					}
+				});
+			}
+		});
+		
+		editFeatureDisplay.getCloseButton().addSelectHandler(new SelectHandler() {
+			
+			@Override
+			public void onSelect(SelectEvent event){
+				editFeatureDisplay.hide();
+			}
+		});
+		
+		editFeatureDisplay.getLabelField().addValueChangeHandler(new ValueChangeHandler<String>() {
+
+			@Override
+			public void onValueChange(ValueChangeEvent<String> event){
+				editFeatureDisplay.getSaveButton().enable();
+			}
+		});
+		
+		editFeatureDisplay.getDescriptionArea().addValueChangeHandler(new ValueChangeHandler<String>() {
+
+			@Override
+			public void onValueChange(ValueChangeEvent<String> event){
+				editFeatureDisplay.getSaveButton().enable();
+			}
+		});
+		
+		// show dialog
+		editFeatureDisplay.show();
 	}
 }

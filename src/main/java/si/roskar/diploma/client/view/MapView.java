@@ -89,6 +89,7 @@ public class MapView implements Display{
 	private ToggleButton									grid					= null;
 	private ToggleButton									measureDistanceButton	= null;
 	private ToggleButton									measureAreaButton		= null;
+	private ToggleButton									infoButton				= null;
 	private TextButton										saveMapStateButton		= null;
 	private ToggleButton									drawButton				= null;
 	private ToggleButton									drawRectangleButton		= null;
@@ -182,14 +183,19 @@ public class MapView implements Display{
 		measureDistanceButton = new ToggleButton();
 		measureDistanceButton.setIcon(Resources.ICONS.measureDistance());
 		measureDistanceButton.setToolTip("Measure distance");
-		//
+		
 		measureAreaButton = new ToggleButton();
 		measureAreaButton.setIcon(Resources.ICONS.measureArea());
 		measureAreaButton.setToolTip("Measure area");
 		
+		infoButton = new ToggleButton();
+		infoButton.setIcon(Resources.ICONS.info());
+		infoButton.setToolTip("Get feature info");		
+		
 		ToggleGroup navigationGroup = new ToggleGroup();
 		navigationGroup.add(measureDistanceButton);
 		navigationGroup.add(measureAreaButton);
+		navigationGroup.add(infoButton);
 		
 		saveMapStateButton = new TextButton();
 		saveMapStateButton.setIcon(Resources.ICONS.mapSave());
@@ -199,6 +205,7 @@ public class MapView implements Display{
 		navigationToolbar.add(navigateBack);
 		navigationToolbar.add(navigateForward);
 		navigationToolbar.add(grid);
+		navigationToolbar.add(infoButton);
 		navigationToolbar.add(measureDistanceButton);
 		navigationToolbar.add(measureAreaButton);
 		navigationToolbar.add(saveMapStateButton);
@@ -881,6 +888,9 @@ public class MapView implements Display{
 				deleteFeature.activate();
 			}
 			
+			// disable info button
+			infoButton.disable();
+			
 			isInEditMode = true;
 		}
 		
@@ -938,6 +948,9 @@ public class MapView implements Display{
 					wmsLayerHashMap.get(layer).setZIndex(layer.getZIndex());
 				}
 			}
+			
+			// enable info button
+			infoButton.enable();
 		}
 	}
 	
@@ -1170,6 +1183,11 @@ public class MapView implements Display{
 	@Override
 	public List<KingdomLayer> getLayerList(){
 		return layerList;
+	}
+	
+	@Override
+	public ToggleButton getInfoButton(){
+		return infoButton;
 	}
 	
 	@Override

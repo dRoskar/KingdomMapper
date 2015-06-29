@@ -2,6 +2,8 @@ package si.roskar.diploma.client;
 
 import java.util.List;
 
+import si.roskar.diploma.shared.GeometryType;
+import si.roskar.diploma.shared.KingdomFeature;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
 import si.roskar.diploma.shared.KingdomUser;
@@ -54,4 +56,8 @@ public interface DataService extends RemoteService{
 	boolean bindPolygonGeometries(String wmsUrl, List<KingdomVectorFeature> partakigFeatures, String newGeometryWkt);
 	
 	void updatePolygonGeometry(String wmsUrl, String wktGeometry, String polygonFid);
+	
+	List<KingdomFeature> getFeatureInfo(String wfsUrl, KingdomLayer layer, String bbox, int width, int height, int pixelX, int pixelY);
+	
+	boolean updateFeatureInfo(KingdomLayer layer, String label, String description, String featureId);
 }
