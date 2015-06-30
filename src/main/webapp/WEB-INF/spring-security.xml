@@ -1,0 +1,27 @@
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	http://www.springframework.org/schema/security
+	http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+
+	<http auto-config="true">
+		<intercept-url pattern="/login.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY" /> <!--requires-channel="https" -->
+		<intercept-url pattern="/*" access="ROLE_USER" />
+		<form-login login-page="/login.jsp" default-target-url="/KingdomMapper.html"
+			authentication-failure-url="/login.jsp?MSGT=Uporabnik nima pravice do prijave v GSC, HSQL admin modul!"
+			username-parameter="user" password-parameter="pass" />
+		<logout logout-success-url="/login.jsp" />
+
+		<!--<port-mappings>
+			<port-mapping http="80" https="443" />
+		</port-mappings>-->
+	</http>
+
+	<beans:bean id="customAuthenticationProvider"
+		class="si.roskar.diploma.server.security.CustomAuthenticationProvider" />
+	<authentication-manager>
+		<authentication-provider ref="customAuthenticationProvider" />
+	</authentication-manager>
+
+</beans:beans>

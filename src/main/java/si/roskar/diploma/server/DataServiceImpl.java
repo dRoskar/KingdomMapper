@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.gemma.si.NetIO;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import si.roskar.diploma.client.DataService;
 import si.roskar.diploma.server.DAO.LayerJDBCTemplate;
@@ -55,6 +56,19 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	@Override
 	public Integer addUser(KingdomUser user){
 		return userJdbcTemplate.insert(user.getName(), user.getPassword());
+	}
+	
+	@Override
+	public KingdomUser getCurrentUser(){
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		
+		List<KingdomUser> users = userJdbcTemplate.getUserByName(username);
+		
+		if(!users.isEmpty()){
+			return users.get(0);
+		}
+		
+		return null;
 	}
 	
 	// ==========================================

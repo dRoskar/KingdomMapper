@@ -1,17 +1,20 @@
 package si.roskar.diploma.client.presenter;
 
+import si.roskar.diploma.client.DataServiceAsync;
 import si.roskar.diploma.client.event.Bus;
 import si.roskar.diploma.client.event.EventChangeMapNameHeader;
-import si.roskar.diploma.client.event.EventEnableDrawingToolbar;
 import si.roskar.diploma.client.event.EventChangeMapNameHeader.EventChangeMapNameHeaderHandler;
+import si.roskar.diploma.client.event.EventEnableDrawingToolbar;
 import si.roskar.diploma.client.event.EventEnableMapView;
 import si.roskar.diploma.client.event.EventEnableMapView.EventEnableMapViewHandler;
 import si.roskar.diploma.client.event.EventUILoaded;
+import si.roskar.diploma.client.util.KingdomInfo;
 import si.roskar.diploma.client.view.LayerView;
 import si.roskar.diploma.client.view.MapView;
 import si.roskar.diploma.client.view.View;
 import si.roskar.diploma.shared.KingdomUser;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.sencha.gxt.widget.core.client.Header;
 
@@ -39,20 +42,31 @@ public class InitialPresenter extends PresenterImpl<InitialPresenter.Display>{
 		container.clear();
 		container.add(display.asWidget());
 		
-		// get current user  - temp hardcoded
-		KingdomUser user = new KingdomUser(1, "Boris", "");
-		user.setLastMapId(36);
-		
-		// create map presenter
-		new MapPresenter(new MapView()).go(display.getCenterContainer());
-		
-		// create layer presenter
-		new LayerPresenter(new LayerView(user)).go(display.getWestContainer());
-		
-		// event UI loaded
-		Bus.get().fireEvent(new EventUILoaded());
-		
-		display.forceLayout();
+		// get current user
+		DataServiceAsync.Util.getInstance().getCurrentUser(new AsyncCallback<KingdomUser>() {
+			
+			@Override
+			public void onFailure(Throwable caught){
+			}
+			
+			@Override
+			public void onSuccess(KingdomUser user){
+				if(user != null){
+					// create map presenter
+					new MapPresenter(new MapView()).go(display.getCenterContainer());
+					
+					// create layer presenter
+					new LayerPresenter(new LayerView(user)).go(display.getWestContainer());
+					
+					// event UI loaded
+					Bus.get().fireEvent(new EventUILoaded());
+					
+					display.forceLayout();
+				}else{
+					KingdomInfo.showLoadingBar("FATAL ERROR", "Failed to retreive user info", "dead...");
+				}
+			}
+		});
 	}
 	
 	@Override

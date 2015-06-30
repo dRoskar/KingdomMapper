@@ -16,6 +16,8 @@ public interface DataService extends RemoteService{
 	
 	Integer addUser(KingdomUser user);
 	
+	KingdomUser getCurrentUser();
+	
 	Integer addMap(KingdomMap map);
 	
 	Integer addLayer(KingdomLayer layer);

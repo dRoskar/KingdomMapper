@@ -3,6 +3,7 @@ package si.roskar.diploma.server.DAO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 
 import javax.sql.DataSource;
 
@@ -10,6 +11,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+
+import si.roskar.diploma.shared.KingdomUser;
+import si.roskar.diploma.shared.UserHash;
 
 public class UserJDBCTemplate{
 	private DataSource dataSource = null;
@@ -37,5 +41,23 @@ public class UserJDBCTemplate{
 		}, keyHolder);
 		
 		return keyHolder.getKey().intValue();
+	}
+	
+	public List<KingdomUser> getUserByName(String username){
+		final String SQL = "SELECT * FROM public.\"User\" WHERE name='" + username + "'";
+		
+		return jdbcTemplateObject.query(SQL, new UserDataMapper());
+	}
+	
+	public String getUserHash(String username){
+		final String SQL = "SELECT password FROM public.\"User\" WHERE name='" + username + "'";
+		
+		List<UserHash> hashes = jdbcTemplateObject.query(SQL, new UserHashMapper());
+		
+		if(!hashes.isEmpty()){
+			return hashes.get(0).getHash();
+		}
+		
+		return null;
 	}
 }
