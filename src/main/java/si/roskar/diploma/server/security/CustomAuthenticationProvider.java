@@ -3,6 +3,7 @@ package si.roskar.diploma.server.security;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -27,13 +28,18 @@ public class CustomAuthenticationProvider implements AuthenticationProvider{
 		String dbPassword = userJdbcTemplate.getUserHash(authentication.getName());
 		
 		if(dbPassword != null){
-			if(authentication.getCredentials().toString().equals(dbPassword)){
-				List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-				grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-				Authentication auth = new UsernamePasswordAuthenticationToken(authentication.getName(), authentication.getCredentials().toString(), grantedAuthorities);
-				return auth;
-			}else{
-				// wrong password
+			try{
+				if(BCrypt.checkpw(authentication.getCredentials().toString(), dbPassword)){
+					List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+					grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+					Authentication auth = new UsernamePasswordAuthenticationToken(authentication.getName(), authentication.getCredentials().toString(), grantedAuthorities);
+					return auth;
+				}else{
+					// wrong password
+					return null;
+				}
+			}catch(IllegalArgumentException e){
+				e.printStackTrace();
 				return null;
 			}
 		}else{

@@ -119,6 +119,14 @@
 			<version>1.2</version>
 		</dependency>
 
+		<!-- jBCrypt -->
+		<dependency>
+			<groupId>org.mindrot</groupId>
+			<artifactId>jbcrypt</artifactId>
+			<version>0.3m</version>
+		</dependency>
+
+
 	</dependencies>
 	<build>
 		<!-- Output classes directly into the webapp, so that IDEs and "mvn process-classes" 

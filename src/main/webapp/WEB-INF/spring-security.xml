@@ -9,8 +9,7 @@
 		<intercept-url pattern="/login.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY" /> <!--requires-channel="https" -->
 		<intercept-url pattern="/*" access="ROLE_USER" />
 		<form-login login-page="/login.jsp" default-target-url="/KingdomMapper.html"
-			authentication-failure-url="/login.jsp?MSGT=Uporabnik nima pravice do prijave v GSC, HSQL admin modul!"
-			username-parameter="user" password-parameter="pass" />
+			authentication-failure-url="/login.jsp" />
 		<logout logout-success-url="/login.jsp" />
 
 		<!--<port-mappings>
