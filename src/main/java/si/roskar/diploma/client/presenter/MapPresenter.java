@@ -412,7 +412,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 								if(addMarkerDisplay.isValid()){
 									// insert marker
 									DataServiceAsync.Util.getInstance().insertMarker(addMarkerDisplay.getGeometry(), addMarkerDisplay.getLabelField().getText(),
-											addMarkerDisplay.getDescriptionField().getText(), display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
+											addMarkerDisplay.getDescriptionField().getText(), display.getCurrentLayer().getId(), new AsyncCallback<Boolean>() {
 												
 												@Override
 												public void onFailure(Throwable caught){
@@ -420,12 +420,14 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 												}
 												
 												@Override
-												public void onSuccess(Void result){
-													System.out.println("marker added");
-													
-													// redraw layers
-													display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getRefreshStrategy().refresh();
-													display.getCurrentOLWmsLayer().redraw();
+												public void onSuccess(Boolean result){
+													if(result){
+														// redraw layers
+														display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getRefreshStrategy().refresh();
+														display.getCurrentOLWmsLayer().redraw();
+													}else{
+														KingdomInfo.showInfoPopUp("Error", "Error adding marker");
+													}
 												}
 											});
 									
@@ -450,7 +452,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				
 				// POINT
 				if(geometryType.equals(GeometryType.POINT)){
-					DataServiceAsync.Util.getInstance().insertMarker(geometry, "", "", display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
+					DataServiceAsync.Util.getInstance().insertMarker(geometry, "", "", display.getCurrentLayer().getId(), new AsyncCallback<Boolean>() {
 						
 						@Override
 						public void onFailure(Throwable caught){
@@ -458,19 +460,21 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 						}
 						
 						@Override
-						public void onSuccess(Void result){
-							System.out.println("point added");
-							
-							// redraw layers
-							display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getRefreshStrategy().refresh();
-							display.getCurrentOLWmsLayer().redraw();
+						public void onSuccess(Boolean result){
+							if(result){
+								// redraw layers
+								display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getRefreshStrategy().refresh();
+								display.getCurrentOLWmsLayer().redraw();
+							}else{
+								KingdomInfo.showInfoPopUp("Error", "Error adding point");
+							}
 						}
 					});
 				}
 				
 				// LINE
 				if(geometryType.equals(GeometryType.LINE) && eventObject.getVectorFeature().getGeometry().getVertices(true).length > 1){
-					DataServiceAsync.Util.getInstance().insertLine(geometry, display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
+					DataServiceAsync.Util.getInstance().insertLine(geometry, display.getCurrentLayer().getId(), new AsyncCallback<Boolean>() {
 						
 						@Override
 						public void onFailure(Throwable caught){
@@ -478,12 +482,14 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 						}
 						
 						@Override
-						public void onSuccess(Void result){
-							System.out.println("line added");
-							
-							// redraw layers
-							display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getRefreshStrategy().refresh();
-							display.getCurrentOLWmsLayer().redraw();
+						public void onSuccess(Boolean result){
+							if(result){
+								// redraw layers
+								display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getRefreshStrategy().refresh();
+								display.getCurrentOLWmsLayer().redraw();
+							}else{
+								KingdomInfo.showInfoPopUp("Error", "Error adding line");
+							}
 						}
 					});
 				}
@@ -491,7 +497,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				// POLYGON
 				if(geometryType.equals(GeometryType.POLYGON) && eventObject.getVectorFeature().getGeometry().getVertices(false).length > 2 && !display.isInAddingHolesMode()
 						&& !display.isInAddingShapesMode()){
-					DataServiceAsync.Util.getInstance().insertPolygon(geometry, display.getCurrentLayer().getId(), new AsyncCallback<Void>() {
+					DataServiceAsync.Util.getInstance().insertPolygon(geometry, display.getCurrentLayer().getId(), new AsyncCallback<Boolean>() {
 						
 						@Override
 						public void onFailure(Throwable caught){
@@ -499,12 +505,14 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 						}
 						
 						@Override
-						public void onSuccess(Void result){
-							System.out.println("polygon added");
-							
-							// redraw layers
-							display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getRefreshStrategy().refresh();
-							display.getCurrentOLWmsLayer().redraw();
+						public void onSuccess(Boolean result){
+							if(result){
+								// redraw layers
+								display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getRefreshStrategy().refresh();
+								display.getCurrentOLWmsLayer().redraw();
+							}else{
+								KingdomInfo.showInfoPopUp("Error", "Error adding polygon");
+							}
 						}
 					});
 				}
@@ -526,24 +534,23 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 						
 						// update partaking features' geometries
 						if(!partakingFeatures.isEmpty()){
-							DataServiceAsync.Util.getInstance().bindPolygonGeometries(partakingFeatures,
-									eventObject.getVectorFeature().getGeometry().toString(), new AsyncCallback<Boolean>() {
-										
-										@Override
-										public void onFailure(Throwable caught){
-											KingdomInfo.showInfoPopUp("Error", "Error binding polygon geometries");
-										}
-										
-										@Override
-										public void onSuccess(Boolean result){
-											if(result){
-												// polygon was updated; refresh
-												// layers
-												display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getRefreshStrategy().refresh();
-												display.getCurrentOLWmsLayer().redraw();
-											}
-										}
-									});
+							DataServiceAsync.Util.getInstance().bindPolygonGeometries(partakingFeatures, eventObject.getVectorFeature().getGeometry().toString(), new AsyncCallback<Boolean>() {
+								
+								@Override
+								public void onFailure(Throwable caught){
+									KingdomInfo.showInfoPopUp("Error", "Error binding polygon geometries");
+								}
+								
+								@Override
+								public void onSuccess(Boolean result){
+									if(result){
+										// polygon was updated; refresh
+										// layers
+										display.getWfsLayerPackageHashMap().get(display.getCurrentLayer()).getRefreshStrategy().refresh();
+										display.getCurrentOLWmsLayer().redraw();
+									}
+								}
+							});
 						}
 					}
 				}
@@ -562,8 +569,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 								// slice on serverside, if changes were made,
 								// update
 								// the geometry
-								DataServiceAsync.Util.getInstance().slicePolygonGeometry(feature.getGeometry().toString(),
-										eventObject.getVectorFeature().getGeometry().toString(), feature.getFID(), new AsyncCallback<Boolean>() {
+								DataServiceAsync.Util.getInstance().slicePolygonGeometry(feature.getGeometry().toString(), eventObject.getVectorFeature().getGeometry().toString(), feature.getFID(),
+										new AsyncCallback<Boolean>() {
 											
 											@Override
 											public void onFailure(Throwable caught){
@@ -715,8 +722,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 							
 							String bbox = display.getOLMap().getExtent().toBBox(4).toString();
 							
-							DataServiceAsync.Util.getInstance().getFeatureInfo(selectedLayer, bbox, (int) display.getOLMap().getSize().getWidth(),
-									(int) display.getOLMap().getSize().getHeight(), mapClickEvent.getPixel().x(), mapClickEvent.getPixel().y(), new AsyncCallback<List<KingdomFeature>>() {
+							DataServiceAsync.Util.getInstance().getFeatureInfo(selectedLayer, bbox, (int) display.getOLMap().getSize().getWidth(), (int) display.getOLMap().getSize().getHeight(),
+									mapClickEvent.getPixel().x(), mapClickEvent.getPixel().y(), new AsyncCallback<List<KingdomFeature>>() {
 										
 										@Override
 										public void onFailure(Throwable caught){
@@ -1260,7 +1267,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 								}
 								
 								if(editLayerStyleDisplay.getLabelCheckBox().getValue()){
-									layer.setStyle(layer.getStyle() + "_label");									
+									layer.setStyle(layer.getStyle() + "_label");
 								}
 							}else if(layer.getGeometryType().equals(GeometryType.LINE)){
 								layer.setColor(editLayerStyleDisplay.getColor());
@@ -1290,7 +1297,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 								}
 								
 								if(editLayerStyleDisplay.getLabelCheckBox().getValue()){
-									layer.setStyle(layer.getStyle() + "_label");									
+									layer.setStyle(layer.getStyle() + "_label");
 								}
 							}
 							
@@ -1599,13 +1606,13 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 				
 				// update feature info
 				DataServiceAsync.Util.getInstance().updateFeatureInfo(display.getCurrentLayer(), feature.getLabel(), feature.getDescription(), feature.getFeatureId(), new AsyncCallback<Boolean>() {
-
+					
 					@Override
 					public void onFailure(Throwable caught){
 						KingdomInfo.showInfoPopUp("Error", "Error updating feature info");
 						KingdomInfo.hideLoadingBar();
 					}
-
+					
 					@Override
 					public void onSuccess(Boolean result){
 						if(result){
@@ -1615,8 +1622,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 							
 							// refresh layer
 							display.getCurrentOLWmsLayer().redraw();
-						}
-						else{
+						}else{
 							KingdomInfo.showInfoPopUp("Error", "Error updating feature info");
 							editFeatureDisplay.hide();
 							KingdomInfo.hideLoadingBar();

@@ -44,11 +44,11 @@ public interface DataService extends RemoteService{
 	
 	boolean updateLayerName(KingdomLayer layer);
 	
-	void insertMarker(String wktGeometry, String label, String description, int layerId);
+	boolean insertMarker(String wktGeometry, String label, String description, int layerId);
 	
-	void insertLine(String wktGeometry, int layerId);
+	boolean insertLine(String wktGeometry, int layerId);
 	
-	void insertPolygon(String wktGeometry, int layerId);
+	boolean insertPolygon(String wktGeometry, int layerId);
 	
 	boolean slicePolygonGeometry(String originalPolygonWktGeometry, String intersectorWktGeometry, String polygonFid);
 	

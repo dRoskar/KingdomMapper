@@ -95,8 +95,8 @@
 [X] geoserver url from properties file
 [X] no need to insert descriptions when adding new features
 [-] dataservice methods return bool: in exception -> return false
-[ ] marker icons for points
-[ ] city and village icon shouldn't be centered
+[X] marker icons for points
+[X] city and village icon shouldn't be centered
 [X] use .equals instead of compareTo (except for the sort class)
 [X] use JST for wkt to gml instead of your own crappy function
 	
@@ -115,6 +115,8 @@
 [ ] subtract shapes from lines and points
 [ ] add different grid size choices
 [ ] marker label fonts
+[ ] line labels
+[ ] polygon labels
 [ ] print
 [ ] consider updating to DB less often. MAybe only when user stops editing
 [ ] dash line style

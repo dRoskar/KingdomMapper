@@ -181,7 +181,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	// ===========================================
 	
 	// ===== ===== WFS-T ===== =====
-	public void insertMarker(String wktGeometry, String label, String description, int layerId){
+	public boolean insertMarker(String wktGeometry, String label, String description, int layerId){
 		String wmsUrl = GeoserverSource.getWmsUrl();
 		
 		NetIO netIo = new NetIO();
@@ -204,7 +204,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 				+ "  xsi:schemaLocation=\"http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename=topp:tasmania_roads\">\r\n"
 				+ "  <wfs:Insert>\r\n" 
 				+ "    <kingdom:point>\r\n" 
-				+ "	   <kingdom:label>" + label + "</kingdom:label>" 
+				+ "	   <kingdom:laber>" + label + "</kingdom:label>" 
 				+ "      <kingdom:description>" + description + "</kingdom:description>\r\n"
 				+ "      <kingdom:layer_id>" + layerId + "</kingdom:layer_id>\r\n" 
 				+ "      <geometry>" + Tools.wktToGml(wktGeometry) + "</geometry>\r\n" 
@@ -265,13 +265,18 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 			
 			String responseString = new String(response);
 			
-			System.out.println(responseString);
+			if(responseString.contains("ServiceException")){
+				return false;
+			}
+			
 		}catch(Exception e){
 			e.printStackTrace();
 		}
+		
+		return true;
 	}
 	
-	public void insertLine(String wktGeometry, int layerId){
+	public boolean insertLine(String wktGeometry, int layerId){
 		String wmsUrl = GeoserverSource.getWmsUrl();
 		
 		NetIO netIo = new NetIO();
@@ -298,13 +303,18 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 			
 			String responseString = new String(response);
 			
-			System.out.println(responseString);
+			if(responseString.contains("ServiceException")){
+				return false;
+			}
+			
 		}catch(Exception e){
 			e.printStackTrace();
 		}
+		
+		return true;
 	}
 	
-	public void insertPolygon(String wktGeometry, int layerId){
+	public boolean insertPolygon(String wktGeometry, int layerId){
 		String wmsUrl = GeoserverSource.getWmsUrl();
 		
 		NetIO netIo = new NetIO();
@@ -331,10 +341,15 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 			
 			String responseString = new String(response);
 			
-			System.out.println(responseString);
+			if(responseString.contains("ServiceException")){
+				return false;
+			}
+			
 		}catch(Exception e){
 			e.printStackTrace();
 		}
+		
+		return true;
 	}
 	
 	public void updatePolygonGeometry(String gmlGeometry, String polygonFid){
