@@ -71,11 +71,17 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		return null;
 	}
 	
+	@Override
+	public boolean setUserLastMap(int lastMapId, int userId) {
+		return userJdbcTemplate.setUserLastMap(lastMapId, userId);
+	};
+	
 	// ==========================================
 	
 	// ===== ===== MAP DATA SERVICES ===== =====
 	@Override
 	public Integer addMap(KingdomMap map){
+		// remember this map (to the user)
 		return mapJdbcTemplate.insert(map.getName(), map.getUser().getId());
 	}
 	

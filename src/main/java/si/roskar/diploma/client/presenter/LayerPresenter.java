@@ -935,6 +935,22 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 				display.refreshLayerTree(Math.round(event.getScale()));
 			}
 		});
+		
+		// remember this map
+		DataServiceAsync.Util.getInstance().setUserLastMap(newMap.getId(), display.getCurrentUser().getId(), new AsyncCallback<Boolean>() {
+
+			@Override
+			public void onFailure(Throwable caught){
+				KingdomInfo.showInfoPopUp("Error", "Error remembering map");
+			}
+
+			@Override
+			public void onSuccess(Boolean result){
+				if(!result){
+					KingdomInfo.showInfoPopUp("Error", "Error remembering map");
+				}
+			}
+		});
 	}
 	
 	private void deleteLayer(){

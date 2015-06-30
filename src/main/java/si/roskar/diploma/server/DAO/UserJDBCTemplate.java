@@ -60,4 +60,12 @@ public class UserJDBCTemplate{
 		
 		return null;
 	}
+	
+	public boolean setUserLastMap(int lastMapId, int userId){
+		final String SQL = "UPDATE public.\"User\" SET last_map = '" + lastMapId + "' WHERE id = " + userId;
+		
+		jdbcTemplateObject.update(SQL);
+		
+		return true;
+	}
 }
