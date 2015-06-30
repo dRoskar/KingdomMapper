@@ -54,7 +54,7 @@ public interface DataService extends RemoteService{
 	
 	boolean bindPolygonGeometries(List<KingdomVectorFeature> partakigFeatures, String newGeometryWkt);
 	
-	void updatePolygonGeometry(String wktGeometry, String polygonFid);
+	boolean updatePolygonGeometry(String wktGeometry, String polygonFid);
 	
 	List<KingdomFeature> getFeatureInfo(KingdomLayer layer, String bbox, int width, int height, int pixelX, int pixelY);
 	

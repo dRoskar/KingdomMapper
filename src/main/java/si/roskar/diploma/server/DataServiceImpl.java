@@ -352,7 +352,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		return true;
 	}
 	
-	public void updatePolygonGeometry(String gmlGeometry, String polygonFid){
+	public boolean updatePolygonGeometry(String gmlGeometry, String polygonFid){
 		String wmsUrl = GeoserverSource.getWmsUrl();
 		
 		NetIO netIo = new NetIO();
@@ -381,10 +381,15 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 			
 			String responseString = new String(response);
 			
-			System.out.println(responseString);
+			if(responseString.contains("ServiceException")){
+				return false;
+			}
+			
 		}catch(Exception e){
 			e.printStackTrace();
 		}
+		
+		return true;
 	}
 	
 	public boolean updateFeatureInfo(KingdomLayer layer, String label, String description, String featureId){
@@ -428,16 +433,18 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 			
 			String responseString = new String(response);
 			
-			System.out.println(responseString);
+			if(responseString.contains("ServiceException")){
+				return false;
+			}
+			
 		}catch(Exception e){
 			e.printStackTrace();
-			return false;
 		}
 		
 		return true;
 	}
 	
-	public void deletePolygon(String polygonFid){
+	public boolean deletePolygon(String polygonFid){
 		String wmsUrl = GeoserverSource.getWmsUrl();
 		
 		NetIO netIo = new NetIO();
@@ -462,10 +469,15 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 			
 			String responseString = new String(response);
 			
-			System.out.println(responseString);
+			if(responseString.contains("ServiceException")){
+				return false;
+			}
+			
 		}catch(Exception e){
 			e.printStackTrace();
 		}
+		
+		return true;
 	}
 	
 	// =============================
