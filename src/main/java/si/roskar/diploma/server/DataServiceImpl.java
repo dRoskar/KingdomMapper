@@ -204,7 +204,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 				+ "  xsi:schemaLocation=\"http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename=topp:tasmania_roads\">\r\n"
 				+ "  <wfs:Insert>\r\n" 
 				+ "    <kingdom:point>\r\n" 
-				+ "	   <kingdom:laber>" + label + "</kingdom:label>" 
+				+ "	   <kingdom:label>" + label + "</kingdom:label>" 
 				+ "      <kingdom:description>" + description + "</kingdom:description>\r\n"
 				+ "      <kingdom:layer_id>" + layerId + "</kingdom:layer_id>\r\n" 
 				+ "      <geometry>" + Tools.wktToGml(wktGeometry) + "</geometry>\r\n" 

@@ -19,12 +19,12 @@
 [X] update user data (last map open) at key events
 [X] cancel drawing with escape
 
-[.] vector editing
+[X] vector editing
 	[X] moving features
 	[X] inserting and moving vertices
-	[.] buttons display depending on type of layer selected
+	[X] buttons display depending on type of layer selected
 	[X] deleting features
-	[ ] adding description
+	[X] adding description
 	
 [X] Remember what map user was editing last
 
