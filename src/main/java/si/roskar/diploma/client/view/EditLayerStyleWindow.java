@@ -222,6 +222,10 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 		
 		VerticalLayoutContainer layoutContainer = new VerticalLayoutContainer();
 		
+		labelCheckBox = new CheckBox();
+		labelCheckBox.setValue(layer.getStyle().contains("label"));
+		layoutContainer.add(new FieldLabel(labelCheckBox, "Labeled"));
+		
 		String[] colors = new String[] { layer.getColor() };
 		colorPalette = new ColorPalette(colors, colors);
 		colorPalette.addDomHandler(colorPaletteClickHandler, ClickEvent.getType());
@@ -230,10 +234,6 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 		colorPaletteFieldLabel.setWidget(colorPalette);
 		colorPaletteFieldLabel.setText("Color");
 		layoutContainer.add(colorPaletteFieldLabel);
-		
-		labelCheckBox = new CheckBox();
-		labelCheckBox.setValue(layer.getStyle().contains("label"));
-		layoutContainer.add(new FieldLabel(labelCheckBox, "Labeled"));
 		
 		String[] labelColors = new String[] { layer.getLabelColor() };
 		labelColorPalette = new ColorPalette(labelColors, labelColors);
@@ -459,6 +459,10 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 		sizeSpinner.setValue(layer.getSize());
 		layoutContainer.add(new FieldLabel(sizeSpinner, "Size"));
 		
+		labelCheckBox = new CheckBox();
+		labelCheckBox.setValue(layer.getStyle().contains("label"));
+		layoutContainer.add(new FieldLabel(labelCheckBox, "Labeled"));
+		
 		String[] colors = new String[] { layer.getColor() };
 		colorPalette = new ColorPalette(colors, colors);
 		colorPalette.addDomHandler(colorPaletteClickHandler, ClickEvent.getType());
@@ -467,10 +471,6 @@ public class EditLayerStyleWindow extends Window implements EditLayerStyleDispla
 		colorPaletteFieldLabel.setWidget(colorPalette);
 		colorPaletteFieldLabel.setText("Color");
 		layoutContainer.add(colorPaletteFieldLabel);
-		
-		labelCheckBox = new CheckBox();
-		labelCheckBox.setValue(layer.getStyle().contains("label"));
-		layoutContainer.add(new FieldLabel(labelCheckBox, "Labeled"));
 		
 		String[] labelColors = new String[] { layer.getLabelColor() };
 		labelColorPalette = new ColorPalette(labelColors, labelColors);

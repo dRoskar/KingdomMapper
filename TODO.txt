@@ -101,6 +101,7 @@
 [X] use JST for wkt to gml instead of your own crappy function
 	
 [X] limit zoom out
+[ ] color picker displays selected color and hex
 [ ] add icon license
 
 
