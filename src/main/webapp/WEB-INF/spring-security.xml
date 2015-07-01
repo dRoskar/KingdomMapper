@@ -9,7 +9,7 @@
 		<intercept-url pattern="/login.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY" /> <!--requires-channel="https" -->
 		<intercept-url pattern="/*" access="ROLE_USER" />
 		<form-login login-page="/login.jsp" default-target-url="/KingdomMapper.html"
-			authentication-failure-url="/login.jsp" />
+			authentication-failure-url="/login.jsp?error_message=" />
 		<logout logout-success-url="/login.jsp" />
 
 		<!--<port-mappings>
