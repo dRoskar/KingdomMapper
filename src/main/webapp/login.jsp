@@ -11,6 +11,10 @@ h1 {
 	text-align: center;
 }
 
+H2 {
+	text-align: center;
+}
+
 #header {
 	margin: 220px auto 0px;
 	width: 400;
@@ -28,22 +32,30 @@ h1 {
 	margin: 20px auto 0px;
 	text-align: center;
 }
+
+#error-box {
+	margin: 10px auto 0px;
+	text-align: center;
+	color: red;
+}
 </style>
 
 <script type="text/javascript">
-	// 	function validate() {
-	// 		document.getElementById("errorMessage").innerHTML = "";
-	// 		if (document.getElementById("user").value.length < 1) {
-	// 			document.getElementById("errorMessage").innerHTML = "* enter a username!"
-	// 			return false;
-	// 		}
+	function validate() {
+		if (document.getElementById("username").value.length == 0) {
+			document.getElementById("error-box").innerHTML = "Please enter a username"
+			return false;
+		}
 
-	// 		if (document.getElementById("pass").value.length < 1) {
-	// 			document.getElementById("errorMessage").innerHTML = "* enter a password!"
-	// 			return false;
-	// 		}
-	// 		return true;
-	// 	}
+		if (document.getElementById("password").value.length == 0) {
+			document.getElementById("error-box").innerHTML = "Please enter a password"
+			return false;
+		}
+		
+		document.getElementById("error-box").innerHTML = "";
+		
+		return true;
+	}
 </script>
 </head>
 <body onload='document.kingdomLogin.j_username.focus();'>
@@ -53,7 +65,7 @@ h1 {
 	<div id='login-box'>
 		<h2>Log in</h2>
 
-		<form name="kingdom-login"
+		<form onsubmit="return validate();" name="kingdom-login"
 			action="<c:url value='j_spring_security_check' />" method="POST">
 			<table>
 				<tr>
@@ -65,10 +77,18 @@ h1 {
 					<td><input id="password" name="j_password" type="password" /></td>
 				</tr>
 				<tr>
-					<td colspan="2"><div id="submit-box"><input name="submit" type="submit"
-						value="Log In" /></div></td>
+					<td colspan="2"><div id="submit-box">
+							<input name="submit" type="submit" value="Log In" />
+						</div></td>
 				</tr>
 			</table>
+			<div id="error-box">
+				<%
+					if(request.getParameter("error") != null){
+						out.println("Wrong username or password");
+					}
+				%>
+			</div>
 		</form>
 	</div>
 </body>
