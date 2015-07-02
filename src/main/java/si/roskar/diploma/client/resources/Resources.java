@@ -150,6 +150,9 @@ public class Resources{
 		@Source ("info.png")
 		ImageResource info();
 		
+		@Source ("logout.png")
+		ImageResource logOut();
+		
 		// ===== markers =====
 		@Source("markers/marker_point.png")
 		ImageResource markerPoint();

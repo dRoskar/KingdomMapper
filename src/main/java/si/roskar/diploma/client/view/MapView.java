@@ -69,6 +69,7 @@ import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.button.ToggleButton;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer.VerticalLayoutData;
+import com.sencha.gxt.widget.core.client.toolbar.FillToolItem;
 import com.sencha.gxt.widget.core.client.toolbar.SeparatorToolItem;
 import com.sencha.gxt.widget.core.client.toolbar.ToolBar;
 
@@ -86,6 +87,7 @@ public class MapView implements Display{
 	private TextButton										editLayerStyleButton	= null;
 	private TextButton										setUpperLimitButton		= null;
 	private TextButton										setLowerLimitButton		= null;
+	private TextButton										logOutButton			= null;
 	private ToggleButton									grid					= null;
 	private ToggleButton									measureDistanceButton	= null;
 	private ToggleButton									measureAreaButton		= null;
@@ -190,7 +192,7 @@ public class MapView implements Display{
 		
 		infoButton = new ToggleButton();
 		infoButton.setIcon(Resources.ICONS.info());
-		infoButton.setToolTip("Get feature info");		
+		infoButton.setToolTip("Get feature info");
 		
 		ToggleGroup navigationGroup = new ToggleGroup();
 		navigationGroup.add(measureDistanceButton);
@@ -201,6 +203,10 @@ public class MapView implements Display{
 		saveMapStateButton.setIcon(Resources.ICONS.mapSave());
 		saveMapStateButton.setToolTip("Save map state");
 		
+		logOutButton = new TextButton();
+		logOutButton.setIcon(Resources.ICONS.logOut());
+		logOutButton.setToolTip("Log out");
+		
 		navigationToolbar.add(zoomToExtent);
 		navigationToolbar.add(navigateBack);
 		navigationToolbar.add(navigateForward);
@@ -209,6 +215,8 @@ public class MapView implements Display{
 		navigationToolbar.add(measureDistanceButton);
 		navigationToolbar.add(measureAreaButton);
 		navigationToolbar.add(saveMapStateButton);
+		navigationToolbar.add(new FillToolItem());
+		navigationToolbar.add(logOutButton);
 		
 		// create drawing toolbar
 		editingToolbar = new ToolBar();
@@ -335,7 +343,7 @@ public class MapView implements Display{
 		
 		container.setBorders(false);
 		
-		container.add(navigationToolbar);
+		container.add(navigationToolbar, new VerticalLayoutData(1, -1));
 		container.add(editingToolbar);
 		container.add(mapWidget, new VerticalLayoutData(1, 1));
 	}
@@ -1203,6 +1211,11 @@ public class MapView implements Display{
 	@Override
 	public TextButton getSaveMapStateButton(){
 		return saveMapStateButton;
+	}
+	
+	@Override
+	public TextButton getLogOutButton(){
+		return logOutButton;
 	}
 	
 	@Override

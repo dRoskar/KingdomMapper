@@ -10,7 +10,7 @@
 		<intercept-url pattern="/*" access="ROLE_USER" />
 		<form-login login-page="/login.jsp" default-target-url="/KingdomMapper.html"
 			authentication-failure-url="/login.jsp?error=true" />
-		<logout logout-success-url="/login.jsp" />
+		<logout logout-success-url="/login.jsp?logout=true" />
 		
 	</http>
 

@@ -191,6 +191,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		TextButton getSetLowerLimitButton();
 		
+		TextButton getLogOutButton();
+		
 		void bringLayerToFront(KingdomLayer selectedLayer);
 		
 		void sendLayerToBack(KingdomLayer selectedLayer);
@@ -1522,6 +1524,15 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			@Override
 			public void onHandle(EventObject eventObject){
 				Bus.get().fireEvent(new EventMapScaleChanged(display.getOLMap().getScale()));
+			}
+		});
+		
+		// log out
+		display.getLogOutButton().addSelectHandler(new SelectHandler() {
+			
+			@Override
+			public void onSelect(SelectEvent event){
+				Window.Location.replace("j_spring_security_logout");
 			}
 		});
 	}

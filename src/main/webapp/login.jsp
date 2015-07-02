@@ -38,22 +38,36 @@ H2 {
 	text-align: center;
 	color: red;
 }
+
+#logout-box {
+	margin: 10px auto 0px;
+	text-align: center;
+	color: green;
+}
 </style>
 
 <script type="text/javascript">
 	function validate() {
+		
+		document.getElementById("error-box").innerHTML = "";
+		var lob = document.getElementById("logout-box");
+		
+		if(lob != null){
+			lob.innerHTML = "";
+		}
+		
 		if (document.getElementById("username").value.length == 0) {
-			document.getElementById("error-box").innerHTML = "Please enter a username"
+			document.getElementById("error-box").innerHTML = "Please enter a username";
 			return false;
 		}
 
 		if (document.getElementById("password").value.length == 0) {
-			document.getElementById("error-box").innerHTML = "Please enter a password"
+			document.getElementById("error-box").innerHTML = "Please enter a password";
 			return false;
 		}
+
 		
-		document.getElementById("error-box").innerHTML = "";
-		
+
 		return true;
 	}
 </script>
@@ -65,7 +79,7 @@ H2 {
 	<div id='login-box'>
 		<h2>Log in</h2>
 
-		<form onsubmit="return validate();" name="kingdom-login"
+		<form onsubmit="return validate();" name="kingdomLogin"
 			action="<c:url value='j_spring_security_check' />" method="POST">
 			<table>
 				<tr>
@@ -89,6 +103,13 @@ H2 {
 					}
 				%>
 			</div>
+			<%
+				if(request.getParameter("logout") != null){
+					out.println("<div id=\"logout-box\">");
+					out.println("You have logged out successfully");
+					out.println("</div>");
+				}
+			%>
 		</form>
 	</div>
 </body>
