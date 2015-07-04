@@ -150,13 +150,13 @@
 [ ] maps with special characters show up encoded in the existing map picker
 [X] layer tree sort uncheks and unselects layers (I think the selected layer is still selected, just not visually)
 [X] deleting the last layer in the tree causes an error
-[ ] select layer, turn edit mode on and off, and send layer to top. grid is top again (probably gets assigned a huge z index somewhere in between, maybe if setting it to 0 everytime you resort will fix this)
-[ ] select layer, toggle vertice-moving, drag a vertex, click move to front, switch off edit mode, layer is not in front
+[X] select layer, turn edit mode on and off, and send layer to top. grid is top again (probably gets assigned a huge z index somewhere in between, maybe if setting it to 0 everytime you resort will fix this)
+[X] select layer, toggle vertice-moving, drag a vertex, click move to front, switch off edit mode, layer is not in front
 [X] layer with multiple features, select erase tool, click on a feature, it's gone. Click on empty space, feature is back (only on wfs layer)
 [X] click cancel when selecting color
 [ ] subtract sometimes changes into add
 [ ] if subtract is on when adding new layer, subtract stays on, but button is off (what about when adding new map?)
 [X] info button enable/disable switch sucks
-[ ] map zooms after layer style is changed
-[ ] labels don't always show
-[ ] markers are getting cut
+[?] map zooms after layer style is changed
+[X] labels don't always show
+[X] markers are getting cut

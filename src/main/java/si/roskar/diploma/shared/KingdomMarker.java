@@ -16,8 +16,8 @@ public class KingdomMarker{
 	public static final String	MAN_MARKER			= "marker_man.svg";
 	public static final String	QUEST_MARKER		= "marker_quest.svg";
 	public static final String	REWARD_MARKER		= "marker_reward.svg";
-	public static final String	TREE_MARKER			= "marker_tree1.svg";
-	public static final String	EVERGREEN_MARKER	= "marker_tree2.svg";
+	public static final String	EVERGREEN_MARKER	= "marker_tree1.svg";
+	public static final String	TREE_MARKER			= "marker_tree2.svg";
 	public static final String	CACTUS_MARKER		= "marker_cactus.svg";
 	public static final String	VILLAGE_MARKER		= "marker_village.svg";
 	public static final String	CITY_MARKER			= "marker_city.svg";
