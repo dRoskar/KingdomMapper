@@ -88,6 +88,7 @@ public class MapView implements Display{
 	private TextButton										setUpperLimitButton		= null;
 	private TextButton										setLowerLimitButton		= null;
 	private TextButton										logOutButton			= null;
+	private TextButton										creditsButton			= null;
 	private ToggleButton									grid					= null;
 	private ToggleButton									measureDistanceButton	= null;
 	private ToggleButton									measureAreaButton		= null;
@@ -203,6 +204,10 @@ public class MapView implements Display{
 		saveMapStateButton.setIcon(Resources.ICONS.mapSave());
 		saveMapStateButton.setToolTip("Save map state");
 		
+		creditsButton = new TextButton();
+		creditsButton.setIcon(Resources.ICONS.credits());
+		creditsButton.setToolTip("additional info");
+		
 		logOutButton = new TextButton();
 		logOutButton.setIcon(Resources.ICONS.logOut());
 		logOutButton.setToolTip("Log out");
@@ -216,6 +221,7 @@ public class MapView implements Display{
 		navigationToolbar.add(measureAreaButton);
 		navigationToolbar.add(saveMapStateButton);
 		navigationToolbar.add(new FillToolItem());
+		navigationToolbar.add(creditsButton);
 		navigationToolbar.add(logOutButton);
 		
 		// create drawing toolbar
@@ -1211,6 +1217,11 @@ public class MapView implements Display{
 	@Override
 	public TextButton getSaveMapStateButton(){
 		return saveMapStateButton;
+	}
+	
+	@Override
+	public TextButton getCreditsButton(){
+		return creditsButton;
 	}
 	
 	@Override

@@ -48,6 +48,7 @@ import si.roskar.diploma.client.util.KingdomInfo;
 import si.roskar.diploma.client.util.KingdomMeasure;
 import si.roskar.diploma.client.util.WFSLayerPackage;
 import si.roskar.diploma.client.view.AddMarkerDialog;
+import si.roskar.diploma.client.view.CreditsWindow;
 import si.roskar.diploma.client.view.EditFeatureDialog;
 import si.roskar.diploma.client.view.EditLayerStyleWindow;
 import si.roskar.diploma.client.view.FeatureInfoSelectionMenu;
@@ -190,6 +191,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		TextButton getSetUpperLimitButton();
 		
 		TextButton getSetLowerLimitButton();
+		
+		TextButton getCreditsButton();
 		
 		TextButton getLogOutButton();
 		
@@ -341,11 +344,16 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		TextButton getCloseButton();
 	}
 	
+	public interface CreditsDisplay extends View{
+		void show();
+	}
+	
 	private AddMarkerDisplay			addMarkerDisplay			= null;
 	private EditLayerStyleDisplay		editLayerStyleDisplay		= null;
 	private MeasureDisplay				measureDisplay				= null;
 	private FeatureInfoSelectionDisplay	featureInfoSelectionDisplay	= null;
 	private EditFeatureDisplay			editFeatureDisplay			= null;
+	private CreditsDisplay				creditsDisplay				= null;
 	
 	public MapPresenter(Display display){
 		super(display);
@@ -353,6 +361,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		addMarkerDisplay = new AddMarkerDialog();
 		measureDisplay = new MeasureDisplayWindow();
 		featureInfoSelectionDisplay = new FeatureInfoSelectionMenu();
+		creditsDisplay = new CreditsWindow();
 	}
 	
 	@Override
@@ -1524,6 +1533,15 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			@Override
 			public void onHandle(EventObject eventObject){
 				Bus.get().fireEvent(new EventMapScaleChanged(display.getOLMap().getScale()));
+			}
+		});
+		
+		// credits
+		display.getCreditsButton().addSelectHandler(new SelectHandler() {
+			
+			@Override
+			public void onSelect(SelectEvent event){
+				creditsDisplay.show();
 			}
 		});
 		

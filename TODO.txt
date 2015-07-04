@@ -103,7 +103,7 @@
 [X] limit zoom out
 [ ] color picker displays selected color and hex
 [ ] add icon license
-[ ] add security license http://www.mindrot.org/files/jBCrypt/LICENSE
+[-] add security license http://www.mindrot.org/files/jBCrypt/LICENSE
 
 
 ## LONG-TERM ##
