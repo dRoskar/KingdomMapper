@@ -69,9 +69,8 @@
 [X] info indicators
 [X] populate with loading bars and info indicators
 [.] user (security) integration
-	[ ] validation - no special chars
-	[ ] hash and salt strategy
-	[ ] logout
+	[X] hash and salt strategy
+	[X] logout
 
 [X] Layer max and min scales
 	[X] DB integration
@@ -108,6 +107,12 @@
 
 
 ## LONG-TERM ##
+[ ] registration form
+	[ ] form
+	[ ] serverside handling
+		[ ] harsh validation
+		[ ] add user to db
+
 [ ] feature z index
 [ ] do identify with wfs to skip geometry and make everything faster
 [ ] all kinds of shapes on the same layer?
