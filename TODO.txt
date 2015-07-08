@@ -102,8 +102,9 @@
 	
 [X] limit zoom out
 [ ] color picker displays selected color and hex
-[ ] add icon license
+[X] add icon license
 [-] add security license http://www.mindrot.org/files/jBCrypt/LICENSE
+[ ] folder view
 
 
 ## LONG-TERM ##
@@ -160,3 +161,4 @@
 [?] map zooms after layer style is changed
 [X] labels don't always show
 [X] markers are getting cut
+[ ] max and min zoom no longer work properly. (if map is loaded at max zoom top layer is grayed out; min zoom button makes the layer invisible at current zoom instead of next)
