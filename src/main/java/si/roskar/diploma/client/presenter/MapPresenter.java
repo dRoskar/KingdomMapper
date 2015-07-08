@@ -213,6 +213,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		void setLayerOpacity(KingdomLayer layer, float opacity);
 		
 		void refreshLayerScaleLimit(KingdomLayer layer);
+		
+		double getScaleFromZoom();
 	}
 	
 	public interface AddMarkerDisplay extends View{
@@ -1359,10 +1361,10 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			public void onSelect(SelectEvent event){
 				// update object
 				KingdomLayer layer = display.getCurrentLayer();
-				layer.setMinScale((float) display.getOLMap().getScale());
+				layer.setMinScale((float) display.getScaleFromZoom());
 				
 				// update wms layer
-				display.getCurrentOLWmsLayer().getOptions().setMinScale((float) display.getOLMap().getScale());
+				display.getCurrentOLWmsLayer().getOptions().setMinScale((float) display.getScaleFromZoom());
 				
 				// refresh view
 				display.refreshLayerScaleLimit(layer);
@@ -1382,10 +1384,11 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			public void onSelect(SelectEvent event){
 				// update object
 				KingdomLayer layer = display.getCurrentLayer();
-				layer.setMaxScale((float) display.getOLMap().getScale());
+				
+				layer.setMaxScale((float) display.getScaleFromZoom());
 				
 				// update wms layer
-				display.getCurrentOLWmsLayer().getOptions().setMaxScale((float) display.getOLMap().getScale());
+				display.getCurrentOLWmsLayer().getOptions().setMaxScale((float) display.getScaleFromZoom());
 				
 				// refresh view
 				display.refreshLayerScaleLimit(layer);
@@ -1458,7 +1461,6 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			}
 		});
 		
-		// measure view activation listener
 		// Measure view activation listener.
 		ControlActivateListener cal = new ControlActivateListener() {
 			

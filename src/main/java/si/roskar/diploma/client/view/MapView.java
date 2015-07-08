@@ -1302,4 +1302,9 @@ public class MapView implements Display{
 		// set OL Z indices
 		applyLayerZIndices();
 	}
+	
+	@Override
+	public double getScaleFromZoom(){
+		return scales[mapWidget.getMap().getZoom()];
+	}
 }
