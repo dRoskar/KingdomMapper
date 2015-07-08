@@ -1,9 +1,5 @@
 package si.roskar.diploma.client.presenter;
 
-import java.security.SecureRandom;
-
-import org.mindrot.jbcrypt.BCrypt;
-
 import si.roskar.diploma.client.DataServiceAsync;
 import si.roskar.diploma.client.event.Bus;
 import si.roskar.diploma.client.event.EventChangeMapNameHeader;

@@ -51,6 +51,8 @@ import org.gwtopenmaps.openlayers.client.strategy.RefreshStrategy;
 import org.gwtopenmaps.openlayers.client.strategy.SaveStrategy;
 import org.gwtopenmaps.openlayers.client.strategy.Strategy;
 
+import si.roskar.diploma.client.event.Bus;
+import si.roskar.diploma.client.event.EventMapScaleChanged;
 import si.roskar.diploma.client.presenter.MapPresenter.Display;
 import si.roskar.diploma.client.resources.Resources;
 import si.roskar.diploma.client.util.KingdomMeasure;
@@ -617,6 +619,9 @@ public class MapView implements Display{
 		}else{
 			zoomToBounds(map.getPreviousView(), map.getPreviousZoomLevel());
 		}
+		
+		// redraw layer tree
+		Bus.get().fireEvent(new EventMapScaleChanged(mapWidget.getMap().getScale()));
 	}
 	
 	@Override
@@ -1288,12 +1293,11 @@ public class MapView implements Display{
 	public void refreshLayerScaleLimit(KingdomLayer layer){
 		WMS wmsLayer = getCurrentOLWmsLayer();
 		
+		// TODO: is this remove necessary/is the applyLayerZIndices() necessary?
 		mapWidget.getMap().removeLayer(wmsLayer);
 		wmsLayer.getOptions().setMaxScale((float) layer.getMaxScale());
 		wmsLayer.getOptions().setMinScale((float) layer.getMinScale());
 		mapWidget.getMap().addLayer(wmsLayer);
-		
-		// re-apply Z-indices
 		
 		// set OL Z indices
 		applyLayerZIndices();

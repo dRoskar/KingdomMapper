@@ -66,10 +66,7 @@ public class LayerView implements Display{
 	public LayerView(KingdomUser user){
 		LayerProperties properties = GWT.create(LayerProperties.class);
 		
-		// ===== ===== TEMP DEFAULT USER = BORIS ===== ===== =====
-		currentUser = user;
-		
-		// =======================================================
+		this.currentUser = user;
 		
 		// create map toolbar
 		ToolBar mapToolbar = new ToolBar();
