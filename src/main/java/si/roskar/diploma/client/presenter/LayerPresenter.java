@@ -31,6 +31,7 @@ import si.roskar.diploma.client.view.ExistingMapsWindow;
 import si.roskar.diploma.client.view.NewMapDialog;
 import si.roskar.diploma.client.view.View;
 import si.roskar.diploma.shared.GeometryType;
+import si.roskar.diploma.shared.KingdomBaseLayer;
 import si.roskar.diploma.shared.KingdomGridLayer;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
@@ -901,11 +902,16 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 				// add layers to layer tree view
 				display.setLayers(result);
 				
+				//prepend empty base layer
+				KingdomBaseLayer baseLayer = new KingdomBaseLayer(-3, "Base", "grid", false, "image/png", "EPSG:4326", 1.0f);
+				baseLayer.setZIndex(-11);
+				
 				// prepend grid layer
 				KingdomGridLayer gridLayer = new KingdomGridLayer(-2, "Grid", "grid", true, "image/png", "EPSG:4326", 0.5f, MapSize.COUNTRY_MAP);
 				gridLayer.setZIndex(325);
 				
 				List<KingdomLayer> layers = new ArrayList<KingdomLayer>();
+				layers.add(baseLayer);
 				layers.add(gridLayer);
 				
 				for(KingdomLayer layer : result){
@@ -927,7 +933,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 			}
 		});
 		
-		// handle map scale schanged
+		// handle map scale changed
 		Bus.get().addHandler(EventMapScaleChanged.TYPE, new EventMapScaleChangedHandler(){
 
 			@Override

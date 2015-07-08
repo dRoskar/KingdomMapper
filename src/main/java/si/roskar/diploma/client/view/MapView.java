@@ -59,6 +59,7 @@ import si.roskar.diploma.client.util.KingdomMeasure;
 import si.roskar.diploma.client.util.WFSLayerPackage;
 import si.roskar.diploma.shared.EditingMode;
 import si.roskar.diploma.shared.GeometryType;
+import si.roskar.diploma.shared.KingdomBaseLayer;
 import si.roskar.diploma.shared.KingdomGridLayer;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
@@ -637,7 +638,10 @@ public class MapView implements Display{
 		layerParams.setStyles(layer.getStyle());
 		layerParams.setTransparent(true);
 		
-		if(layer instanceof KingdomGridLayer){
+		if(layer instanceof KingdomBaseLayer){
+			layerParams.setLayers("kingdom:polygon");
+			layerParams.setCQLFilter("IN ('polygon." + ((KingdomBaseLayer) layer).getDbKey() + "')");
+		}else if(layer instanceof KingdomGridLayer){
 			layerParams.setLayers("kingdom:line");
 			layerParams.setCQLFilter("IN ('line." + ((KingdomGridLayer) layer).getDBKey() + "')");
 		}else{
@@ -667,7 +671,7 @@ public class MapView implements Display{
 		wms.setOpacity(layer.getOpacity());
 		wms.setIsVisible(layer.isVisible());
 		
-		if(!(layer instanceof KingdomGridLayer) && layer.getGeometryType().equals(GeometryType.MARKER)){
+		if(!(layer instanceof KingdomGridLayer) && !(layer instanceof KingdomBaseLayer) && layer.getGeometryType().equals(GeometryType.MARKER)){
 			wms.setSingleTile(true);
 		}else{
 			wms.setSingleTile(false);
@@ -682,7 +686,7 @@ public class MapView implements Display{
 		}
 		
 		// WFS
-		if(!(layer instanceof KingdomGridLayer)){
+		if(!(layer instanceof KingdomGridLayer) && !(layer instanceof KingdomBaseLayer)){
 			WFSProtocolOptions wfsProtocolOptions = new WFSProtocolOptions();
 			wfsProtocolOptions.setUrl("http://127.0.0.1:8080/geoserver/wfs/");
 			
@@ -1122,11 +1126,11 @@ public class MapView implements Display{
 	
 	@Override
 	public void bringLayerToFront(KingdomLayer selectedLayer){
-		// get a list of current layers without the grids
+		// get a list of current layers without the grids or base layer
 		List<KingdomLayer> layers = new ArrayList<KingdomLayer>();
 		
 		for(KingdomLayer current : layerList){
-			if(!(current instanceof KingdomGridLayer)){
+			if(!(current instanceof KingdomGridLayer) && !(current instanceof KingdomBaseLayer)){
 				layers.add(current);
 			}
 		}
@@ -1138,22 +1142,23 @@ public class MapView implements Display{
 		for(KingdomLayer layer : layers){
 			if(layer.getId() == selectedLayer.getId()){
 				layer.setZIndex(layers.size() + 1);
+				break;
 			}
 		}
 		
 		resortLayerZIndices(layers);
 		
 		// set OL Z indices
-		applyLayerZIndices();
+		applyLayerZIndices(layers);
 	}
 	
 	@Override
 	public void sendLayerToBack(KingdomLayer selectedLayer){
-		// get a list of current layers without the grids
+		// get a list of current layers without the grids or base layer
 		List<KingdomLayer> layers = new ArrayList<KingdomLayer>();
 		
 		for(KingdomLayer current : layerList){
-			if(!(current instanceof KingdomGridLayer)){
+			if(!(current instanceof KingdomGridLayer) && !(current instanceof KingdomBaseLayer)){
 				layers.add(current);
 			}
 		}
@@ -1165,28 +1170,28 @@ public class MapView implements Display{
 		for(KingdomLayer layer : layers){
 			if(layer.getId() == selectedLayer.getId()){
 				layer.setZIndex(0);
+				break;
 			}
 		}
 		
 		resortLayerZIndices(layers);
 		
 		// set OL Z indices
-		applyLayerZIndices();
+		applyLayerZIndices(layers);
 	}
 	
-	private void applyLayerZIndices(){
-		// sort layers by Z index
-		Collections.sort(layerList, new LayerZIndexComparator());
-		
-		// remove all layers from map
-		for(KingdomLayer layer : layerList){
+	private void applyLayerZIndices(List<KingdomLayer> layers){
+		// remove all layers from map except for base layer
+		mapWidget.getMap().removeLayer(gridLayer);
+		for(KingdomLayer layer : layers){
 			mapWidget.getMap().removeLayer(wmsLayerHashMap.get(layer));
 		}
 		
 		// add layers back to map in correct order
-		for(KingdomLayer layer : layerList){
+		for(KingdomLayer layer : layers){
 			mapWidget.getMap().addLayer(wmsLayerHashMap.get(layer));
 		}
+		mapWidget.getMap().addLayer(gridLayer);
 	}
 	
 	private void resortLayerZIndices(List<KingdomLayer> layers){
@@ -1293,18 +1298,22 @@ public class MapView implements Display{
 	public void refreshLayerScaleLimit(KingdomLayer layer){
 		WMS wmsLayer = getCurrentOLWmsLayer();
 		
-		// TODO: is this remove necessary/is the applyLayerZIndices() necessary?
-		mapWidget.getMap().removeLayer(wmsLayer);
 		wmsLayer.getOptions().setMaxScale((float) layer.getMaxScale());
 		wmsLayer.getOptions().setMinScale((float) layer.getMinScale());
-		mapWidget.getMap().addLayer(wmsLayer);
+		
+		// get a list of current layers without the grids or base layer
+		List<KingdomLayer> layers = new ArrayList<KingdomLayer>();
+		
+		for(KingdomLayer current : layerList){
+			if(!(current instanceof KingdomGridLayer) && !(current instanceof KingdomBaseLayer)){
+				layers.add(current);
+			}
+		}
+		
+		// re-sort
+		resortLayerZIndices(layers);
 		
 		// set OL Z indices
-		applyLayerZIndices();
-	}
-	
-	@Override
-	public double getScaleFromZoom(){
-		return scales[mapWidget.getMap().getZoom()];
+		applyLayerZIndices(layers);
 	}
 }
