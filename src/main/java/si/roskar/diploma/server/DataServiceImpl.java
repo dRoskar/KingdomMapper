@@ -597,9 +597,10 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 				+ "&version=1.1.1"
 				+ "&layers=" + layer.getServerName()
 				+ "&query_layers=" + layer.getServerName()
-				+ "&styles="
+				+ "&styles=" + layer.getStyle()
+				+ "&ENV=" + layer.getEnvValues()
 				+ "&srs=EPSG%3A4326"
- 				+ "&format=jpeg"
+ 				+ "&format=image/png"
 				+ "&info_format=application/json"
  				+ "&exceptions=application/json"
 				+ "&bbox=" + bbox

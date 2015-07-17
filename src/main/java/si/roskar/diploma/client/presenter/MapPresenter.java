@@ -731,7 +731,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 					if(selectedLayer != null){
 						if(selectedLayer.isVisible()){
 							
-							String bbox = display.getOLMap().getExtent().toBBox(4).toString();
+							String bbox = display.getOLMap().getExtent().toBBox(10).toString();
 							
 							DataServiceAsync.Util.getInstance().getFeatureInfo(selectedLayer, bbox, (int) display.getOLMap().getSize().getWidth(), (int) display.getOLMap().getSize().getHeight(),
 									mapClickEvent.getPixel().x(), mapClickEvent.getPixel().y(), new AsyncCallback<List<KingdomFeature>>() {

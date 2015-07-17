@@ -104,6 +104,7 @@
 [ ] color picker displays selected color and hex
 [X] add icon license
 [-] add security license http://www.mindrot.org/files/jBCrypt/LICENSE
+[ ] ffs you forgot to add navigation (back and forward button) and zoom to full extent button functions
 
 
 ## LONG-TERM ##
@@ -135,6 +136,8 @@
 [ ] style editor preview (wms service)
 [ ] info editor image of selected feature (with soruounding features vidible and selected feature highlighted) [wms]
 	[ ] possibly an icon made from the actual feature (wms) shown in the menu if multiple features are retrieved
+	
+[ ] keyboard shortcuts
 [ ] upoadable markers https://xmlgraphics.apache.org/batik/
 [ ] uploadable textures
 [ ] duplicate layer
@@ -144,6 +147,7 @@
 	for instance, each layer is allowed 10 styles, user determines properties for each style. Attributes are pre-named (style_1, style_2, ...)
 
 ## BUGS ##
+[ ] Map hyperlink. Example; user clicks on a village and a new map loads from the db, with the village only (that way you can really go into details without overloading the browser or exceeding the layer limit.
 [X] points aren't showing
 [X] wfs layers aren't showing data
 [X] switch maps around a bit, load an empty map, create a layer, add a polynom, makes 3 polynoms. I think the drawing vector might be getting stacked
@@ -163,3 +167,5 @@
 [X] labels don't always show
 [X] markers are getting cut
 [X] max and min zoom no longer work properly. (if map is loaded at max zoom top layer is grayed out; min zoom button makes the layer invisible at current zoom instead of next)
+[X] Identify location is offset
+[ ] FATAL ERROR - Failed to retrieve user info, dead...
