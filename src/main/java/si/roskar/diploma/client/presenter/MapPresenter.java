@@ -6,6 +6,7 @@ import java.util.List;
 import org.gwtopenmaps.openlayers.client.Bounds;
 import org.gwtopenmaps.openlayers.client.Map;
 import org.gwtopenmaps.openlayers.client.control.DrawFeature;
+import org.gwtopenmaps.openlayers.client.control.NavigationHistory;
 import org.gwtopenmaps.openlayers.client.event.ControlActivateListener;
 import org.gwtopenmaps.openlayers.client.event.EventHandler;
 import org.gwtopenmaps.openlayers.client.event.EventObject;
@@ -182,6 +183,12 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		
 		void removeMapOverlays();
 		
+		TextButton getZoomToFullExtentButton();
+		
+		TextButton getNavigateBackButton();
+		
+		TextButton getNavigateForwardButton();
+		
 		TextButton getBringToFrontButton();
 		
 		TextButton getSendToBackButton();
@@ -207,6 +214,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		KingdomMeasure getMeasureDistanceControl();
 		
 		KingdomMeasure getMeasureAreaControl();
+		
+		NavigationHistory getNavigationHistoryControl();
 		
 		void setSnapEnabled(boolean enabled);
 		
@@ -1208,6 +1217,33 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			public void onRemoveCurrentMap(EventRemoveCurrentMap event){
 				display.removeMapOverlays();
 				Bus.get().fireEvent(new EventEnableMapView(false));
+			}
+		});
+		
+		// handle zoom to full extent button click
+		display.getZoomToFullExtentButton().addSelectHandler(new SelectHandler() {
+			
+			@Override
+			public void onSelect(SelectEvent event){
+				display.getOLMap().zoomToExtent(display.getOLMap().getMaxExtent());
+			}
+		});
+		
+		// handle navigate back button click
+		display.getNavigateBackButton().addSelectHandler(new SelectHandler() {
+			
+			@Override
+			public void onSelect(SelectEvent event){
+				display.getNavigationHistoryControl().previous();
+			}
+		});
+		
+		// handle navigate forward button click
+		display.getNavigateForwardButton().addSelectHandler(new SelectHandler() {
+			
+			@Override
+			public void onSelect(SelectEvent event){
+				display.getNavigationHistoryControl().next();
 			}
 		});
 		

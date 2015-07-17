@@ -104,7 +104,7 @@
 [ ] color picker displays selected color and hex
 [X] add icon license
 [-] add security license http://www.mindrot.org/files/jBCrypt/LICENSE
-[ ] ffs you forgot to add navigation (back and forward button) and zoom to full extent button functions
+[X] ffs you forgot to add navigation (back and forward button) and zoom to full extent button functions
 
 
 ## LONG-TERM ##

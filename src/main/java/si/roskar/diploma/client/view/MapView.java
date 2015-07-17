@@ -18,6 +18,7 @@ import org.gwtopenmaps.openlayers.client.control.DrawFeature;
 import org.gwtopenmaps.openlayers.client.control.MeasureOptions;
 import org.gwtopenmaps.openlayers.client.control.ModifyFeature;
 import org.gwtopenmaps.openlayers.client.control.ModifyFeatureOptions;
+import org.gwtopenmaps.openlayers.client.control.NavigationHistory;
 import org.gwtopenmaps.openlayers.client.control.ScaleLine;
 import org.gwtopenmaps.openlayers.client.control.SelectFeature;
 import org.gwtopenmaps.openlayers.client.control.Snapping;
@@ -82,7 +83,7 @@ public class MapView implements Display{
 	
 	private MapWidget										mapWidget				= null;
 	private VerticalLayoutContainer							container				= null;
-	private TextButton										zoomToExtent			= null;
+	private TextButton										zoomToFullExtent		= null;
 	private TextButton										navigateBack			= null;
 	private TextButton										navigateForward			= null;
 	private TextButton										bringToFrontButton		= null;
@@ -123,6 +124,7 @@ public class MapView implements Display{
 	private DrawFeature										currentDrawControl		= null;
 	private KingdomMeasure									measureDistanceControl	= null;
 	private KingdomMeasure									measureAreaContol		= null;
+	private NavigationHistory								navigationHistory		= null;
 	private boolean											isInEditMode			= false;
 	private boolean											isInAddingShapesMode	= false;
 	private boolean											isInAddingHolesMode		= false;
@@ -169,9 +171,9 @@ public class MapView implements Display{
 		// create navigation toolbar
 		ToolBar navigationToolbar = new ToolBar();
 		
-		zoomToExtent = new TextButton();
-		zoomToExtent.setIcon(Resources.ICONS.world());
-		zoomToExtent.setToolTip("Zoom to map extent");
+		zoomToFullExtent = new TextButton();
+		zoomToFullExtent.setIcon(Resources.ICONS.world());
+		zoomToFullExtent.setToolTip("Zoom to map extent");
 		
 		navigateBack = new TextButton();
 		navigateBack.setIcon(Resources.ICONS.left());
@@ -215,7 +217,7 @@ public class MapView implements Display{
 		logOutButton.setIcon(Resources.ICONS.logOut());
 		logOutButton.setToolTip("Log out");
 		
-		navigationToolbar.add(zoomToExtent);
+		navigationToolbar.add(zoomToFullExtent);
 		navigationToolbar.add(navigateBack);
 		navigationToolbar.add(navigateForward);
 		navigationToolbar.add(grid);
@@ -623,6 +625,12 @@ public class MapView implements Display{
 		
 		// redraw layer tree
 		Bus.get().fireEvent(new EventMapScaleChanged(mapWidget.getMap().getScale()));
+		
+		// add navigation history
+		navigationHistory = new NavigationHistory();
+		navigationHistory.activate();
+		
+		mapWidget.getMap().addControl(navigationHistory);
 	}
 	
 	@Override
@@ -1100,6 +1108,21 @@ public class MapView implements Display{
 	}
 	
 	@Override
+	public TextButton getZoomToFullExtentButton(){
+		return zoomToFullExtent;
+	}
+	
+	@Override
+	public TextButton getNavigateBackButton(){
+		return navigateBack;
+	}
+	
+	@Override
+	public TextButton getNavigateForwardButton(){
+		return navigateForward;
+	}
+	
+	@Override
 	public TextButton getBringToFrontButton(){
 		return bringToFrontButton;
 	}
@@ -1247,6 +1270,11 @@ public class MapView implements Display{
 	@Override
 	public KingdomMeasure getMeasureAreaControl(){
 		return measureAreaContol;
+	}
+	
+	@Override
+	public NavigationHistory getNavigationHistoryControl(){
+		return navigationHistory;
 	}
 	
 	@Override
