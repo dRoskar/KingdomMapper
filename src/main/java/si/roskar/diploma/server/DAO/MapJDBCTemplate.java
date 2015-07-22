@@ -36,7 +36,7 @@ public class MapJDBCTemplate{
 		// escape apostrophes
 		name = name.replace("'", "''");
 		
-		final String SQL = "INSERT INTO public.\"Map\"(name, user_id) VALUES ('" + name + "', " + userId + ")";
+		final String SQL = "INSERT INTO \"Map\"(name, user_id) VALUES ('" + name + "', " + userId + ")";
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		
 		jdbcTemplateObject.update(new PreparedStatementCreator() {
@@ -58,7 +58,7 @@ public class MapJDBCTemplate{
 		// escape apostrophes
 		mapName = mapName.replace("'", "''");
 
-		final String SQL = "SELECT * FROM public.\"Map\" WHERE user_id=" + userId + " AND name='" + mapName + "'";
+		final String SQL = "SELECT * FROM \"Map\" WHERE user_id=" + userId + " AND name='" + mapName + "'";
 		
 		List<KingdomMap> maps = jdbcTemplateObject.query(SQL, new MapDataMapper());
 		
@@ -70,13 +70,13 @@ public class MapJDBCTemplate{
 	}
 	
 	public List<KingdomMap> getMapList(int userId){
-		final String SQL = "SELECT * FROM public.\"Map\" WHERE user_id=" + userId;
+		final String SQL = "SELECT * FROM \"Map\" WHERE user_id=" + userId;
 		
 		return jdbcTemplateObject.query(SQL, new MapDataMapper());
 	}
 	
 	public KingdomMap getMap(int id){
-		final String SQL = "SELECT * FROM public.\"Map\" WHERE id=" + id;
+		final String SQL = "SELECT * FROM \"Map\" WHERE id=" + id;
 		
 		List<KingdomMap> results = jdbcTemplateObject.query(SQL, new MapDataMapper());
 		
@@ -88,7 +88,7 @@ public class MapJDBCTemplate{
 	}
 	
 	public boolean deleteMap(int mapId){
-		final String SQL = "DELETE FROM public.\"Map\" where id = " + mapId;
+		final String SQL = "DELETE FROM \"Map\" where id = " + mapId;
 		
 		jdbcTemplateObject.update(SQL);
 		
@@ -102,14 +102,14 @@ public class MapJDBCTemplate{
 		// escape apostrophes
 		name = name.replace("'", "''");
 		
-		String SQL = "UPDATE public.\"Map\" SET name = '" + name + "' WHERE id = " + mapId;
+		String SQL = "UPDATE \"Map\" SET name = '" + name + "' WHERE id = " + mapId;
 		jdbcTemplateObject.update(SQL);
 		
 		return true;
 	}
 	
 	public boolean updatePreviousView(int mapId, double llx, double lly, double urx, double ury, int zoomLevel){
-		String SQL = "UPDATE public.\"Map\" SET lower_left_x = " + llx + ", lower_left_y = " + lly + ", upper_right_x = " + urx + ", upper_right_y = " + ury + ", previous_zoom = " + zoomLevel + " WHERE id = " + mapId;
+		String SQL = "UPDATE \"Map\" SET lower_left_x = " + llx + ", lower_left_y = " + lly + ", upper_right_x = " + urx + ", upper_right_y = " + ury + ", previous_zoom = " + zoomLevel + " WHERE id = " + mapId;
 		jdbcTemplateObject.update(SQL);
 		
 		return true;

@@ -29,7 +29,7 @@ public class UserJDBCTemplate{
 	}
 
 	public int insert(String username, String password){
-		final String SQL = "INSERT INTO public.\"User\"(name, password) VALUES ('" + username + "', '" + password + "')";
+		final String SQL = "INSERT INTO \"User\"(name, password) VALUES ('" + username + "', '" + password + "')";
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		
 		jdbcTemplateObject.update(new PreparedStatementCreator() {
@@ -44,13 +44,13 @@ public class UserJDBCTemplate{
 	}
 	
 	public List<KingdomUser> getUserByName(String username){
-		final String SQL = "SELECT * FROM public.\"User\" WHERE name='" + username + "'";
+		final String SQL = "SELECT * FROM \"User\" WHERE name='" + username + "'";
 		
 		return jdbcTemplateObject.query(SQL, new UserDataMapper());
 	}
 	
 	public String getUserHash(String username){
-		final String SQL = "SELECT password FROM public.\"User\" WHERE name='" + username + "'";
+		final String SQL = "SELECT password FROM \"User\" WHERE name='" + username + "'";
 		
 		List<UserHash> hashes = jdbcTemplateObject.query(SQL, new UserHashMapper());
 		
@@ -62,7 +62,7 @@ public class UserJDBCTemplate{
 	}
 	
 	public boolean setUserLastMap(int lastMapId, int userId){
-		final String SQL = "UPDATE public.\"User\" SET last_map = '" + lastMapId + "' WHERE id = " + userId;
+		final String SQL = "UPDATE \"User\" SET last_map = '" + lastMapId + "' WHERE id = " + userId;
 		
 		jdbcTemplateObject.update(SQL);
 		

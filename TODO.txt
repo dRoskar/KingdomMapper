@@ -107,6 +107,22 @@
 [X] ffs you forgot to add navigation (back and forward button) and zoom to full extent button functions
 
 
+## DIPLOMA TESTING
+[ ] BROWSER COMPATIBILITY
+	[ ] CHROME
+	[ ] FIREFOX
+	[ ] OPERA
+	[ ] SAFARI
+
+[?] meet Web Content accessibility Guidelines http://www.w3.org/WAI/intro/wcag
+[ ] Security
+	[ ] SqlInjection
+	[ ] DDoS
+
+[ ] performance testing
+	[ ] web load testing
+	[ ] web stress testing
+
 ## LONG-TERM ##
 [ ] 300 layers limit
 [ ] registration form
@@ -129,7 +145,7 @@
 [ ] line labels
 [ ] polygon labels
 [ ] print
-[ ] consider updating to DB less often. MAybe only when user stops editing
+[ ] consider updating to DB less often. Maybe only when user stops editing
 [ ] dash line style
 [ ] line corner and ends styles
 [ ] layer tree folders
@@ -169,3 +185,4 @@
 [X] max and min zoom no longer work properly. (if map is loaded at max zoom top layer is grayed out; min zoom button makes the layer invisible at current zoom instead of next)
 [X] Identify location is offset
 [ ] FATAL ERROR - Failed to retrieve user info, dead...
+[ ] subtract is on, switch layer, subtract still on but not visible. user expects it to turn off

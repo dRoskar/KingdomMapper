@@ -18,7 +18,7 @@ public class VectorJDBCTemplate{
 	}
 	
 	public boolean deletePointsInLayer(int layerId){
-		final String SQL = "DELETE FROM public.\"Point\" where layer_id = " + layerId;
+		final String SQL = "DELETE FROM \"Point\" where layer_id = " + layerId;
 		
 		jdbcTemplateObject.update(SQL);
 		
@@ -26,7 +26,7 @@ public class VectorJDBCTemplate{
 	}
 	
 	public boolean deleteLinesInLayer(int layerId){
-		final String SQL = "DELETE FROM public.\"Line\" where layer_id = " + layerId;
+		final String SQL = "DELETE FROM \"Line\" where layer_id = " + layerId;
 		
 		jdbcTemplateObject.update(SQL);
 		
@@ -34,7 +34,7 @@ public class VectorJDBCTemplate{
 	}
 	
 	public boolean deletePoligonsInLayer(int layerId){
-		final String SQL = "DELETE FROM public.\"Polygon\" where layer_id = " + layerId;
+		final String SQL = "DELETE FROM \"Polygon\" where layer_id = " + layerId;
 		
 		jdbcTemplateObject.update(SQL);
 		
