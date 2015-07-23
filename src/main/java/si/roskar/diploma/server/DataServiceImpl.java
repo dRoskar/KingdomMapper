@@ -13,6 +13,7 @@ import si.roskar.diploma.server.DAO.UserJDBCTemplate;
 import si.roskar.diploma.server.DAO.VectorJDBCTemplate;
 import si.roskar.diploma.server.DB.DBSource;
 import si.roskar.diploma.shared.GeometryType;
+import si.roskar.diploma.shared.InitialDataPackage;
 import si.roskar.diploma.shared.KingdomFeature;
 import si.roskar.diploma.shared.KingdomGridLayer;
 import si.roskar.diploma.shared.KingdomLayer;
@@ -58,8 +59,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		return userJdbcTemplate.insert(user.getName(), user.getPassword());
 	}
 	
-	@Override
-	public KingdomUser getCurrentUser(){
+	private KingdomUser getCurrentUser(){
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		
 		List<KingdomUser> users = userJdbcTemplate.getUserByName(username);
@@ -648,6 +648,10 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		}
 		
 		return features;
+	}
+	
+	public InitialDataPackage getInitialDataPackage(){
+		return new InitialDataPackage(getCurrentUser(), GeoserverSource.getWmsUrl()); 
 	}
 	// =============================
 }

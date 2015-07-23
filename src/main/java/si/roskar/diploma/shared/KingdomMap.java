@@ -20,6 +20,7 @@ public class KingdomMap implements IsSerializable{
 	private Double				previousViewurx		= null;
 	private Double				previousViewury		= null;
 	private int					previousZoomLevel	= 0;
+	private String				wmsSource			= null;
 	
 	public KingdomMap(){
 		layers = new ArrayList<KingdomLayer>();
@@ -118,15 +119,23 @@ public class KingdomMap implements IsSerializable{
 	public int getPreviousZoomLevel(){
 		return previousZoomLevel;
 	}
-
+	
 	public void setPreviousZoomLevel(int previousZoomLevel){
 		this.previousZoomLevel = previousZoomLevel;
 	}
-
+	
 	public Bounds getPreviousView(){
 		if(previousViewllx != null && previousViewlly != null && previousViewurx != null && previousViewury != null){
 			return new Bounds(previousViewllx, previousViewlly, previousViewurx, previousViewury);
 		}else
 			return null;
+	}
+
+	public String getWmsSource(){
+		return wmsSource;
+	}
+
+	public void setWmsSource(String wmsSource){
+		this.wmsSource = wmsSource;
 	}
 }

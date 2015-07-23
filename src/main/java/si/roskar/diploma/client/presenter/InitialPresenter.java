@@ -12,7 +12,7 @@ import si.roskar.diploma.client.util.KingdomInfo;
 import si.roskar.diploma.client.view.LayerView;
 import si.roskar.diploma.client.view.MapView;
 import si.roskar.diploma.client.view.View;
-import si.roskar.diploma.shared.KingdomUser;
+import si.roskar.diploma.shared.InitialDataPackage;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasWidgets;
@@ -43,27 +43,32 @@ public class InitialPresenter extends PresenterImpl<InitialPresenter.Display>{
 		container.add(display.asWidget());
 		
 		// get current user
-		DataServiceAsync.Util.getInstance().getCurrentUser(new AsyncCallback<KingdomUser>() {
+		DataServiceAsync.Util.getInstance().getInitialDataPackage(new AsyncCallback<InitialDataPackage>() {
 			
 			@Override
 			public void onFailure(Throwable caught){
 			}
 			
 			@Override
-			public void onSuccess(KingdomUser user){
-				if(user != null){
+			public void onSuccess(InitialDataPackage dataPackage){
+				if(dataPackage.getCurrentUser() != null && dataPackage.getWmsSoruce() != null){
 					// create map presenter
-					new MapPresenter(new MapView()).go(display.getCenterContainer());
+					new MapPresenter(new MapView(dataPackage.getWmsSoruce())).go(display.getCenterContainer());
 					
 					// create layer presenter
-					new LayerPresenter(new LayerView(user)).go(display.getWestContainer());
+					new LayerPresenter(new LayerView(dataPackage.getCurrentUser())).go(display.getWestContainer());
 					
 					// event UI loaded
 					Bus.get().fireEvent(new EventUILoaded());
 					
 					display.forceLayout();
 				}else{
-					KingdomInfo.showLoadingBar("FATAL ERROR", "Failed to retreive user info", "dead...");
+					if(dataPackage.getCurrentUser() == null){
+						KingdomInfo.showLoadingBar("FATAL ERROR", "Failed to retreive user info", "dead...");
+					}
+					else if(dataPackage.getWmsSoruce() == null){
+						KingdomInfo.showLoadingBar("FATAL ERROR", "Failed to retreive wms source", "dead...");
+					}
 				}
 			}
 		});

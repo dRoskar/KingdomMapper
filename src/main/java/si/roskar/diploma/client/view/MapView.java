@@ -82,6 +82,7 @@ public class MapView implements Display{
 	private final Bounds									countryGridExtent		= new Bounds(-109.545, 36.699, -101.545, 44.1);
 	
 	private MapWidget										mapWidget				= null;
+	private String											wmsSource				= null;
 	private VerticalLayoutContainer							container				= null;
 	private TextButton										zoomToFullExtent		= null;
 	private TextButton										navigateBack			= null;
@@ -133,7 +134,9 @@ public class MapView implements Display{
 	private RegularPolygonHandlerOptions					boxHandlerOptions		= null;
 	private double[]										scales					= null;
 	
-	public MapView(){
+	public MapView(String wmsSoruce){
+		
+		this.wmsSource = wmsSoruce;
 		
 		OpenLayers.setProxyHost("olproxy?targetURL=");
 		
@@ -674,7 +677,7 @@ public class MapView implements Display{
 			}
 		}
 		
-		WMS wms = new WMS(layer.getName(), "http://127.0.0.1:8080/geoserver/wms/", layerParams, wmsOptions);
+		WMS wms = new WMS(layer.getName(), wmsSource, layerParams, wmsOptions);
 		
 		wms.setOpacity(layer.getOpacity());
 		wms.setIsVisible(layer.isVisible());
@@ -696,7 +699,7 @@ public class MapView implements Display{
 		// WFS
 		if(!(layer instanceof KingdomGridLayer) && !(layer instanceof KingdomBaseLayer)){
 			WFSProtocolOptions wfsProtocolOptions = new WFSProtocolOptions();
-			wfsProtocolOptions.setUrl("http://127.0.0.1:8080/geoserver/wfs/");
+			wfsProtocolOptions.setUrl(wmsSource);
 			
 			if(layer.getGeometryType().equals(GeometryType.POINT)){
 				wfsProtocolOptions.setFeatureType("point");

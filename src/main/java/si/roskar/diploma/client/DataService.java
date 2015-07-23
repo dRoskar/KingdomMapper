@@ -2,6 +2,7 @@ package si.roskar.diploma.client;
 
 import java.util.List;
 
+import si.roskar.diploma.shared.InitialDataPackage;
 import si.roskar.diploma.shared.KingdomFeature;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
@@ -15,8 +16,6 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 public interface DataService extends RemoteService{
 	
 	Integer addUser(KingdomUser user);
-	
-	KingdomUser getCurrentUser();
 	
 	boolean setUserLastMap(int lastMapId, int userId);
 	
@@ -63,4 +62,6 @@ public interface DataService extends RemoteService{
 	List<KingdomFeature> getFeatureInfo(KingdomLayer layer, String bbox, int width, int height, int pixelX, int pixelY);
 	
 	boolean updateFeatureInfo(KingdomLayer layer, String label, String description, String featureId);
+	
+	InitialDataPackage getInitialDataPackage();
 }
