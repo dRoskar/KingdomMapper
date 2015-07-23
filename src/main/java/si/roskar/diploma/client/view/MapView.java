@@ -682,7 +682,7 @@ public class MapView implements Display{
 		wms.setOpacity(layer.getOpacity());
 		wms.setIsVisible(layer.isVisible());
 		
-		if(!(layer instanceof KingdomGridLayer) && !(layer instanceof KingdomBaseLayer) && layer.getGeometryType().equals(GeometryType.MARKER) && layer.getGeometryType().equals(GeometryType.POINT)){
+		if(!(layer instanceof KingdomGridLayer) && !(layer instanceof KingdomBaseLayer) && (layer.getGeometryType().equals(GeometryType.MARKER) || layer.getGeometryType().equals(GeometryType.POINT))){
 			wms.setSingleTile(true);
 		}else{
 			wms.setSingleTile(false);
