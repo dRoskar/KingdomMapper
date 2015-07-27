@@ -3,9 +3,6 @@ package si.roskar.diploma.server.security;
 import java.util.ArrayList;
 import java.util.List;
 
-
-
-
 import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,16 +30,25 @@ public class CustomAuthenticationProvider implements AuthenticationProvider{
 		userJdbcTemplate.setDataSource(DBSource.getDataSource());
 		
 		String dbPassword = userJdbcTemplate.getUserHash(authentication.getName());
+		String username = authentication.getName();
 		
-		logger.info("User {} is trying to log in", authentication.getName());
+		logger.info("User {} is trying to log in", username);
 		
 		if(dbPassword != null){
 			try{
 				if(BCrypt.checkpw(authentication.getCredentials().toString(), dbPassword)){
-					logger.info("User {} authenticated successfully", authentication.getName());
+					logger.info("User {} authenticated successfully", username);
 					
 					List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-					grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+					
+					if(userJdbcTemplate.isAdmin(username)){
+						grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+						grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+					}
+					else{
+						grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+					}
+					
 					Authentication auth = new UsernamePasswordAuthenticationToken(authentication.getName(), authentication.getCredentials().toString(), grantedAuthorities);
 					return auth;
 				}else{

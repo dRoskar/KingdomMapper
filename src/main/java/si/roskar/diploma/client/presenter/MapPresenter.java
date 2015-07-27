@@ -49,6 +49,7 @@ import si.roskar.diploma.client.util.KingdomInfo;
 import si.roskar.diploma.client.util.KingdomMeasure;
 import si.roskar.diploma.client.util.WFSLayerPackage;
 import si.roskar.diploma.client.view.AddMarkerDialog;
+import si.roskar.diploma.client.view.AddUserDialog;
 import si.roskar.diploma.client.view.CreditsWindow;
 import si.roskar.diploma.client.view.EditFeatureDialog;
 import si.roskar.diploma.client.view.EditLayerStyleWindow;
@@ -62,6 +63,7 @@ import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
 import si.roskar.diploma.shared.KingdomMarker;
 import si.roskar.diploma.shared.KingdomTexture;
+import si.roskar.diploma.shared.KingdomUser;
 import si.roskar.diploma.shared.KingdomVectorFeature;
 
 import com.google.gwt.dom.client.Element;
@@ -88,6 +90,7 @@ import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
 import com.sencha.gxt.widget.core.client.form.CheckBox;
 import com.sencha.gxt.widget.core.client.form.ComboBox;
 import com.sencha.gxt.widget.core.client.form.DoubleSpinnerField;
+import com.sencha.gxt.widget.core.client.form.PasswordField;
 import com.sencha.gxt.widget.core.client.form.TextArea;
 import com.sencha.gxt.widget.core.client.form.TextField;
 import com.sencha.gxt.widget.core.client.menu.Item;
@@ -200,6 +203,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		TextButton getSetLowerLimitButton();
 		
 		TextButton getCreditsButton();
+		
+		TextButton getAddUsersButton();
 		
 		TextButton getLogOutButton();
 		
@@ -353,6 +358,26 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		TextButton getCloseButton();
 	}
 	
+	public interface AddUserDisplay extends View{
+		void show();
+		
+		void hide();
+		
+		TextField getUsernameField();
+		
+		PasswordField getPasswordField();
+		
+		TextButton getAddButton();
+		
+		TextButton getCancelButton();
+		
+		boolean isBound();
+		
+		void setBound(boolean isBound);
+		
+		boolean isValid();
+	}
+	
 	public interface CreditsDisplay extends View{
 		void show();
 	}
@@ -363,6 +388,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 	private FeatureInfoSelectionDisplay	featureInfoSelectionDisplay	= null;
 	private EditFeatureDisplay			editFeatureDisplay			= null;
 	private CreditsDisplay				creditsDisplay				= null;
+	private AddUserDisplay				addUserDisplay				= null;
 	
 	public MapPresenter(Display display){
 		super(display);
@@ -371,6 +397,7 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		measureDisplay = new MeasureDisplayWindow();
 		featureInfoSelectionDisplay = new FeatureInfoSelectionMenu();
 		creditsDisplay = new CreditsWindow();
+		addUserDisplay = new AddUserDialog();
 	}
 	
 	@Override
@@ -1572,6 +1599,54 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			@Override
 			public void onSelect(SelectEvent event){
 				creditsDisplay.show();
+			}
+		});
+		
+		// add users (admin only)
+		display.getAddUsersButton().addSelectHandler(new SelectHandler() {
+			
+			@Override
+			public void onSelect(SelectEvent event){
+				// show add user dialog
+				if(!addUserDisplay.isBound()){
+					addUserDisplay.getAddButton().addSelectHandler(new SelectHandler() {
+						
+						@Override
+						public void onSelect(SelectEvent event){
+							if(addUserDisplay.isValid()){
+								// TODO: better validation (user exists, nasty sql injections)
+								
+								// create user object
+								KingdomUser newUser = new KingdomUser(0, addUserDisplay.getUsernameField().getText(), addUserDisplay.getPasswordField().getText(), false);
+								
+								// add user to db
+								DataServiceAsync.Util.getInstance().addUser(newUser, new AsyncCallback<Integer>() {
+
+									@Override
+									public void onFailure(Throwable caught){
+										KingdomInfo.showInfoPopUp("Error", "Error adding new user");
+									}
+
+									@Override
+									public void onSuccess(Integer result){
+										KingdomInfo.showInfoPopUp("Success", "New user added successfully");
+										addUserDisplay.hide();
+									}
+								});
+							}
+						}
+					});
+					
+					addUserDisplay.getCancelButton().addSelectHandler(new SelectHandler() {
+						
+						@Override
+						public void onSelect(SelectEvent event){
+							addUserDisplay.hide();
+						}
+					});
+				}
+				
+				addUserDisplay.show();
 			}
 		});
 		

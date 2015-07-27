@@ -16,6 +16,7 @@ public class UserDataMapper implements RowMapper<KingdomUser>{
 		user.setId(rs.getInt("id"));
 		user.setName(rs.getString("name"));
 		user.setLastMapId(rs.getInt("last_map"));
+		user.setAdmin(rs.getBoolean("is_admin"));
 		
 		return user;
 	}

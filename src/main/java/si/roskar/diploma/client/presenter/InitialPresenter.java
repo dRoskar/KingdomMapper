@@ -53,7 +53,7 @@ public class InitialPresenter extends PresenterImpl<InitialPresenter.Display>{
 			public void onSuccess(InitialDataPackage dataPackage){
 				if(dataPackage.getCurrentUser() != null && dataPackage.getWmsSoruce() != null){
 					// create map presenter
-					new MapPresenter(new MapView(dataPackage.getWmsSoruce())).go(display.getCenterContainer());
+					new MapPresenter(new MapView(dataPackage.getWmsSoruce(), dataPackage.getCurrentUser())).go(display.getCenterContainer());
 					
 					// create layer presenter
 					new LayerPresenter(new LayerView(dataPackage.getCurrentUser())).go(display.getWestContainer());

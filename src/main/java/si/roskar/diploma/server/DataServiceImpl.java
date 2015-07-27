@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.gemma.si.NetIO;
+import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import si.roskar.diploma.client.DataService;
@@ -59,9 +61,15 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	
 	// ===== ===== USER DATA SERVICES ===== =====
 	@Override
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public Integer addUser(KingdomUser user){
 		logger.info("Adding user '{}' to database.", user.getName());
-		return userJdbcTemplate.insert(user.getName(), user.getPassword());
+		
+		// encrypt password
+		user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));
+		
+		// add to db
+		return userJdbcTemplate.insert(user.getName(), user.getPassword(), user.isAdmin());
 	}
 	
 	private KingdomUser getCurrentUser(){

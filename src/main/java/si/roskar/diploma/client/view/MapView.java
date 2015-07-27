@@ -64,6 +64,7 @@ import si.roskar.diploma.shared.KingdomBaseLayer;
 import si.roskar.diploma.shared.KingdomGridLayer;
 import si.roskar.diploma.shared.KingdomLayer;
 import si.roskar.diploma.shared.KingdomMap;
+import si.roskar.diploma.shared.KingdomUser;
 import si.roskar.diploma.shared.LayerZIndexComparator;
 import si.roskar.diploma.shared.MapSize;
 
@@ -83,6 +84,7 @@ public class MapView implements Display{
 	
 	private MapWidget										mapWidget				= null;
 	private String											wmsSource				= null;
+	private KingdomUser										currentUser				= null;
 	private VerticalLayoutContainer							container				= null;
 	private TextButton										zoomToFullExtent		= null;
 	private TextButton										navigateBack			= null;
@@ -94,6 +96,7 @@ public class MapView implements Display{
 	private TextButton										setLowerLimitButton		= null;
 	private TextButton										logOutButton			= null;
 	private TextButton										creditsButton			= null;
+	private TextButton										addUsersButton			= null;
 	private ToggleButton									grid					= null;
 	private ToggleButton									measureDistanceButton	= null;
 	private ToggleButton									measureAreaButton		= null;
@@ -134,9 +137,10 @@ public class MapView implements Display{
 	private RegularPolygonHandlerOptions					boxHandlerOptions		= null;
 	private double[]										scales					= null;
 	
-	public MapView(String wmsSoruce){
+	public MapView(String wmsSoruce, KingdomUser user){
 		
 		this.wmsSource = wmsSoruce;
+		this.currentUser = user;
 		
 		OpenLayers.setProxyHost("olproxy?targetURL=");
 		
@@ -216,6 +220,10 @@ public class MapView implements Display{
 		creditsButton.setIcon(Resources.ICONS.credits());
 		creditsButton.setToolTip("additional info");
 		
+		addUsersButton = new TextButton();
+		addUsersButton.setIcon(Resources.ICONS.add());
+		addUsersButton.setToolTip("add users");
+		
 		logOutButton = new TextButton();
 		logOutButton.setIcon(Resources.ICONS.logOut());
 		logOutButton.setToolTip("Log out");
@@ -230,6 +238,9 @@ public class MapView implements Display{
 		navigationToolbar.add(saveMapStateButton);
 		navigationToolbar.add(new FillToolItem());
 		navigationToolbar.add(creditsButton);
+		if(currentUser.isAdmin()){
+			navigationToolbar.add(addUsersButton);
+		}
 		navigationToolbar.add(logOutButton);
 		
 		// create drawing toolbar
@@ -1258,6 +1269,11 @@ public class MapView implements Display{
 	@Override
 	public TextButton getCreditsButton(){
 		return creditsButton;
+	}
+	
+	@Override
+	public TextButton getAddUsersButton(){
+		return addUsersButton;
 	}
 	
 	@Override

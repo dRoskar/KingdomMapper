@@ -28,8 +28,8 @@ public class UserJDBCTemplate{
 		this.jdbcTemplateObject = new JdbcTemplate(dataSource);
 	}
 
-	public int insert(String username, String password){
-		final String SQL = "INSERT INTO \"User\"(name, password) VALUES ('" + username + "', '" + password + "')";
+	public int insert(String username, String password, boolean isAdmin){
+		final String SQL = "INSERT INTO \"User\"(name, password, is_admin) VALUES ('" + username + "', '" + password + "' ," + isAdmin + ")";
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		
 		jdbcTemplateObject.update(new PreparedStatementCreator() {
@@ -67,5 +67,16 @@ public class UserJDBCTemplate{
 		jdbcTemplateObject.update(SQL);
 		
 		return true;
+	}
+	
+	public boolean isAdmin(String username){
+		final String SQL = "SELECT is_admin FROM \"User\" WHERE name = '" + username + "'";
+		List<Boolean> results = jdbcTemplateObject.queryForList(SQL, Boolean.class);
+		
+		if(results.size() < 1){
+			return false;
+		}
+		
+		return results.get(0);
 	}
 }

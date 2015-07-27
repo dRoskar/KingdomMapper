@@ -7,16 +7,18 @@ public class KingdomUser implements IsSerializable{
 	private int		id;
 	private String	name		= null;
 	private String	password	= null;
-	private int		lastMapId		= -1;
+	private int		lastMapId	= -1;
+	private boolean	isAdmin		= false;
 	
 	public KingdomUser(){
 		
 	}
 	
-	public KingdomUser(int id, String name, String password){
+	public KingdomUser(int id, String name, String password, boolean isAdmin){
 		this.id = id;
 		this.name = name;
 		this.password = password;
+		this.isAdmin = isAdmin;
 	}
 	
 	public int getId(){
@@ -49,5 +51,13 @@ public class KingdomUser implements IsSerializable{
 	
 	public void setLastMapId(int lastMap){
 		this.lastMapId = lastMap;
+	}
+
+	public boolean isAdmin(){
+		return isAdmin;
+	}
+
+	public void setAdmin(boolean isAdmin){
+		this.isAdmin = isAdmin;
 	}
 }
