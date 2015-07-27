@@ -3,7 +3,12 @@ package si.roskar.diploma.server.security;
 import java.util.ArrayList;
 import java.util.List;
 
+
+
+
 import org.mindrot.jbcrypt.BCrypt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,7 +23,9 @@ import si.roskar.diploma.server.DB.DBSource;
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider{
 	
+	private static final Logger logger = LoggerFactory.getLogger(CustomAuthenticationProvider.class);
 	private UserJDBCTemplate	userJdbcTemplate	= null;
+	
 	
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException{
@@ -27,23 +34,29 @@ public class CustomAuthenticationProvider implements AuthenticationProvider{
 		
 		String dbPassword = userJdbcTemplate.getUserHash(authentication.getName());
 		
+		logger.info("User {} is trying to log in", authentication.getName());
+		
 		if(dbPassword != null){
 			try{
 				if(BCrypt.checkpw(authentication.getCredentials().toString(), dbPassword)){
+					logger.info("User {} authenticated successfully", authentication.getName());
+					
 					List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
 					grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_USER"));
 					Authentication auth = new UsernamePasswordAuthenticationToken(authentication.getName(), authentication.getCredentials().toString(), grantedAuthorities);
 					return auth;
 				}else{
 					// wrong password
+					logger.info("User {} failed to authenticate", authentication.getName());
 					return null;
 				}
 			}catch(IllegalArgumentException e){
-				e.printStackTrace();
+				logger.error("ERROR!", e);
 				return null;
 			}
 		}else{
 			// user doesn't exist
+			logger.info("user doesn't exist");
 			return null;
 		}
 	}

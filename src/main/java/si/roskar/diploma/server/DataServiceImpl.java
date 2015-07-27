@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.gemma.si.NetIO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import si.roskar.diploma.client.DataService;
@@ -34,6 +36,8 @@ import com.vividsolutions.jts.io.gml2.GMLWriter;
 
 public class DataServiceImpl extends RemoteServiceServlet implements DataService{
 	
+	private static final Logger logger = LoggerFactory.getLogger(DataServiceImpl.class);
+	
 	private UserJDBCTemplate	userJdbcTemplate	= null;
 	private MapJDBCTemplate		mapJdbcTemplate		= null;
 	private LayerJDBCTemplate	layerJdbcTemplate	= null;
@@ -56,50 +60,66 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	// ===== ===== USER DATA SERVICES ===== =====
 	@Override
 	public Integer addUser(KingdomUser user){
+		logger.info("Adding user '{}' to database.", user.getName());
 		return userJdbcTemplate.insert(user.getName(), user.getPassword());
 	}
 	
 	private KingdomUser getCurrentUser(){
+		logger.info("Retrieving user info...");
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		
+		logger.debug("SecurityContextHolder returned current username = '{}'.", username);
+		
+		if(username == null){
+			logger.warn("SecurityContextHolder returned username = null");
+		}
 		
 		List<KingdomUser> users = userJdbcTemplate.getUserByName(username);
 		
 		if(!users.isEmpty()){
+			logger.info("Retrieved info for user '{}'.", users.get(0).getName());
 			return users.get(0);
 		}
+
+		logger.warn("List of returned users is empty!");
 		
 		return null;
 	}
 	
 	@Override
 	public boolean setUserLastMap(int lastMapId, int userId) {
+		logger.trace("Setting last map value ({}) for userId = {}.", lastMapId, userId);
 		return userJdbcTemplate.setUserLastMap(lastMapId, userId);
 	};
-	
 	// ==========================================
 	
 	// ===== ===== MAP DATA SERVICES ===== =====
 	@Override
 	public Integer addMap(KingdomMap map){
 		// remember this map (to the user)
+		logger.trace("Adding map {} to db.", map.getId());
 		return mapJdbcTemplate.insert(map.getName(), map.getUser().getId());
 	}
 	
 	@Override
 	public Boolean mapExists(KingdomMap map){
+		logger.trace("Checking if mapname '{}' already exists for user '{}'", map.getName(), map.getUser().getName());
 		return mapJdbcTemplate.mapExists(map.getName(), map.getUser().getId());
 	}
 	
 	@Override
 	public List<KingdomMap> getMapList(KingdomUser user){
+		logger.trace("Retrieving map list for user '{}'", user.getName());
 		return mapJdbcTemplate.getMapList(user.getId());
 	}
 	
 	@Override
 	public boolean deleteMap(KingdomMap map){
+		logger.trace("Deleting map {}...", map.getId());
 		boolean successLayers = true;
 		boolean successMap;
 		
+		logger.trace("	Removing all layers of map {}...", map.getId());
 		// remove all of maps layers
 		for(KingdomLayer layer : map.getLayers()){
 			if(!deleteLayer(layer)){
@@ -107,6 +127,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 			}
 		}
 		
+		logger.trace("	Removing map {} itself", map.getId());
 		// remove map
 		successMap = mapJdbcTemplate.deleteMap(map.getId());
 		
@@ -115,18 +136,20 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	
 	@Override
 	public KingdomMap getMap(int id){
+		logger.trace("Retrieving map {}", id);
 		return mapJdbcTemplate.getMap(id);
 	}
 	
 	@Override
 	public KingdomMap updateMapName(KingdomMap map){
+		logger.trace("Updating map name ('{}') for map {}", map.getName(), map.getId());
 		mapJdbcTemplate.updateMapName(map.getId(), map.getName());
-		
 		return map;
 	}
 	
 	@Override
 	public boolean updateMapPreviousView(KingdomMap map){
+		logger.trace("Updating previous view values for map {}", map.getId());
 		return mapJdbcTemplate.updatePreviousView(map.getId(), map.getPreviousViewllx(), map.getPreviousViewlly(), map.getPreviousViewurx(), map.getPreviousViewury(), map.getPreviousZoomLevel());
 	}
 	
@@ -135,6 +158,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	// ===== ===== LAYER DATA SERVICES ===== =====
 	@Override
 	public Integer addLayer(KingdomLayer layer){
+		logger.trace("Adding layer {}", layer.getId());
 		return layerJdbcTemplate.insert(layer.getName(), layer.getStyle(), layer.getOpacity(), layer.isVisible(), layer.getGeometryType(), layer.getZIndex(), layer.getColor(), layer.getLabelColor(),
 				layer.getSize(), layer.getFillColor(), layer.getLabelFillColor(), layer.getStrokeWidth(), layer.getStrokeOpacity(), layer.getFillOpacity(), layer.getMaxScale(), layer.getMinScale(),
 				layer.getMarkerImage(), layer.getMap().getId());
@@ -142,18 +166,23 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	
 	@Override
 	public Boolean layerExists(KingdomLayer layer){
+		logger.trace("Checking if layer '{}' already exists for map {}", layer.getName(), layer.getMap().getId());
 		return layerJdbcTemplate.layerExists(layer.getName(), layer.getMap().getId());
 	}
 	
 	@Override
 	public List<KingdomLayer> getLayerList(KingdomMap map){
+		logger.trace("Retrieving layer list for map {}", map.getId());
 		return layerJdbcTemplate.getLayerList(map.getId());
 	}
 	
 	@Override
 	public boolean deleteLayer(KingdomLayer layer){
+		logger.trace("Deleting layer {}...", layer.getId());
 		boolean successFeatures;
 		boolean successLayer;
+		
+		logger.trace("	Removing all features of layer {}", layer.getId());
 		// remove all of layers features
 		if(layer.getGeometryType().equals(GeometryType.POINT) || layer.getGeometryType().equals(GeometryType.MARKER)){
 			successFeatures = vectorJdbcTemplate.deletePointsInLayer(layer.getId());
@@ -165,6 +194,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 			successFeatures = false;
 		}
 		
+		logger.trace("	Removing layer {} itself", layer.getId());
 		// remove layer itself
 		successLayer = layerJdbcTemplate.deleteLayer(layer.getId());
 		
@@ -173,6 +203,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	
 	@Override
 	public boolean updateLayers(List<KingdomLayer> layers){
+		logger.trace("Updating layer properties (user unknown)");
 		boolean success = true;
 		for(KingdomLayer layer : layers){
 			if(!(layer instanceof KingdomGridLayer)){
@@ -187,6 +218,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	
 	@Override
 	public KingdomLayer updateLayerStyle(KingdomLayer layer){
+		logger.trace("Updating layer style for layer {}", layer.getId());
 		layerJdbcTemplate.updateLayerStyle(layer.getId(), layer.getStyle(), layer.getColor(), layer.getLabelColor(), layer.getSize(), layer.getFillColor(), layer.getLabelFillColor(),
 				layer.getStrokeWidth(), layer.getFillOpacity(), layer.getStrokeOpacity(), layer.getMaxScale(), layer.getMinScale(), layer.getMarkerImage(), layer.getTextureImage());
 		
@@ -195,6 +227,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	
 	@Override
 	public boolean updateLayerName(KingdomLayer layer){
+		logger.trace("Updating layer name ('{}') for layer {}", layer.getName(), layer.getId());
 		return layerJdbcTemplate.updateLayerName(layer.getId(), layer.getName());
 	}
 	
@@ -202,6 +235,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	
 	// ===== ===== WFS-T ===== =====
 	public boolean insertMarker(String wktGeometry, String label, String description, int layerId){
+		logger.trace("Inserting marker to layer {}", layerId);
 		String wmsUrl = GeoserverSource.getWmsUrl();
 		
 		NetIO netIo = new NetIO();
@@ -290,13 +324,14 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 			}
 			
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("ERROR!", e);
 		}
 		
 		return true;
 	}
 	
 	public boolean insertLine(String wktGeometry, int layerId){
+		logger.trace("Inserting line to layer {}", layerId);
 		String wmsUrl = GeoserverSource.getWmsUrl();
 		
 		NetIO netIo = new NetIO();
@@ -328,13 +363,14 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 			}
 			
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("ERROR!", e);
 		}
 		
 		return true;
 	}
 	
 	public boolean insertPolygon(String wktGeometry, int layerId){
+		logger.trace("Inserting polygon to layer {}", layerId);
 		String wmsUrl = GeoserverSource.getWmsUrl();
 		
 		NetIO netIo = new NetIO();
@@ -366,13 +402,14 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 			}
 			
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("ERROR!", e);
 		}
 		
 		return true;
 	}
 	
 	public boolean updatePolygonGeometry(String gmlGeometry, String polygonFid){
+		logger.trace("Updating polygon geometry for polygon {}", polygonFid);
 		String wmsUrl = GeoserverSource.getWmsUrl();
 		
 		NetIO netIo = new NetIO();
@@ -406,13 +443,15 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 			}
 			
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("ERROR!", e);
 		}
 		
 		return true;
 	}
 	
 	public boolean updateFeatureInfo(KingdomLayer layer, String label, String description, String featureId){
+		logger.trace("Updating feature info for feature {}", featureId);
+		
 		String wmsUrl = GeoserverSource.getWmsUrl();
 		
 		NetIO netIo = new NetIO();
@@ -458,13 +497,14 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 			}
 			
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("ERROR!", e);
 		}
 		
 		return true;
 	}
 	
 	public boolean deletePolygon(String polygonFid){
+		logger.trace("Deleting polygon {}", polygonFid);
 		String wmsUrl = GeoserverSource.getWmsUrl();
 		
 		NetIO netIo = new NetIO();
@@ -494,7 +534,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 			}
 			
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("ERROR!", e);
 		}
 		
 		return true;
@@ -504,6 +544,8 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	
 	// ===== ===== UTIL ===== =====
 	public boolean slicePolygonGeometry(String originalPolygonWktGeometry, String intersectorWktGeometry, String polygonFid){
+		
+		logger.trace("Slicing polygon geometry for polygon {}", polygonFid);
 		
 		// get geometry difference
 		WKTReader wktReader = new WKTReader();
@@ -530,13 +572,15 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 			return false;
 			
 		}catch(ParseException e){
-			e.printStackTrace();
+			logger.error("ERROR!", e);
 		}
 		
 		return false;
 	}
 	
 	public boolean bindPolygonGeometries(List<KingdomVectorFeature> partakigFeatures, String newGeometryWkt){
+		logger.trace("Binding polygon geometries (unknown)");
+		
 		WKTReader wktReader = new WKTReader();
 		GMLWriter gmlWriter = new GMLWriter();
 		Geometry newGeometry = null;
@@ -573,7 +617,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 			return true;
 			
 		}catch(ParseException e){
-			e.printStackTrace();
+			logger.error("ERROR!", e);
 		}
 		
 		return false;
@@ -581,6 +625,9 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	
 	// info
 	public List<KingdomFeature> getFeatureInfo(KingdomLayer layer, String bbox, int width, int height, int pixelX, int pixelY){
+		
+		logger.trace("Retrieving feature info on layer {}", layer.getId());
+		
 		String wmsUrl = GeoserverSource.getWmsUrl();
 		
 		List<KingdomFeature> features = new ArrayList<KingdomFeature>();
@@ -617,7 +664,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 		try{
 			result = netIo.get(wmsUrl);
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error("ERROR!", e);
 		}
 		
 		// parse result
@@ -651,6 +698,7 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 	}
 	
 	public InitialDataPackage getInitialDataPackage(){
+		logger.trace("Retrieving initial data package (unknown user)");
 		return new InitialDataPackage(getCurrentUser(), GeoserverSource.getWmsUrl()); 
 	}
 	// =============================

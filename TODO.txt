@@ -134,6 +134,7 @@
 		[ ] harsh validation
 		[ ] add user to db
 
+[ ] Split multipolygon into separate polygons
 [ ] folder view
 [ ] feature z index
 [ ] do identify with wfs to skip geometry and make everything faster
