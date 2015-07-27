@@ -190,3 +190,4 @@
 [ ] FATAL ERROR - Failed to retrieve user info, dead...
 [ ] subtract is on, switch layer, subtract still on but not visible. user expects it to turn off
 [ ] after a bit of bondage binding geometries no longer works . "Error binding polygon geometries"; worked on another layer; tested layer was dirt road, the main geometry is probably busted or something
+[ ] can't logout if you have no maps

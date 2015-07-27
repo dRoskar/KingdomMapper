@@ -76,8 +76,6 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.Window.ClosingEvent;
-import com.google.gwt.user.client.Window.ClosingHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -1456,19 +1454,6 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			}
 		});
 		
-		// save data when window is closed
-		Window.addWindowClosingHandler(new ClosingHandler() {
-			
-			@Override
-			public void onWindowClosing(ClosingEvent event){
-				// update map state
-				updateLayersDB(display.getLayerList(), false);
-				
-				// update current view
-				updatePreviousMapView();
-			}
-		});
-		
 		// handle escape key presses
 		RootPanel.get().addDomHandler(new KeyDownHandler() {
 			
@@ -1614,19 +1599,20 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 						@Override
 						public void onSelect(SelectEvent event){
 							if(addUserDisplay.isValid()){
-								// TODO: better validation (user exists, nasty sql injections)
+								// TODO: better validation (user exists, nasty
+								// sql injections)
 								
 								// create user object
 								KingdomUser newUser = new KingdomUser(0, addUserDisplay.getUsernameField().getText(), addUserDisplay.getPasswordField().getText(), false);
 								
 								// add user to db
 								DataServiceAsync.Util.getInstance().addUser(newUser, new AsyncCallback<Integer>() {
-
+									
 									@Override
 									public void onFailure(Throwable caught){
 										KingdomInfo.showInfoPopUp("Error", "Error adding new user");
 									}
-
+									
 									@Override
 									public void onSuccess(Integer result){
 										KingdomInfo.showInfoPopUp("Success", "New user added successfully");
@@ -1655,7 +1641,40 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			
 			@Override
 			public void onSelect(SelectEvent event){
-				Window.Location.replace("j_spring_security_logout");
+				// update map state
+				DataServiceAsync.Util.getInstance().updateLayers(display.getLayerList(), new AsyncCallback<Boolean>() {
+					
+					@Override
+					public void onFailure(Throwable caught){
+						Window.Location.replace("j_spring_security_logout");
+					}
+					
+					@Override
+					public void onSuccess(Boolean result){
+						
+						// update current view
+						KingdomMap currentMap = display.getCurrentMap();
+						Bounds currentView = display.getOLMap().getExtent();
+						currentMap.setPreviousViewllx(currentView.getLowerLeftX());
+						currentMap.setPreviousViewlly(currentView.getLowerLeftY());
+						currentMap.setPreviousViewurx(currentView.getUpperRightX());
+						currentMap.setPreviousViewury(currentView.getUpperRightY());
+						currentMap.setPreviousZoomLevel(display.getOLMap().getZoom());
+						
+						DataServiceAsync.Util.getInstance().updateMapPreviousView(currentMap, new AsyncCallback<Boolean>() {
+							
+							@Override
+							public void onFailure(Throwable caught){
+								Window.Location.replace("j_spring_security_logout");
+							}
+							
+							@Override
+							public void onSuccess(Boolean result){
+								Window.Location.replace("j_spring_security_logout");
+							}
+						});
+					}
+				});
 			}
 		});
 	}
