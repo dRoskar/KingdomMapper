@@ -1,5 +1,9 @@
 package si.roskar.diploma.client.view;
 
+import org.owasp.esapi.ESAPI;
+import org.owasp.esapi.Validator;
+import org.owasp.esapi.reference.DefaultValidator;
+
 import si.roskar.diploma.client.presenter.MapPresenter.AddUserDisplay;
 
 import com.sencha.gxt.widget.core.client.ContentPanel;
@@ -103,12 +107,21 @@ public class AddUserDialog extends Window implements AddUserDisplay{
 		
 		usernameField.clearInvalid();
 		
-		if(!usernameField.isValid()){
+		
+		if(!usernameField.getText().matches("^[a-zA-Z0-9]{3,20}$") || !usernameField.isValid()){
 			isValid = false;
+			usernameField.forceInvalid("Invalid input");
 		}
-
-		if(!passwordField.isValid()){
+		else{
+			usernameField.validate();
+		}
+		
+		if(!passwordField.getText().matches("^[a-zA-Z0-9!@'\\-_]{6,60}$") || !passwordField.isValid()){
 			isValid = false;
+			passwordField.forceInvalid("Invalid input");
+		}
+		else{
+			usernameField.validate();
 		}
 		
 		return isValid;

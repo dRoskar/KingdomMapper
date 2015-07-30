@@ -115,13 +115,13 @@
 	[ ] SAFARI
 
 [?] meet Web Content accessibility Guidelines http://www.w3.org/WAI/intro/wcag
-[ ] Security
+[.] Security
 	[ ] SqlInjection
 	[ ] DDoS
 
-[ ] performance testing
-	[ ] web load testing
-	[ ] web stress testing
+[X] performance testing
+	[X] web load testing
+	[-] web stress testing
 
 ## LONG-TERM ##
 [ ] Map hyperlink. Example; user clicks on a village and a new map loads from the db, with the village only (that way you can really go into details without overloading the browser or exceeding the layer limit.
