@@ -1,10 +1,8 @@
 package si.roskar.diploma.client.view;
 
-import org.owasp.esapi.ESAPI;
-import org.owasp.esapi.Validator;
-import org.owasp.esapi.reference.DefaultValidator;
-
 import si.roskar.diploma.client.presenter.MapPresenter.AddUserDisplay;
+import si.roskar.diploma.client.util.KingdomFieldValidator;
+import si.roskar.diploma.client.util.KingdomValidation;
 
 import com.sencha.gxt.widget.core.client.ContentPanel;
 import com.sencha.gxt.widget.core.client.Window;
@@ -104,24 +102,37 @@ public class AddUserDialog extends Window implements AddUserDisplay{
 	@Override
 	public boolean isValid(){
 		boolean isValid = true;
+		KingdomValidation validation = null;
 		
 		usernameField.clearInvalid();
+		passwordField.clearInvalid();
 		
+		// if(!usernameField.getText().matches("^[a-zA-Z0-9]{3,20}$") ||
+		// !usernameField.isValid()){
+		// isValid = false;
+		// usernameField.forceInvalid("Invalid input");
+		// }
+		//
+		// if(!passwordField.getText().matches("^[a-zA-Z0-9!@'\\-_]{6,60}$") ||
+		// !passwordField.isValid()){
+		// isValid = false;
+		// passwordField.forceInvalid("Invalid input");
+		// }
 		
-		if(!usernameField.getText().matches("^[a-zA-Z0-9]{3,20}$") || !usernameField.isValid()){
+		// username
+		validation = KingdomFieldValidator.validate(usernameField.getText(), KingdomFieldValidator.TYPE_USERNAME, true);
+		
+		if(!validation.isValid()){
 			isValid = false;
-			usernameField.forceInvalid("Invalid input");
-		}
-		else{
-			usernameField.validate();
+			usernameField.forceInvalid(validation.getInvalidMessage());
 		}
 		
-		if(!passwordField.getText().matches("^[a-zA-Z0-9!@'\\-_]{6,60}$") || !passwordField.isValid()){
+		// password
+		validation = KingdomFieldValidator.validate(passwordField.getText(), KingdomFieldValidator.TYPE_PASSWORD, true);
+		
+		if(!validation.isValid()){
 			isValid = false;
-			passwordField.forceInvalid("Invalid input");
-		}
-		else{
-			usernameField.validate();
+			passwordField.forceInvalid(validation.getInvalidMessage());
 		}
 		
 		return isValid;
