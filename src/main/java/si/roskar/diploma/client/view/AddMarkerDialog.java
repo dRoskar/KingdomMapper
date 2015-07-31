@@ -135,7 +135,7 @@ public class AddMarkerDialog extends Window implements AddMarkerDisplay{
 		}
 		
 		// description
-		validation = KingdomFieldValidator.validate(description.getText(), KingdomFieldValidator.TYPE_DESCRIPTION, true);
+		validation = KingdomFieldValidator.validate(description.getText(), KingdomFieldValidator.TYPE_DESCRIPTION, false);
 		
 		if(!validation.isValid()){
 			isValid = false;
