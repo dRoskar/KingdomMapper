@@ -16,8 +16,8 @@ import si.roskar.diploma.shared.KingdomUser;
 import si.roskar.diploma.shared.UserHash;
 
 public class UserJDBCTemplate{
-	private DataSource dataSource = null;
-	private JdbcTemplate jdbcTemplateObject = null;
+	private DataSource		dataSource			= null;
+	private JdbcTemplate	jdbcTemplateObject	= null;
 	
 	public DataSource getDataSource(){
 		return dataSource;
@@ -27,7 +27,7 @@ public class UserJDBCTemplate{
 		this.dataSource = dataSource;
 		this.jdbcTemplateObject = new JdbcTemplate(dataSource);
 	}
-
+	
 	public int insert(final String username, final String password, final boolean isAdmin){
 		
 		final String SQL = "INSERT INTO \"User\"(name, password, is_admin) VALUES (?, ?, ?)";
@@ -36,7 +36,7 @@ public class UserJDBCTemplate{
 			
 			@Override
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException{
-				final PreparedStatement ps = connection.prepareStatement(SQL, new String[] {"id"});
+				final PreparedStatement ps = connection.prepareStatement(SQL, new String[] { "id" });
 				
 				ps.setString(1, username);
 				ps.setString(2, password);
@@ -53,16 +53,16 @@ public class UserJDBCTemplate{
 		return keyHolder.getKey().intValue();
 	}
 	
-	public KingdomUser getUserByName(String username){
+	public List<KingdomUser> getUserByName(String username){
 		final String SQL = "SELECT * FROM \"User\" WHERE name = ?";
 		
-		return jdbcTemplateObject.queryForObject(SQL, new Object[]{username}, new UserDataMapper());
+		return jdbcTemplateObject.query(SQL, new UserDataMapper(), username);
 	}
 	
 	public String getUserHash(String username){
-		final String SQL = "SELECT password FROM \"User\" WHERE name='" + username + "'";
+		final String SQL = "SELECT password FROM \"User\" WHERE name = ?";
 		
-		List<UserHash> hashes = jdbcTemplateObject.query(SQL, new UserHashMapper());
+		List<UserHash> hashes = jdbcTemplateObject.query(SQL, new UserHashMapper(), username);
 		
 		if(!hashes.isEmpty()){
 			return hashes.get(0).getHash();

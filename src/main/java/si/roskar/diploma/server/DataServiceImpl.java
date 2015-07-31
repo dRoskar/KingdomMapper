@@ -82,11 +82,11 @@ public class DataServiceImpl extends RemoteServiceServlet implements DataService
 			logger.warn("SecurityContextHolder returned username = null");
 		}
 		
-		KingdomUser user = userJdbcTemplate.getUserByName(username);
+		List<KingdomUser> users = userJdbcTemplate.getUserByName(username);
 		
-		if(user != null){
-			logger.info("Retrieved info for user '{}'.", user.getName());
-			return user;
+		if(!users.isEmpty()){
+			logger.info("Retrieved info for user '{}'.", users.get(0).getName());
+			return users.get(0);
 		}
 
 		logger.warn("Failed to return user (returned = null)!");
