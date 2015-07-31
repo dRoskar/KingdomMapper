@@ -34,7 +34,6 @@ public class LayerJDBCTemplate{
 			final double minScale, final String markerImage, final int mapId){
 		// escape unicode
 		final String encodedName = Tools.encodeToNumericCharacterReference(name);
-		final String visibilityString = visibility == true ? "TRUE" : "FALSE";
 		
 		final String SQL = "INSERT INTO \"Layer\"(name, style, opacity, visibility, geometry_type, z_index, color, label_color, size, fill_color, label_fill_color, stroke_width, stroke_opacity, fill_opacity, maxscale, minscale, marker_image, map_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		
@@ -47,7 +46,7 @@ public class LayerJDBCTemplate{
 				ps.setString(1, encodedName);
 				ps.setString(2, style);
 				ps.setFloat(3, opacity);
-				ps.setString(4, visibilityString);
+				ps.setBoolean(4, visibility);
 				ps.setString(5, geometryType.getGeometryName());
 				ps.setInt(6, zIndex);
 				ps.setString(7, color);
@@ -108,9 +107,8 @@ public class LayerJDBCTemplate{
 	}
 	
 	public boolean updateLayerState(int layerId, boolean visibility, int zIndex, float opacity){
-		String visibilityString = visibility == true ? "TRUE" : "FALSE";
 		String SQL = "UPDATE \"Layer\" SET visibility = ?, z_index = ?, opacity = ? WHERE id = ?";
-		jdbcTemplateObject.update(SQL, visibilityString, zIndex, opacity, layerId);
+		jdbcTemplateObject.update(SQL, visibility, zIndex, opacity, layerId);
 		
 		return true;
 	}
