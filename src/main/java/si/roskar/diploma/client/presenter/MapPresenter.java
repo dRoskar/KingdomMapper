@@ -354,6 +354,8 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 		TextButton getSaveButton();
 		
 		TextButton getCloseButton();
+		
+		boolean isValid();
 	}
 	
 	public interface AddUserDisplay extends View{
@@ -1751,37 +1753,42 @@ public class MapPresenter extends PresenterImpl<MapPresenter.Display>{
 			
 			@Override
 			public void onSelect(SelectEvent event){
-				KingdomInfo.showLoadingBar("Updating", "Updating feature info", "updating...");
-				
-				// save new feature info
-				feature.setLabel(editFeatureDisplay.getLabelField().getText());
-				feature.setDescription(editFeatureDisplay.getDescriptionArea().getText());
-				
-				// update feature info
-				DataServiceAsync.Util.getInstance().updateFeatureInfo(display.getCurrentLayer(), feature.getLabel(), feature.getDescription(), feature.getFeatureId(), new AsyncCallback<Boolean>() {
+				// validate
+				if(editFeatureDisplay.isValid()){
 					
-					@Override
-					public void onFailure(Throwable caught){
-						KingdomInfo.showInfoPopUp("Error", "Error updating feature info");
-						KingdomInfo.hideLoadingBar();
-					}
+					KingdomInfo.showLoadingBar("Updating", "Updating feature info", "updating...");
 					
-					@Override
-					public void onSuccess(Boolean result){
-						if(result){
-							KingdomInfo.showInfoPopUp("Success", "Feature info successfully updated");
-							editFeatureDisplay.hide();
-							KingdomInfo.hideLoadingBar();
-							
-							// refresh layer
-							display.getCurrentOLWmsLayer().redraw();
-						}else{
-							KingdomInfo.showInfoPopUp("Error", "Error updating feature info");
-							editFeatureDisplay.hide();
-							KingdomInfo.hideLoadingBar();
-						}
-					}
-				});
+					// save new feature info
+					feature.setLabel(editFeatureDisplay.getLabelField().getText());
+					feature.setDescription(editFeatureDisplay.getDescriptionArea().getText());
+					
+					// update feature info
+					DataServiceAsync.Util.getInstance().updateFeatureInfo(display.getCurrentLayer(), feature.getLabel(), feature.getDescription(), feature.getFeatureId(),
+							new AsyncCallback<Boolean>() {
+								
+								@Override
+								public void onFailure(Throwable caught){
+									KingdomInfo.showInfoPopUp("Error", "Error updating feature info");
+									KingdomInfo.hideLoadingBar();
+								}
+								
+								@Override
+								public void onSuccess(Boolean result){
+									if(result){
+										KingdomInfo.showInfoPopUp("Success", "Feature info successfully updated");
+										editFeatureDisplay.hide();
+										KingdomInfo.hideLoadingBar();
+										
+										// refresh layer
+										display.getCurrentOLWmsLayer().redraw();
+									}else{
+										KingdomInfo.showInfoPopUp("Error", "Error updating feature info");
+										editFeatureDisplay.hide();
+										KingdomInfo.hideLoadingBar();
+									}
+								}
+							});
+				}
 			}
 		});
 		

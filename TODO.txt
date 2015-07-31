@@ -119,6 +119,16 @@
 	[ ] SqlInjection
 	[ ] DDoS
 
+[.] field validation
+	[X] add user
+	[X] new map
+	[X] new layer
+	[X] rename map
+	[X] rename layer
+	[X] info - object name
+	[X] info - object description
+	[X] add marker
+	
 [X] performance testing
 	[X] web load testing
 	[-] web stress testing

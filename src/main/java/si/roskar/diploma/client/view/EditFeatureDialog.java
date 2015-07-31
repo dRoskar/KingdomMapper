@@ -1,6 +1,8 @@
 package si.roskar.diploma.client.view;
 
 import si.roskar.diploma.client.presenter.MapPresenter.EditFeatureDisplay;
+import si.roskar.diploma.client.util.KingdomFieldValidator;
+import si.roskar.diploma.client.util.KingdomValidation;
 import si.roskar.diploma.shared.KingdomFeature;
 
 import com.sencha.gxt.widget.core.client.ContentPanel;
@@ -84,5 +86,32 @@ public class EditFeatureDialog extends Window implements EditFeatureDisplay{
 	@Override
 	public TextButton getCloseButton(){
 		return closeButton;
+	}
+	
+	@Override
+	public boolean isValid(){
+		boolean isValid = true;
+		KingdomValidation validation = null;
+		
+		label.clearInvalid();
+		description.clearInvalid();
+		
+		// label
+		validation = KingdomFieldValidator.validate(label.getText(), KingdomFieldValidator.TYPE_LABEL, true);
+		
+		if(!validation.isValid()){
+			isValid = false;
+			label.forceInvalid(validation.getInvalidMessage());
+		}
+		
+		// description
+		validation = KingdomFieldValidator.validate(description.getText(), KingdomFieldValidator.TYPE_DESCRIPTION, false);
+		
+		if(!validation.isValid()){
+			isValid = false;
+			description.forceInvalid(validation.getInvalidMessage());
+		}
+		
+		return isValid;
 	}
 }

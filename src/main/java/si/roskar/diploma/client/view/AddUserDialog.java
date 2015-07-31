@@ -107,18 +107,6 @@ public class AddUserDialog extends Window implements AddUserDisplay{
 		usernameField.clearInvalid();
 		passwordField.clearInvalid();
 		
-		// if(!usernameField.getText().matches("^[a-zA-Z0-9]{3,20}$") ||
-		// !usernameField.isValid()){
-		// isValid = false;
-		// usernameField.forceInvalid("Invalid input");
-		// }
-		//
-		// if(!passwordField.getText().matches("^[a-zA-Z0-9!@'\\-_]{6,60}$") ||
-		// !passwordField.isValid()){
-		// isValid = false;
-		// passwordField.forceInvalid("Invalid input");
-		// }
-		
 		// username
 		validation = KingdomFieldValidator.validate(usernameField.getText(), KingdomFieldValidator.TYPE_USERNAME, true);
 		

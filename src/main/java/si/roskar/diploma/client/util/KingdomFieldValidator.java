@@ -6,6 +6,7 @@ public class KingdomFieldValidator{
 	public final static String	TYPE_USERNAME				= "username";
 	public final static String	TYPE_PASSWORD				= "password";
 	public final static String	TYPE_OBJECT_NAME			= "objectName";
+	public final static String	TYPE_LABEL					= "description";
 	public final static String	TYPE_DESCRIPTION			= "description";
 	
 	// default length limits
@@ -15,14 +16,17 @@ public class KingdomFieldValidator{
 	private final static int	defaultPasswordMaxLength	= 60;
 	private final static int	defaultObjectNameMinLength	= 3;
 	private final static int	defaultObjectNameMaxLength	= 30;
+	private final static int	defaultLabelMinLength		= 1;
+	private final static int	defaultLabelMaxLength		= 100;
 	private final static int	defaultDescriptionMinLength	= 3;
 	private final static int	defaultDescriptionMaxLength	= 4000;
 	
 	// regex
 	private final static String	REGEX_USERNAME				= "^[a-zA-Z0-9]+$";
-	private final static String	REGEX_PASSWORD				= "^[a-zA-Z0-9!@'\\-\\?\\*\\./_#]+$";
-	private final static String	REGEX_OBJECT_NAME			= "^[a-zA-Z0-9_\\-]+$";
-	private final static String	REGEX_DESCRIPTION			= "^[a-zA-Z0-9!@'\\-\\?\\*\\.\\\\\\&\\|\\+\\(\\)\\[\\]\\{\\}\\$€=#,/_]+$";
+	private final static String	REGEX_PASSWORD				= "^[a-zA-Z0-9ŠĐČĆŽšđčćž !@'\\-\\?\\*\\./_#]+$";
+	private final static String	REGEX_OBJECT_NAME			= "^[a-zA-Z0-9ŠĐČĆŽšđčćž _\\-]+$";
+	private final static String	REGEX_LABEL					= "^[a-zA-Z0-9ŠĐČĆŽšđčćž !@'\\-\\?\\*\\.\\\\\\&\\|\\+\\(\\)\\[\\]\\{\\}\\$€=#,/_:;]+$";
+	private final static String	REGEX_DESCRIPTION			= "^[a-zA-Z0-9ŠĐČĆŽšđčćž !@'\\-\\?\\*\\.\\\\\\&\\|\\+\\(\\)\\[\\]\\{\\}\\$€=#,/_:;]+$";
 	
 	// messages
 	private final static String	TOO_SHORT					= "Value needs to be at least %d characters long";
@@ -46,6 +50,8 @@ public class KingdomFieldValidator{
 			return _validate(input, type, defaultPasswordMinLength, defaultPasswordMaxLength, notNull);
 		}else if(type.equals(TYPE_OBJECT_NAME)){
 			return _validate(input, type, defaultObjectNameMinLength, defaultObjectNameMaxLength, notNull);
+		}else if(type.equals(TYPE_LABEL)){
+			return _validate(input, type, defaultLabelMinLength, defaultLabelMaxLength, notNull);
 		}else if(type.equals(TYPE_DESCRIPTION)){
 			return _validate(input, type, defaultDescriptionMinLength, defaultDescriptionMaxLength, notNull);
 		}
@@ -90,6 +96,12 @@ public class KingdomFieldValidator{
 			}
 		}else if(type.equals(TYPE_OBJECT_NAME)){
 			if(input.matches(REGEX_OBJECT_NAME)){
+				return new KingdomValidation(true, "");
+			}else{
+				return new KingdomValidation(false, INVALID_CHARS);
+			}
+		}else if(type.equals(TYPE_LABEL)){
+			if(input.matches(REGEX_LABEL)){
 				return new KingdomValidation(true, "");
 			}else{
 				return new KingdomValidation(false, INVALID_CHARS);

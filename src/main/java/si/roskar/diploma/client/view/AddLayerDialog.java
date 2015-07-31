@@ -2,6 +2,8 @@ package si.roskar.diploma.client.view;
 
 import si.roskar.diploma.client.presenter.LayerPresenter.AddLayerDisplay;
 import si.roskar.diploma.client.resources.Resources;
+import si.roskar.diploma.client.util.KingdomFieldValidator;
+import si.roskar.diploma.client.util.KingdomValidation;
 import si.roskar.diploma.shared.GeometryType;
 
 import com.sencha.gxt.core.client.util.ToggleGroup;
@@ -160,11 +162,15 @@ public class AddLayerDialog extends Window implements AddLayerDisplay{
 	@Override
 	public boolean isValid(){
 		boolean isValid = true;
+		KingdomValidation validation = null;
 		
 		name.clearInvalid();
 		
-		if(!name.isValid()){
+		validation = KingdomFieldValidator.validate(name.getText(), KingdomFieldValidator.TYPE_OBJECT_NAME, true);
+		
+		if(!validation.isValid()){
 			isValid = false;
+			name.forceInvalid(validation.getInvalidMessage());
 		}
 		
 		// if none of the buttons are depressed

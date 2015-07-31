@@ -25,7 +25,9 @@ import si.roskar.diploma.client.event.EventSortLayerTree;
 import si.roskar.diploma.client.event.EventSortLayerTree.EventSortLayerTreeHandler;
 import si.roskar.diploma.client.event.EventUILoaded;
 import si.roskar.diploma.client.event.EventUILoaded.EventUILoadedHandler;
+import si.roskar.diploma.client.util.KingdomFieldValidator;
 import si.roskar.diploma.client.util.KingdomInfo;
+import si.roskar.diploma.client.util.KingdomValidation;
 import si.roskar.diploma.client.view.AddLayerDialog;
 import si.roskar.diploma.client.view.ExistingMapsWindow;
 import si.roskar.diploma.client.view.NewMapDialog;
@@ -388,7 +390,9 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 											public void onDialogHide(DialogHideEvent event){
 												if(event.getHideButton().equals(PredefinedButton.OK)){
 													// validate
-													if(messageBox.getValue() != ""){
+													KingdomValidation validation = KingdomFieldValidator.validate(messageBox.getValue(), KingdomFieldValidator.TYPE_OBJECT_NAME, true);
+													
+													if(validation.isValid()){
 														// rename the layer
 														KingdomInfo.showLoadingBar("Renaming", "Renaming map", "renaming...");
 														
@@ -438,7 +442,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 															}
 														});
 													}else{
-														KingdomInfo.showInfoPopUp("Info",  "Invalid name");
+														KingdomInfo.showInfoPopUp("Info",  validation.getInvalidMessage());
 													}
 												}
 											}
@@ -730,7 +734,9 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 						public void onDialogHide(DialogHideEvent event){
 							if(event.getHideButton().equals(PredefinedButton.OK)){
 								// validate
-								if(messageBox.getValue() != ""){
+								KingdomValidation validation = KingdomFieldValidator.validate(messageBox.getValue(), KingdomFieldValidator.TYPE_OBJECT_NAME, true);
+								
+								if(validation.isValid()){
 									KingdomInfo.showLoadingBar("Renaming", "Renaming layer", "renaming...");
 									
 									// rename the layer
@@ -774,7 +780,7 @@ public class LayerPresenter extends PresenterImpl<LayerPresenter.Display>{
 										}
 									});
 								}else{
-									KingdomInfo.showInfoPopUp("Info", "Invalid layer name");
+									KingdomInfo.showInfoPopUp("Info", validation.getInvalidMessage());
 								}
 							}
 						}

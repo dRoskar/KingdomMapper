@@ -1,6 +1,8 @@
 package si.roskar.diploma.client.view;
 
 import si.roskar.diploma.client.presenter.LayerPresenter.NewMapDisplay;
+import si.roskar.diploma.client.util.KingdomFieldValidator;
+import si.roskar.diploma.client.util.KingdomValidation;
 
 import com.sencha.gxt.widget.core.client.ContentPanel;
 import com.sencha.gxt.widget.core.client.Window;
@@ -13,10 +15,10 @@ import com.sencha.gxt.widget.core.client.form.TextField;
 
 public class NewMapDialog extends Window implements NewMapDisplay{
 	
-	private TextField		name			= null;
-	private TextButton		saveButton		= null;
-	private TextButton		cancelButton	= null;
-	private boolean			isBound			= false;
+	private TextField	name			= null;
+	private TextButton	saveButton		= null;
+	private TextButton	cancelButton	= null;
+	private boolean		isBound			= false;
 	
 	public NewMapDialog(){
 		super();
@@ -93,12 +95,18 @@ public class NewMapDialog extends Window implements NewMapDisplay{
 	
 	@Override
 	public boolean isValid(){
+		boolean isValid = true;
+		KingdomValidation validation = null;
+		
 		name.clearInvalid();
 		
-		if(name.isValid()){
-			return true;
+		validation = KingdomFieldValidator.validate(name.getText(), KingdomFieldValidator.TYPE_OBJECT_NAME, true);
+		
+		if(!validation.isValid()){
+			isValid = false;
+			name.forceInvalid(validation.getInvalidMessage());
 		}
 		
-		return false;
+		return isValid;
 	}
 }

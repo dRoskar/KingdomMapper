@@ -1,6 +1,8 @@
 package si.roskar.diploma.client.view;
 
 import si.roskar.diploma.client.presenter.MapPresenter.AddMarkerDisplay;
+import si.roskar.diploma.client.util.KingdomFieldValidator;
+import si.roskar.diploma.client.util.KingdomValidation;
 
 import com.sencha.gxt.widget.core.client.ContentPanel;
 import com.sencha.gxt.widget.core.client.Window;
@@ -107,11 +109,6 @@ public class AddMarkerDialog extends Window implements AddMarkerDisplay{
 	}
 	
 	@Override
-	public boolean isValid(){
-		return label.isValid();
-	}
-	
-	@Override
 	public void setGeometry(String wktGeometry){
 		this.wktGeometry = wktGeometry;
 	}
@@ -119,5 +116,32 @@ public class AddMarkerDialog extends Window implements AddMarkerDisplay{
 	@Override
 	public String getGeometry(){
 		return wktGeometry;
+	}
+	
+	@Override
+	public boolean isValid(){
+		boolean isValid = true;
+		KingdomValidation validation = null;
+		
+		label.clearInvalid();
+		description.clearInvalid();
+		
+		// label
+		validation = KingdomFieldValidator.validate(label.getText(), KingdomFieldValidator.TYPE_LABEL, true);
+		
+		if(!validation.isValid()){
+			isValid = false;
+			label.forceInvalid(validation.getInvalidMessage());
+		}
+		
+		// description
+		validation = KingdomFieldValidator.validate(description.getText(), KingdomFieldValidator.TYPE_DESCRIPTION, true);
+		
+		if(!validation.isValid()){
+			isValid = false;
+			description.forceInvalid(validation.getInvalidMessage());
+		}
+		
+		return isValid;
 	}
 }
