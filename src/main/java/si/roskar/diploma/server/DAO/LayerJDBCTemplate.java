@@ -29,25 +29,47 @@ public class LayerJDBCTemplate{
 		this.jdbcTemplateObject = new JdbcTemplate(dataSource);
 	}
 	
-	public int insert(String name, String style, float opacity, boolean visibility, GeometryType geometryType, int zIndex, String color, String labelColor, int size, String fillColor, String labelFillColor, int strokeWidth, double strokeOpacity, double fillOpacity, double maxScale, double minScale, String markerImage, int mapId){
+	public int insert(String name, final String style, final float opacity, final boolean visibility, final GeometryType geometryType, final int zIndex, final String color, final String labelColor,
+			final int size, final String fillColor, final String labelFillColor, final int strokeWidth, final double strokeOpacity, final double fillOpacity, final double maxScale,
+			final double minScale, final String markerImage, final int mapId){
 		// escape unicode
-		name = Tools.encodeToNumericCharacterReference(name);
+		final String encodedName = Tools.encodeToNumericCharacterReference(name);
+		final String visibilityString = visibility == true ? "TRUE" : "FALSE";
 		
-		// escape apostrophes
-		name = name.replace("'", "''");
+		final String SQL = "INSERT INTO \"Layer\"(name, style, opacity, visibility, geometry_type, z_index, color, label_color, size, fill_color, label_fill_color, stroke_width, stroke_opacity, fill_opacity, maxscale, minscale, marker_image, map_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		
-		String visibilityString = visibility == true ? "TRUE" : "FALSE";
-		final String SQL = "INSERT INTO \"Layer\"(name, style, opacity, visibility, geometry_type, z_index, color, label_color, size, fill_color, label_fill_color, stroke_width, stroke_opacity, fill_opacity, maxscale, minscale, marker_image, map_id) VALUES ('" + name + "', '" + style + "', " + opacity +  ", " + visibilityString + ", '"
-				+ geometryType.getGeometryName() + "', " + zIndex + ", '" + color + "', '" + labelColor + "', " + size + ", '" + fillColor + "', '" + labelFillColor + "', " + strokeWidth + ", " + strokeOpacity + ", " + fillOpacity + ", " + maxScale + ", " + minScale + ", '" + markerImage + "', " + mapId + ")";
-		KeyHolder keyHolder = new GeneratedKeyHolder();
-		
-		jdbcTemplateObject.update(new PreparedStatementCreator() {
+		final PreparedStatementCreator psc = new PreparedStatementCreator() {
 			
 			@Override
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException{
-				return connection.prepareStatement(SQL, new String[] { "id" });
+				final PreparedStatement ps = connection.prepareStatement(SQL, new String[] { "id" });
+				
+				ps.setString(1, encodedName);
+				ps.setString(2, style);
+				ps.setFloat(3, opacity);
+				ps.setString(4, visibilityString);
+				ps.setString(5, geometryType.getGeometryName());
+				ps.setInt(6, zIndex);
+				ps.setString(7, color);
+				ps.setString(8, labelColor);
+				ps.setInt(9, size);
+				ps.setString(10, fillColor);
+				ps.setString(11, labelFillColor);
+				ps.setInt(12, strokeWidth);
+				ps.setDouble(13, strokeOpacity);
+				ps.setDouble(14, fillOpacity);
+				ps.setDouble(15, maxScale);
+				ps.setDouble(16, minScale);
+				ps.setString(17, markerImage);
+				ps.setInt(18, mapId);
+				
+				return ps;
 			}
-		}, keyHolder);
+		};
+		
+		final KeyHolder keyHolder = new GeneratedKeyHolder();
+		
+		jdbcTemplateObject.update(psc, keyHolder);
 		
 		return keyHolder.getKey().intValue();
 	}
@@ -60,9 +82,9 @@ public class LayerJDBCTemplate{
 		// escape apostrophes
 		name = name.replace("'", "''");
 		
-		final String SQL = "SELECT * FROM \"Layer\" WHERE map_id=" + mapId + " AND name='" + name + "'";
+		final String SQL = "SELECT * FROM \"Layer\" WHERE map_id = ? AND name = ?";
 		
-		List<KingdomLayer> layers = jdbcTemplateObject.query(SQL, new LayerDataMapper());
+		List<KingdomLayer> layers = jdbcTemplateObject.query(SQL, new LayerDataMapper(), mapId, name);
 		
 		if(layers.isEmpty()){
 			return false;
@@ -72,23 +94,23 @@ public class LayerJDBCTemplate{
 	}
 	
 	public List<KingdomLayer> getLayerList(int mapId){
-		final String SQL = "SELECT * FROM \"Layer\" WHERE map_id=" + mapId;
+		final String SQL = "SELECT * FROM \"Layer\" WHERE map_id = ?";
 		
-		return jdbcTemplateObject.query(SQL, new LayerDataMapper());
+		return jdbcTemplateObject.query(SQL, new LayerDataMapper(), mapId);
 	}
 	
 	public boolean deleteLayer(int layerId){
-		final String SQL = "DELETE FROM \"Layer\" where id = " + layerId;
+		final String SQL = "DELETE FROM \"Layer\" where id = ?";
 		
-		jdbcTemplateObject.update(SQL);
+		jdbcTemplateObject.update(SQL, layerId);
 		
 		return true;
 	}
 	
 	public boolean updateLayerState(int layerId, boolean visibility, int zIndex, float opacity){
 		String visibilityString = visibility == true ? "TRUE" : "FALSE";
-		String SQL = "UPDATE \"Layer\" SET visibility = " + visibilityString + ", z_index = " + zIndex + ", opacity = " + opacity + " WHERE id = " + layerId;
-		jdbcTemplateObject.update(SQL);
+		String SQL = "UPDATE \"Layer\" SET visibility = ?, z_index = ?, opacity = ? WHERE id = ?";
+		jdbcTemplateObject.update(SQL, visibilityString, zIndex, opacity, layerId);
 		
 		return true;
 	}
@@ -96,25 +118,24 @@ public class LayerJDBCTemplate{
 	public boolean updateLayerName(int layerId, String name){
 		// escape unicode
 		name = Tools.encodeToNumericCharacterReference(name);
-				
-		// escape apostrophes
-		name = name.replace("'", "''");
-				
-		String SQL = "UPDATE \"Layer\" SET name = '" + name + "' WHERE id = " + layerId;
-		jdbcTemplateObject.update(SQL);
+		
+		String SQL = "UPDATE \"Layer\" SET name = ? WHERE id = ?";
+		jdbcTemplateObject.update(SQL, name, layerId);
 		
 		return true;
 	}
 	
-	public boolean updateLayerStyle(int layerId, String style, String color, String labelColor, int size, String fillColor, String labelFillColor, int strokeWidth, double fillOpacity, double strokeOpacity, double maxScale, double minScale, String markerImage, String textureImage){
+	public boolean updateLayerStyle(int layerId, String style, String color, String labelColor, int size, String fillColor, String labelFillColor, int strokeWidth, double fillOpacity,
+			double strokeOpacity, double maxScale, double minScale, String markerImage, String textureImage){
 		style = style == null ? "" : style;
 		color = color == null ? "" : color;
 		labelColor = labelColor == null ? "" : labelColor;
-		fillColor = fillColor == null ? "" : fillColor;	
+		fillColor = fillColor == null ? "" : fillColor;
 		labelFillColor = labelFillColor == null ? "" : labelFillColor;
 		
-		String SQL = "UPDATE \"Layer\" SET style = '" + style + "', color = '" + color + "', label_color = '" + labelColor + "', size = " + size + ", fill_color = '" + fillColor + "', label_fill_color = '" + labelFillColor + "', stroke_width = " + strokeWidth + ", fill_opacity = " + fillOpacity + ", stroke_opacity = " + strokeOpacity + ", maxscale = " + maxScale + ", minscale = " + minScale + ", marker_image = '" + markerImage + "', texture_image = '" + textureImage + "' WHERE id = " + layerId;
-		jdbcTemplateObject.update(SQL);
+		String SQL = "UPDATE \"Layer\" SET style = ?, color = ?, label_color = ?, size = ?, fill_color = ?, label_fill_color = ?, stroke_width = ?, fill_opacity = ?, stroke_opacity = ?, maxscale = ?, minscale = ?, marker_image = ?, texture_image = ? WHERE id = ?";
+		
+		jdbcTemplateObject.update(SQL, style, color, labelColor, size, fillColor, labelFillColor, strokeWidth, fillOpacity, strokeOpacity, maxScale, minScale, markerImage, textureImage, layerId);
 		
 		return true;
 	}
