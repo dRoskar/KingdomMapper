@@ -28,25 +28,35 @@ public class UserJDBCTemplate{
 		this.jdbcTemplateObject = new JdbcTemplate(dataSource);
 	}
 
-	public int insert(String username, String password, boolean isAdmin){
-		final String SQL = "INSERT INTO \"User\"(name, password, is_admin) VALUES ('" + username + "', '" + password + "' ," + isAdmin + ")";
-		KeyHolder keyHolder = new GeneratedKeyHolder();
+	public int insert(final String username, final String password, final boolean isAdmin){
 		
-		jdbcTemplateObject.update(new PreparedStatementCreator() {
+		final String SQL = "INSERT INTO \"User\"(name, password, is_admin) VALUES (?, ?, ?)";
+		
+		final PreparedStatementCreator psc = new PreparedStatementCreator() {
 			
 			@Override
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException{
-				return connection.prepareStatement(SQL, new String[] {"id"});
+				final PreparedStatement ps = connection.prepareStatement(SQL, new String[] {"id"});
+				
+				ps.setString(1, username);
+				ps.setString(2, password);
+				ps.setBoolean(3, isAdmin);
+				
+				return ps;
 			}
-		}, keyHolder);
+		};
+		
+		final KeyHolder keyHolder = new GeneratedKeyHolder();
+		
+		jdbcTemplateObject.update(psc, keyHolder);
 		
 		return keyHolder.getKey().intValue();
 	}
 	
-	public List<KingdomUser> getUserByName(String username){
-		final String SQL = "SELECT * FROM \"User\" WHERE name='" + username + "'";
+	public KingdomUser getUserByName(String username){
+		final String SQL = "SELECT * FROM \"User\" WHERE name = ?";
 		
-		return jdbcTemplateObject.query(SQL, new UserDataMapper());
+		return jdbcTemplateObject.queryForObject(SQL, new Object[]{username}, new UserDataMapper());
 	}
 	
 	public String getUserHash(String username){
@@ -62,16 +72,16 @@ public class UserJDBCTemplate{
 	}
 	
 	public boolean setUserLastMap(int lastMapId, int userId){
-		final String SQL = "UPDATE \"User\" SET last_map = '" + lastMapId + "' WHERE id = " + userId;
+		final String SQL = "UPDATE \"User\" SET last_map = ? WHERE id = ?";
 		
-		jdbcTemplateObject.update(SQL);
+		jdbcTemplateObject.update(SQL, lastMapId, userId);
 		
 		return true;
 	}
 	
 	public boolean isAdmin(String username){
-		final String SQL = "SELECT is_admin FROM \"User\" WHERE name = '" + username + "'";
-		List<Boolean> results = jdbcTemplateObject.queryForList(SQL, Boolean.class);
+		final String SQL = "SELECT is_admin FROM \"User\" WHERE name = ?";
+		List<Boolean> results = jdbcTemplateObject.queryForList(SQL, Boolean.class, username);
 		
 		if(results.size() < 1){
 			return false;
